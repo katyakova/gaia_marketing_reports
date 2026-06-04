@@ -850,13 +850,13 @@ function renderLaunchHeader(d) {
 /* ════════════════════════════════════════
    KPI GRID
 ════════════════════════════════════════ */
-function renderKPIs(T, CRM) {
+function renderKPIs(T, CRM, campaignsCount) {
   const items = [
     {
       label: 'Target',
       value: T.target.toLocaleString(),
       color: 'k-black',
-      sub: `${d_campaigns_count} campaigns`
+      sub: `${campaignsCount} campaigns`   // ← исправлено
     },
     {
       label: 'Meta Accepted',
@@ -901,9 +901,6 @@ function renderKPIs(T, CRM) {
       sub: `${fmt(pct(CRM.opt_out, CRM.total))} of leads`
     },
   ];
-
-  // сохраняем campaigns count для использования выше
-  window.d_campaigns_count = window._currentCampaignsCount || '—';
 
   document.getElementById('kpi-grid').innerHTML = items.map(k => `
     <div class="kpi ${k.color}">
