@@ -1,0 +1,61 @@
+{
+  "period": "04–06 May 2026",
+  "week_label": "W1",
+  "week_num": 1,
+  "is_partial": true,
+
+  "leads": {
+    "total": 17,
+    "by_source": {
+      "facebook": 7,
+      "whatsapp_inbound": 1,
+      "call": 2,
+      "instagram": 2,
+      "existing_duplicate": 4,
+      "other": 1
+    },
+    "new": 4,
+    "qualified": 1,
+    "in_communication": 2,
+    "follow_up": 4,
+    "prospect_lost": 2,
+    "junk": 4,
+    "owner_sell": 0,
+    "future_fu": 0
+  },
+
+  "meta": {
+    "spend_aed": 0,
+    "impressions": 0,
+    "link_clicks": 0,
+    "leads_form": 0,
+    "cpl_aed": 0,
+    "top_campaign": "—",
+    "note": "Нет данных по Meta за этот период"
+  },
+
+  "smm": {
+    "reach": 2100,
+    "views": 1800,
+    "interactions": 45,
+    "link_clicks": 12,
+    "follows": 3,
+    "profile_visits": 58
+  },
+
+  "whatsapp_outreach": {
+    "campaigns": [],
+    "contacts_sent": 0,
+    "replied": 0,
+    "in_communication": 0,
+    "prospect_lost": 0,
+    "opt_out": 0
+  },
+
+  "insights": {
+    "general": "Частичная неделя (3 дня). Преимущественно входящие Facebook лиды. Запуск работы команды.",
+    "meta": "Meta реклама ещё не запущена.",
+    "smm": "Базовые показатели Instagram.",
+    "leads": "1 Qualified лид (Jarrod Northey — звонок с Property Finder). Несколько дублей и входящие WA."
+  }
+}
