@@ -459,7 +459,21 @@
     </div>
     <div class="kpi-grid" id="kpi-grid"></div>
 
-    <!-- ② FUNNEL + CHARTS -->
+    <!-- ② CRM PIPELINE — перемещено сюда -->
+    <div class="sec-head">
+      <div class="sec-icon">🎯</div>
+      <div class="sec-title">CRM Pipeline</div>
+    </div>
+    <div class="pipeline-card">
+      <div style="font-family:var(--font-secondary);
+                  font-size:12px;color:var(--text-muted);">
+        Computed from <code>crm_leads</code> in JSON —
+        updated automatically when you add new leads
+      </div>
+      <div class="pipeline-grid" id="pipeline-grid"></div>
+    </div>
+
+    <!-- ③ FUNNEL + CHARTS -->
     <div class="sec-head">
       <div class="sec-icon">📈</div>
       <div class="sec-title">Funnel & Distribution</div>
@@ -491,7 +505,7 @@
       </div>
     </div>
 
-    <!-- ③ CAMPAIGNS TABLE -->
+    <!-- ④ CAMPAIGNS TABLE -->
     <div class="sec-head">
       <div class="sec-icon">📋</div>
       <div class="sec-title">Campaigns</div>
@@ -526,20 +540,6 @@
       <div class="crm-strip" id="crm-strip"></div>
     </div>
 
-    <!-- ④ CRM PIPELINE -->
-    <div class="sec-head">
-      <div class="sec-icon">🎯</div>
-      <div class="sec-title">CRM Pipeline</div>
-    </div>
-    <div class="pipeline-card">
-      <div style="font-family:var(--font-secondary);
-                  font-size:12px;color:var(--text-muted);">
-        Computed from <code>crm_leads</code> in JSON —
-        updated automatically when you add new leads
-      </div>
-      <div class="pipeline-grid" id="pipeline-grid"></div>
-    </div>
-
     <!-- ⑤ BROKERS -->
     <div class="sec-head">
       <div class="sec-icon">👤</div>
@@ -556,6 +556,7 @@
       <div class="recs-card-title">🎯 Action items for next launch</div>
       <ul class="rec-list" id="rec-list"></ul>
     </div>
+    
 
   </div>
 </main>
@@ -871,11 +872,11 @@ async function loadWeek(num) {
 ════════════════════════════════════════ */
 function renderAll(d) {
   renderLaunchHeader(d);
-  renderKPIs(d.totals, d.crm, d.campaigns.length);  // ← ИСПРАВЛЕНО: передаём длину
+  renderKPIs(d.totals, d.crm, d.campaigns.length);
+  renderPipeline(d.crm);         // ← сразу после KPI
   renderFunnel(d.totals, d.crm);
   renderCharts(d.campaigns);
   renderCampaignsTable(d.campaigns);
-  renderPipeline(d.crm);
   renderBrokers(d.brokers);
   renderRecs(d.recs);
 }
