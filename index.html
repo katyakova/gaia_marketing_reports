@@ -23,6 +23,7 @@
   </a>
 
   <nav class="nav-menu">
+    <!-- 1. Оставляем только нужные кнопки: Dashboard / Meta / Instagram / WhatsApp / RED / Others -->
     <a href="index.html" class="nav-btn btn-dashboard active">
       <span class="nav-btn-icon">📊</span>
       <span class="nav-btn-label">Dashboard</span>
@@ -31,24 +32,18 @@
     <div class="nav-sep"></div>
 
     <a href="meta.html" class="nav-btn btn-meta">
-      <span class="nav-btn-icon">💰</span>
+      <span class="nav-btn-icon">◈</span>
       <span class="nav-btn-label">Meta</span>
       <span class="nav-btn-badge" id="badge-meta">—</span>
     </a>
 
     <a href="smm.html" class="nav-btn btn-smm">
-      <span class="nav-btn-icon">📸</span>
+      <span class="nav-btn-icon">✦</span>
       <span class="nav-btn-label">Instagram</span>
       <span class="nav-btn-badge" id="badge-smm">—</span>
     </a>
 
     <div class="nav-sep"></div>
-
-    <a href="leads.html" class="nav-btn btn-leads">
-      <span class="nav-btn-icon">🎯</span>
-      <span class="nav-btn-label">Leads</span>
-      <span class="nav-btn-badge" id="badge-leads">—</span>
-    </a>
 
     <a href="whatsapp.html" class="nav-btn btn-wa">
       <span class="nav-btn-icon">💬</span>
@@ -57,9 +52,14 @@
     </a>
 
     <a href="red.html" class="nav-btn btn-red">
-      <span class="nav-btn-icon">🔴</span>
-      <span class="nav-btn-label">RED Quiz</span>
+      <span class="nav-btn-icon">◉</span>
+      <span class="nav-btn-label">RED</span>
       <span class="nav-btn-badge" id="badge-red">—</span>
+    </a>
+
+    <a href="others.html" class="nav-btn btn-others">
+      <span class="nav-btn-icon">⊹</span>
+      <span class="nav-btn-label">Others</span>
     </a>
   </nav>
 
@@ -104,26 +104,29 @@ const WEEK_FILES = [
   'data/week_02.json',
   'data/week_03.json',
   'data/week_04.json',
-  'data/week_05.json'
+  'data/week_05.json',
 ];
 
+// Файлы WA — для подгрузки реальных данных в карточку
+const WA_FILES = {
+  5: 'data/whatsapp/wa_week_05.json',
+};
+
 const COMP_METRICS = [
-  { path: 'leads.total',            label: 'Total Leads', goodDir: 'up',   fmt: 'num' },
-  { path: 'leads.in_communication', label: 'In Comm',     goodDir: 'up',   fmt: 'num' },
-  { path: 'leads.qualified',        label: 'Qualified',   goodDir: 'up',   fmt: 'num' },
-  { path: 'meta.spend_aed',         label: 'Meta Spend',  goodDir: 'none', fmt: 'aed' },
-  { path: 'meta.leads_form',        label: 'Meta Leads',  goodDir: 'up',   fmt: 'num' },
-  { path: 'meta.cpl_aed',           label: 'CPL AED',     goodDir: 'down', fmt: 'aed' },
-  { path: 'smm.reach',              label: 'IG Reach',    goodDir: 'up',   fmt: 'k'   },
-  { path: 'smm.link_clicks',        label: 'IG Clicks',   goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.spend_aed',  label: 'Meta Spend',  goodDir: 'none', fmt: 'aed' },
+  { path: 'meta.leads_form', label: 'Meta Leads',  goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.cpl_aed',    label: 'CPL AED',     goodDir: 'down', fmt: 'aed' },
+  { path: 'smm.reach',       label: 'IG Reach',    goodDir: 'up',   fmt: 'k'   },
+  { path: 'smm.link_clicks', label: 'IG Clicks',   goodDir: 'up',   fmt: 'num' },
 ];
 
 // ════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════
-let weeks  = [];
-let active = 0;
-let charts = {};
+let weeks   = [];
+let active  = 0;
+let charts  = {};
+let waCache = {};   // кэш загруженных WA JSON
 
 // ════════════════════════════════════════════
 //  BOOT
@@ -142,6 +145,10 @@ let charts = {};
 
     if (!weeks.length) throw new Error('No data files found');
     active = weeks.length - 1;
+
+    // Предзагружаем WA данные для текущей недели
+    await loadWAForWeek(active);
+
     updateBadges();
     render();
   } catch(e) {
@@ -154,6 +161,72 @@ let charts = {};
       </p>`;
   }
 })();
+
+// ════════════════════════════════════════════
+//  LOAD WA DATA FOR WEEK
+// ════════════════════════════════════════════
+async function loadWAForWeek(idx) {
+  const w = weeks[idx];
+  if (!w) return;
+  const weekNum = w.week_num;
+
+  // Уже загружен
+  if (waCache[weekNum] !== undefined) return;
+
+  const file = WA_FILES[weekNum];
+  if (!file) {
+    waCache[weekNum] = null;
+    return;
+  }
+
+  try {
+    const resp = await fetch(file);
+    if (!resp.ok) throw new Error('not found');
+    const raw = await resp.json();
+    waCache[weekNum] = computeWA(raw);
+  } catch(e) {
+    waCache[weekNum] = null;
+  }
+}
+
+// ════════════════════════════════════════════
+//  COMPUTE WA METRICS FROM RAW JSON
+//  (та же логика что в whatsapp.html)
+// ════════════════════════════════════════════
+function computeWA(raw) {
+  const { campaigns, crm_leads, brokers, pipeline_stages } = raw;
+  if (!campaigns || !crm_leads) return null;
+
+  const positiveStages = new Set(pipeline_stages?.positive || []);
+
+  const T = {
+    target:        campaigns.reduce((s,c) => s + (c.target||0), 0),
+    meta_accepted: campaigns.reduce((s,c) => s + (c.meta_accepted||0), 0),
+    delivered:     campaigns.reduce((s,c) => s + (c.delivered||0), 0),
+    read:          campaigns.reduce((s,c) => s + (c.read||0), 0),
+    failed:        campaigns.reduce((s,c) => s + (c.failed||0), 0),
+    replies_wa:    campaigns.reduce((s,c) => s + (c.replies_wa||0), 0),
+    campaigns_count: campaigns.length,
+  };
+
+  T.delivery_rate_pct     = T.target ? +((T.delivered / T.target) * 100).toFixed(1) : 0;
+  T.reply_rate_of_read    = T.read   ? +((T.replies_wa / T.read) * 100).toFixed(1) : 0;
+  T.failed_rate_pct       = T.target ? +((T.failed / T.target) * 100).toFixed(1) : 0;
+
+  const crm_total    = crm_leads.length;
+  const crm_positive = crm_leads.filter(l => positiveStages.has(l.stage) && !l.opt_out).length;
+  const crm_opt_out  = crm_leads.filter(l => l.opt_out).length;
+  const crm_in_comm  = crm_leads.filter(l => l.stage === 'In Communication' && !l.opt_out).length;
+
+  return {
+    ...T,
+    crm_total,
+    crm_positive,
+    crm_opt_out,
+    crm_in_communication: crm_in_comm,
+    budget_usd: raw.meta?.budget_usd || null,
+  };
+}
 
 // ════════════════════════════════════════════
 //  BADGES
@@ -170,12 +243,12 @@ function updateBadges() {
   document.getElementById('badge-smm').textContent =
     reach ? (reach >= 1000 ? Math.round(reach/1000)+'k' : reach) : '—';
 
-  document.getElementById('badge-leads').textContent =
-    w.leads?.total || '—';
-
+  // WA badge — реальные данные из wa_week_XX.json
+  const waData = waCache[w.week_num];
   document.getElementById('badge-wa').textContent =
-    w.whatsapp_outreach?.in_communication || '—';
+    waData ? waData.crm_in_communication : '—';
 
+  // RED badge
   document.getElementById('badge-red').textContent =
     w.red_quiz_leads?.length || '—';
 }
@@ -205,7 +278,7 @@ function delta(curr, prev, goodDir) {
 }
 
 function trendHtml(curr, prev, goodDir) {
-  if (!prev || !curr) return '';
+  if (prev == null || curr == null || prev === 0) return '';
   const pct = Math.round(((curr - prev) / prev) * 100);
   const sign = pct >= 0 ? '↑' : '↓';
   let cls = 'trend-up';
@@ -238,9 +311,10 @@ function render() {
   renderDashboard();
 }
 
-function switchWeek(idx) {
+async function switchWeek(idx) {
   active = idx;
   destroyCharts();
+  await loadWAForWeek(idx);
   updateBadges();
   render();
 }
@@ -301,14 +375,13 @@ function renderCompStrip() {
 }
 
 // ════════════════════════════════════════════
-//  DASHBOARD — SUMMARY ONLY
+//  DASHBOARD
 // ════════════════════════════════════════════
 function renderDashboard() {
   const w    = weeks[active];
   const prev = active > 0 ? weeks[active - 1] : null;
 
   document.getElementById('mainContent').innerHTML = `
-    ${renderOverviewKPIs(w, prev)}
     ${renderChannelSummary(w, prev)}
     ${renderTrendChart()}
     ${renderInsights(w)}
@@ -320,74 +393,13 @@ function renderDashboard() {
 }
 
 // ════════════════════════════════════════════
-//  OVERVIEW KPIs
-// ════════════════════════════════════════════
-function renderOverviewKPIs(w, prev) {
-  const p = prev;
-  const kpis = [
-    {
-      label: 'Total Leads',       color: 'k-black',
-      value: w.leads.total,
-      sub: `W${w.week_num} · ${w.period}`,
-      trend: trendHtml(w.leads.total, p?.leads?.total, 'up')
-    },
-    {
-      label: 'In Communication',  color: 'k-green',
-      value: w.leads.in_communication,
-      sub: `${w.leads.total
-        ? Math.round(w.leads.in_communication / w.leads.total * 100) : 0}% of total`,
-      trend: trendHtml(w.leads.in_communication, p?.leads?.in_communication, 'up')
-    },
-    {
-      label: 'Qualified',         color: 'k-blue',
-      value: w.leads.qualified,
-      sub: 'Hot leads this week',
-      trend: trendHtml(w.leads.qualified, p?.leads?.qualified, 'up')
-    },
-    {
-      label: 'Follow-Up',         color: 'k-purple',
-      value: w.leads.follow_up,
-      sub: 'Active pipeline',
-      trend: trendHtml(w.leads.follow_up, p?.leads?.follow_up, 'up')
-    },
-    {
-      label: 'Prospect Lost',     color: 'k-red',
-      value: w.leads.prospect_lost,
-      sub: `${w.leads.total
-        ? Math.round(w.leads.prospect_lost / w.leads.total * 100) : 0}% loss rate`,
-      trend: trendHtml(w.leads.prospect_lost, p?.leads?.prospect_lost, 'down')
-    },
-    {
-      label: 'Junk / Invalid',    color: 'k-amber',
-      value: w.leads.junk,
-      sub: 'Filtered out',
-      trend: trendHtml(w.leads.junk, p?.leads?.junk, 'down')
-    },
-  ];
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">📊</div>
-      <div class="sec-title">Weekly Overview — All Channels Combined</div>
-    </div>
-    <div class="kpi-grid">
-      ${kpis.map(k => `
-        <div class="kpi ${k.color}">
-          <div class="kpi-label">${k.label}</div>
-          <div class="kpi-value">${k.value ?? '—'}</div>
-          <div class="kpi-sub">${k.sub}</div>
-          ${k.trend}
-        </div>`).join('')}
-    </div>`;
-}
-
-// ════════════════════════════════════════════
 //  CHANNEL SUMMARY CARDS
+//  WhatsApp — данные из wa_week_XX.json
 // ════════════════════════════════════════════
 function renderChannelSummary(w, prev) {
   const p = prev;
 
-  // META
+  // ── META ──
   const metaCpl   = w.meta?.cpl_aed;
   const metaDelta = p?.meta?.cpl_aed
     ? Math.round((metaCpl - p.meta.cpl_aed) / p.meta.cpl_aed * 100) : null;
@@ -396,36 +408,69 @@ function renderChannelSummary(w, prev) {
         ${metaDelta > 0 ? '↑' : '↓'} CPL ${Math.abs(metaDelta)}%
        </span>` : '';
 
-  // SMM
-  const smmReach   = w.smm?.reach;
-  const smmDelta = p?.smm?.reach
+  // ── SMM ──
+  const smmReach  = w.smm?.reach;
+  const smmDelta  = p?.smm?.reach
     ? Math.round((smmReach - p.smm.reach) / p.smm.reach * 100) : null;
   const smmDeltaHtml = smmDelta !== null
     ? `<span style="font-size:10px;color:${smmDelta > 0 ? '#22c55e' : '#ef4444'}">
         ${smmDelta > 0 ? '↑' : '↓'} ${Math.abs(smmDelta)}% reach
        </span>` : '';
 
-  // LEADS source breakdown short
-  const src = w.leads?.by_source || {};
-  const topSrc = Object.entries(src)
-    .filter(([,v]) => v > 0)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0, 2)
-    .map(([k, v]) => `${k.replace(/_/g,' ')}: ${v}`)
-    .join(' · ');
+  // ── WHATSAPP — берём из wa_week_XX.json ──
+  const waData = waCache[w.week_num];
+  const waCard = waData ? `
+    <div class="channel-stats">
+      <div class="channel-stat-item">
+        <div class="channel-stat-val">${waData.target.toLocaleString()}</div>
+        <div class="channel-stat-label">Target</div>
+      </div>
+      <div class="channel-stat-item">
+        <div class="channel-stat-val">${waData.delivered.toLocaleString()}</div>
+        <div class="channel-stat-label">Delivered</div>
+      </div>
+      <div class="channel-stat-item">
+        <div class="channel-stat-val">${waData.replies_wa}</div>
+        <div class="channel-stat-label">WA Replies</div>
+      </div>
+      <div class="channel-stat-item">
+        <div class="channel-stat-val">${waData.crm_total}</div>
+        <div class="channel-stat-label">CRM Leads</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;">
+      <span style="font-size:10px;color:#AAA">
+        📦 ${waData.delivery_rate_pct}% delivery
+      </span>
+      <span style="font-size:10px;color:#AAA">
+        💬 ${waData.reply_rate_of_read}% reply/read
+      </span>
+      <span style="font-size:10px;color:#AAA">
+        ✅ ${waData.crm_positive} positive pipeline
+      </span>
+      <span style="font-size:10px;color:#AAA">
+        ${waData.campaigns_count} campaigns
+        ${waData.budget_usd ? '· $' + waData.budget_usd : ''}
+      </span>
+    </div>
+  ` : `
+    <div class="channel-stats">
+      <div class="channel-stat-item">
+        <div class="channel-stat-val">—</div>
+        <div class="channel-stat-label">No launch</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:10px;color:#AAA">
+      No WhatsApp campaign this week
+    </div>
+  `;
 
-  // WA
-  const waReply = w.whatsapp_outreach?.contacts_sent
-    ? Math.round(w.whatsapp_outreach.replied
-        / w.whatsapp_outreach.contacts_sent * 100) : 0;
-
-  // RED
+  // ── RED ──
   const redCount = w.red_quiz_leads?.length || 0;
-  const redQual  = w.red_quiz_leads?.filter(l =>
-    l.status === 'Qualified').length || 0;
+  const redQual  = w.red_quiz_leads?.filter(l => l.status === 'Qualified').length || 0;
 
   return `
-    <div class="sec-head" style="margin-top:28px">
+    <div class="sec-head">
       <div class="sec-icon">📡</div>
       <div class="sec-title">Channels at a Glance — click to explore</div>
     </div>
@@ -435,7 +480,7 @@ function renderChannelSummary(w, prev) {
       <a href="meta.html" class="channel-card c-meta">
         <div class="channel-header">
           <div class="channel-icon-wrap">
-            <span class="channel-icon">💰</span>
+            <span class="channel-icon">◈</span>
             <span class="channel-name">Meta Ads</span>
           </div>
           <span class="channel-arrow">→</span>
@@ -443,8 +488,7 @@ function renderChannelSummary(w, prev) {
         <div class="channel-stats">
           <div class="channel-stat-item">
             <div class="channel-stat-val">
-              ${w.meta?.spend_aed
-                ? w.meta.spend_aed.toLocaleString() + '₟' : '—'}
+              ${w.meta?.spend_aed ? w.meta.spend_aed.toLocaleString()+'₟' : '—'}
             </div>
             <div class="channel-stat-label">Spend</div>
           </div>
@@ -454,14 +498,13 @@ function renderChannelSummary(w, prev) {
           </div>
           <div class="channel-stat-item">
             <div class="channel-stat-val">
-              ${w.meta?.cpl_aed ? w.meta.cpl_aed + '₟' : '—'}
+              ${w.meta?.cpl_aed ? w.meta.cpl_aed+'₟' : '—'}
             </div>
             <div class="channel-stat-label">CPL</div>
           </div>
           <div class="channel-stat-item">
             <div class="channel-stat-val">
-              ${w.meta?.impressions
-                ? Math.round(w.meta.impressions/1000)+'k' : '—'}
+              ${w.meta?.impressions ? Math.round(w.meta.impressions/1000)+'k' : '—'}
             </div>
             <div class="channel-stat-label">Impressions</div>
           </div>
@@ -469,11 +512,11 @@ function renderChannelSummary(w, prev) {
         <div style="margin-top:10px">${metaDeltaHtml}</div>
       </a>
 
-      <!-- SMM -->
+      <!-- INSTAGRAM -->
       <a href="smm.html" class="channel-card c-smm">
         <div class="channel-header">
           <div class="channel-icon-wrap">
-            <span class="channel-icon">📸</span>
+            <span class="channel-icon">✦</span>
             <span class="channel-name">Instagram</span>
           </div>
           <span class="channel-arrow">→</span>
@@ -505,37 +548,7 @@ function renderChannelSummary(w, prev) {
         <div style="margin-top:10px">${smmDeltaHtml}</div>
       </a>
 
-      <!-- LEADS -->
-      <a href="leads.html" class="channel-card c-leads">
-        <div class="channel-header">
-          <div class="channel-icon-wrap">
-            <span class="channel-icon">🎯</span>
-            <span class="channel-name">Leads</span>
-          </div>
-          <span class="channel-arrow">→</span>
-        </div>
-        <div class="channel-stats">
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.leads?.total || '—'}</div>
-            <div class="channel-stat-label">Total</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.leads?.qualified || '—'}</div>
-            <div class="channel-stat-label">Qualified</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.leads?.in_communication || '—'}</div>
-            <div class="channel-stat-label">In Comm</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.leads?.follow_up || '—'}</div>
-            <div class="channel-stat-label">Follow-Up</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:10px;color:#AAA">${topSrc}</div>
-      </a>
-
-      <!-- WHATSAPP -->
+      <!-- WHATSAPP — данные из wa_week_XX.json -->
       <a href="whatsapp.html" class="channel-card c-wa">
         <div class="channel-header">
           <div class="channel-icon-wrap">
@@ -544,57 +557,31 @@ function renderChannelSummary(w, prev) {
           </div>
           <span class="channel-arrow">→</span>
         </div>
-        <div class="channel-stats">
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.whatsapp_outreach?.contacts_sent || '—'}
-            </div>
-            <div class="channel-stat-label">Sent</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.whatsapp_outreach?.replied || '—'}
-            </div>
-            <div class="channel-stat-label">Replied</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.whatsapp_outreach?.in_communication || '—'}
-            </div>
-            <div class="channel-stat-label">In Comm</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${waReply}%</div>
-            <div class="channel-stat-label">Reply Rate</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:10px;color:#AAA">
-          ${w.whatsapp_outreach?.campaigns?.length || 0} campaigns active
-        </div>
+        ${waCard}
       </a>
 
-      <!-- RED QUIZ -->
+      <!-- RED -->
       <a href="red.html" class="channel-card c-red">
         <div class="channel-header">
           <div class="channel-icon-wrap">
-            <span class="channel-icon">🔴</span>
-            <span class="channel-name">RED Quiz</span>
+            <span class="channel-icon">◉</span>
+            <span class="channel-name">RED</span>
           </div>
           <span class="channel-arrow">→</span>
         </div>
         <div class="channel-stats">
           <div class="channel-stat-item">
-            <div class="channel-stat-val">${redCount}</div>
+            <div class="channel-stat-val">${redCount || '—'}</div>
             <div class="channel-stat-label">Total Leads</div>
           </div>
           <div class="channel-stat-item">
-            <div class="channel-stat-val">${redQual}</div>
+            <div class="channel-stat-val">${redQual || '—'}</div>
             <div class="channel-stat-label">Qualified</div>
           </div>
           <div class="channel-stat-item">
             <div class="channel-stat-val">
               ${w.red_quiz_leads
-                ? [...new Set(w.red_quiz_leads.map(l => l.country))].length
+                ? [...new Set(w.red_quiz_leads.map(l => l.country))].length || '—'
                 : '—'}
             </div>
             <div class="channel-stat-label">Countries</div>
@@ -602,8 +589,8 @@ function renderChannelSummary(w, prev) {
           <div class="channel-stat-item">
             <div class="channel-stat-val">
               ${w.red_quiz_leads
-                ? w.red_quiz_leads.filter(l =>
-                    l.purpose === 'invest').length : '—'}
+                ? w.red_quiz_leads.filter(l => l.purpose === 'invest').length || '—'
+                : '—'}
             </div>
             <div class="channel-stat-label">Investors</div>
           </div>
@@ -617,7 +604,7 @@ function renderChannelSummary(w, prev) {
 }
 
 // ════════════════════════════════════════════
-//  TREND CHART (summary)
+//  TREND CHARTS
 // ════════════════════════════════════════════
 function renderTrendChart() {
   return `
@@ -627,15 +614,15 @@ function renderTrendChart() {
     </div>
     <div class="chart-grid-2">
       <div class="chart-card">
-        <h3>Total Leads & Qualified — weekly</h3>
-        <div class="chart-wrap" style="height:200px">
-          <canvas id="chartWeeklyLeads"></canvas>
-        </div>
-      </div>
-      <div class="chart-card">
         <h3>Meta Spend vs CPL — weekly</h3>
         <div class="chart-wrap" style="height:200px">
           <canvas id="chartWeeklyMeta"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Instagram Reach & Link Clicks — weekly</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWeeklySmm"></canvas>
         </div>
       </div>
     </div>`;
@@ -643,49 +630,9 @@ function renderTrendChart() {
 
 function drawWeeklyTrend() {
   const labels = WEEK_LABELS();
-  const DEFAULTS = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 10 } } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-      y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
-    }
-  };
+  const baseFont = { size: 10 };
 
-  // Chart 1 — Leads trend
-  mkChart('chartWeeklyLeads', {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Total Leads',
-          data: weeks.map(w => w.leads?.total || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#1A1A1A' : '#E4E2DF'),
-          borderRadius: 4,
-        },
-        {
-          label: 'In Communication',
-          data: weeks.map(w => w.leads?.in_communication || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#f59e0b' : 'rgba(245,158,11,0.3)'),
-          borderRadius: 4,
-        },
-        {
-          label: 'Qualified',
-          data: weeks.map(w => w.leads?.qualified || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#22c55e' : 'rgba(34,197,94,0.3)'),
-          borderRadius: 4,
-        }
-      ]
-    },
-    options: DEFAULTS
-  });
-
-  // Chart 2 — Meta spend vs CPL
+  // Chart 1 — Meta spend vs CPL
   mkChart('chartWeeklyMeta', {
     type: 'bar',
     data: {
@@ -693,7 +640,7 @@ function drawWeeklyTrend() {
       datasets: [
         {
           label: 'Spend AED',
-                   data: weeks.map(w => w.meta?.spend_aed || 0),
+          data: weeks.map(w => w.meta?.spend_aed || 0),
           backgroundColor: weeks.map((w, i) =>
             i === active ? '#3b82f6' : '#DBEAFE'),
           borderRadius: 4,
@@ -718,24 +665,69 @@ function drawWeeklyTrend() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: true,
-          labels: { font: { size: 10 }, boxWidth: 10 }
-        }
+        legend: { display: true, labels: { font: baseFont, boxWidth: 10 } }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: baseFont } },
         y: {
           grid: { color: '#F0EFED' },
-          ticks: { font: { size: 10 } },
+          ticks: { font: baseFont },
           position: 'left',
         },
         y2: {
           grid: { display: false },
-          ticks: {
-            font: { size: 10 },
-            callback: v => v + ' ₟'
-          },
+          ticks: { font: baseFont, callback: v => v + ' ₟' },
+          position: 'right',
+        }
+      }
+    }
+  });
+
+  // Chart 2 — SMM reach & clicks
+  mkChart('chartWeeklySmm', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Reach',
+          data: weeks.map(w => w.smm?.reach || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#8b5cf6' : '#EDE9FE'),
+          borderRadius: 4,
+          yAxisID: 'y',
+                  },
+        {
+          label: 'Link Clicks',
+          data: weeks.map(w => w.smm?.link_clicks || 0),
+          type: 'line',
+          borderColor: '#ec4899',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: weeks.map((w, i) =>
+            i === active ? '#ec4899' : '#FBCFE8'),
+          pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
+          tension: 0.3,
+          spanGaps: true,
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { font: baseFont, boxWidth: 10 } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: baseFont } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: { font: baseFont },
+          position: 'left',
+        },
+        y2: {
+          grid: { display: false },
+          ticks: { font: baseFont },
           position: 'right',
         }
       }
@@ -744,31 +736,285 @@ function drawWeeklyTrend() {
 }
 
 // ════════════════════════════════════════════
-//  INSIGHTS
+//  WEEKLY INSIGHTS — автогенерация из данных
 // ════════════════════════════════════════════
 function renderInsights(w) {
+  const prev = active > 0 ? weeks[active - 1] : null;
+  const waData = waCache[w.week_num];
+
+  // Собираем автоматические инсайты
+  const autoInsights = generateAutoInsights(w, prev, waData);
+
+  // Если в JSON есть ручные инсайты — добавляем их тоже
   const ins = w.insights || {};
-  const items = [
-    { key: 'general', label: 'General',   cls: '',        icon: '💡' },
-    { key: 'meta',    label: 'Meta Ads',  cls: 'i-meta',  icon: '💰' },
-    { key: 'smm',     label: 'Instagram', cls: 'i-smm',   icon: '📸' },
-    { key: 'leads',   label: 'Leads',     cls: 'i-leads', icon: '🎯' },
+  const manualItems = [
+    { key: 'general', label: 'General',   icon: '💡' },
+    { key: 'meta',    label: 'Meta Ads',  icon: '◈'  },
+    { key: 'smm',     label: 'Instagram', icon: '✦'  },
+    { key: 'wa',      label: 'WhatsApp',  icon: '💬' },
+    { key: 'red',     label: 'RED',       icon: '◉'  },
   ].filter(i => ins[i.key]);
 
-  if (!items.length) return '';
+  if (!autoInsights.length && !manualItems.length) return '';
+
+  const autoHtml = autoInsights.map(item => `
+    <div class="insight ${item.cls}">
+      <div class="insight-tag">${item.icon} ${item.label}</div>
+      <div class="insight-text">${item.text}</div>
+    </div>
+  `).join('');
+
+  const manualHtml = manualItems.map(i => `
+    <div class="insight">
+      <div class="insight-tag">${i.icon} ${i.label}</div>
+      <div class="insight-text">${ins[i.key]}</div>
+    </div>
+  `).join('');
 
   return `
     <div class="sec-head" style="margin-top:28px">
       <div class="sec-icon">💡</div>
-      <div class="sec-title">Weekly Insights</div>
+      <div class="sec-title">Weekly Insights
+        <span style="font-family:var(--font-secondary);font-size:10px;
+          color:var(--text-muted);font-weight:400;margin-left:8px;">
+          auto-generated from data
+        </span>
+      </div>
     </div>
     <div class="insights-grid">
-      ${items.map(i => `
-        <div class="insight ${i.cls}">
-          <div class="insight-tag">${i.icon} ${i.label}</div>
-          <div class="insight-text">${ins[i.key]}</div>
-        </div>`).join('')}
+      ${autoHtml}
+      ${manualHtml}
     </div>`;
+}
+
+// ════════════════════════════════════════════
+//  AUTO-GENERATE INSIGHTS FROM DATA
+// ════════════════════════════════════════════
+function generateAutoInsights(w, prev, waData) {
+  const insights = [];
+  const p = prev;
+
+  // ── META ────────────────────────────────
+  if (w.meta?.cpl_aed && p?.meta?.cpl_aed) {
+    const cplDelta = Math.round(
+      (w.meta.cpl_aed - p.meta.cpl_aed) / p.meta.cpl_aed * 100
+    );
+    if (cplDelta <= -10) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `CPL dropped ${Math.abs(cplDelta)}% vs last week
+          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
+          campaign efficiency is improving.`
+      });
+    } else if (cplDelta >= 15) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `⚠️ CPL increased ${cplDelta}% vs last week
+          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
+          review ad creatives and audience targeting.`
+      });
+    }
+  }
+
+  if (w.meta?.leads_form && p?.meta?.leads_form) {
+    const leadsDelta = Math.round(
+      (w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100
+    );
+    if (leadsDelta >= 20) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Meta leads up ${leadsDelta}% this week
+          (${p.meta.leads_form} → ${w.meta.leads_form}).
+          Strong form performance — consider increasing budget.`
+      });
+    } else if (leadsDelta <= -20) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Meta leads down ${Math.abs(leadsDelta)}% this week
+          (${p.meta.leads_form} → ${w.meta.leads_form}).
+          Check ad fatigue and audience size.`
+      });
+    }
+  }
+
+  if (w.meta?.spend_aed && p?.meta?.spend_aed) {
+    const spendDelta = Math.round(
+      (w.meta.spend_aed - p.meta.spend_aed) / p.meta.spend_aed * 100
+    );
+    const leadsChange = w.meta?.leads_form && p?.meta?.leads_form
+      ? Math.round((w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100)
+      : null;
+    // Spend вырос, но лиды упали — плохой сигнал
+    if (spendDelta >= 10 && leadsChange !== null && leadsChange < 0) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Spend +${spendDelta}% but leads ${leadsChange}% — 
+          budget efficiency declining. 
+          Review campaign structure before scaling further.`
+      });
+    }
+  }
+
+  // ── INSTAGRAM ───────────────────────────
+  if (w.smm?.reach && p?.smm?.reach) {
+    const reachDelta = Math.round(
+      (w.smm.reach - p.smm.reach) / p.smm.reach * 100
+    );
+    if (reachDelta >= 20) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Reach up ${reachDelta}% this week 
+          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+          Strong content performance — replicate format next week.`
+      });
+    } else if (reachDelta <= -20) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Reach dropped ${Math.abs(reachDelta)}% 
+          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+          Review posting frequency and content type.`
+      });
+    }
+  }
+
+  if (w.smm?.link_clicks && p?.smm?.link_clicks) {
+    const clicksDelta = Math.round(
+      (w.smm.link_clicks - p.smm.link_clicks) / p.smm.link_clicks * 100
+    );
+    if (clicksDelta >= 30) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Link clicks +${clicksDelta}% — bio/story CTA is converting well.
+          Check if landing page is optimised for this traffic.`
+      });
+    }
+  }
+
+  if (w.smm?.reach && w.smm?.link_clicks) {
+    const ctr = ((w.smm.link_clicks / w.smm.reach) * 100).toFixed(2);
+    if (ctr < 0.1) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `IG click-through rate is ${ctr}% — 
+          reach is high but CTA conversion is low. 
+          Test stronger calls-to-action in captions and stories.`
+      });
+    }
+  }
+
+  // ── WHATSAPP ────────────────────────────
+  if (waData) {
+    if (waData.failed_rate_pct >= 60) {
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `🔴 WA failed rate ${waData.failed_rate_pct}% — 
+          base quality is critical. 
+          Verify all numbers before next launch.`
+      });
+    } else if (waData.delivery_rate_pct >= 70) {
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `✅ WA delivery rate ${waData.delivery_rate_pct}% — 
+          strong base quality this week. 
+          ${waData.reply_rate_of_read}% reply/read rate.`
+      });
+    }
+
+    if (waData.crm_positive > 0) {
+      const posRate = waData.crm_total
+        ? Math.round(waData.crm_positive / waData.crm_total * 100) : 0;
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `${waData.crm_positive} leads in positive pipeline 
+          (${posRate}% of ${waData.crm_total} CRM leads) — 
+          ${waData.crm_positive} contacts to prioritise for follow-up.`
+      });
+    }
+
+    if (waData.crm_opt_out > 0) {
+      const optRate = waData.crm_total
+        ? Math.round(waData.crm_opt_out / waData.crm_total * 100) : 0;
+      if (optRate >= 5) {
+        insights.push({
+          icon: '💬', label: 'WhatsApp', cls: '',
+          text: `Opt-out rate ${optRate}% (${waData.crm_opt_out} contacts) — 
+            review message tone and targeting. 
+            Consider warming up cold segments first.`
+        });
+      }
+    }
+  }
+
+  // ── RED ─────────────────────────────────
+  if (w.red_quiz_leads?.length) {
+    const total   = w.red_quiz_leads.length;
+    const qual    = w.red_quiz_leads.filter(l => l.status === 'Qualified').length;
+    const invest  = w.red_quiz_leads.filter(l => l.purpose === 'invest').length;
+    const qualPct = Math.round(qual / total * 100);
+
+    if (qualPct >= 40) {
+      insights.push({
+        icon: '◉', label: 'RED', cls: '',
+        text: `High RED qualification rate: ${qual}/${total} leads qualified (${qualPct}%).
+          ${invest} investors — strong intent signals.`
+      });
+    } else if (qualPct < 20 && total >= 5) {
+      insights.push({
+        icon: '◉', label: 'RED', cls: '',
+        text: `RED qualification rate ${qualPct}% (${qual}/${total}) — 
+          quiz funnel may need tighter qualification questions.`
+      });
+    }
+
+    if (p?.red_quiz_leads?.length) {
+      const prevTotal = p.red_quiz_leads.length;
+      const delta = Math.round((total - prevTotal) / prevTotal * 100);
+      if (delta >= 30) {
+        insights.push({
+          icon: '◉', label: 'RED', cls: '',
+          text: `RED leads up ${delta}% vs last week (${prevTotal} → ${total}).
+            Check traffic source — what drove the spike?`
+        });
+      }
+    }
+  }
+
+  // ── GENERAL (cross-channel) ─────────────
+  // Считаем общий conversion: Meta leads → qualified
+  if (w.meta?.leads_form && w.leads?.qualified) {
+    const convRate = Math.round(
+      w.leads.qualified / w.meta.leads_form * 100
+    );
+    if (convRate >= 20) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `Strong lead quality: ${convRate}% of Meta form submissions 
+          are qualified (${w.leads.qualified}/${w.meta.leads_form}).`
+      });
+    } else if (convRate < 8 && w.meta.leads_form >= 10) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `Low qualification rate: only ${convRate}% of Meta leads 
+          convert to qualified (${w.leads.qualified}/${w.meta.leads_form}).
+          Review lead quality from ads — consider form pre-qualification.`
+      });
+    }
+  }
+
+  // Junk rate предупреждение
+  if (w.leads?.junk && w.leads?.total) {
+    const junkRate = Math.round(w.leads.junk / w.leads.total * 100);
+    if (junkRate >= 30) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `⚠️ Junk lead rate ${junkRate}% (${w.leads.junk}/${w.leads.total}) — 
+          high noise in pipeline. 
+          Check targeting settings across all channels.`
+      });
+    }
+  }
+
+  return insights;
 }
 
 // ════════════════════════════════════════════
