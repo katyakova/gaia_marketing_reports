@@ -1,0 +1,49 @@
+{
+  "period": "14–20 May 2026",
+  "week_label": "W3",
+  "week_num": 3,
+  "is_partial": true,
+
+  "leads": {
+    "total": 5,
+    "by_source": {
+      "facebook": 3,
+      "whatsapp_inbound": 1,
+      "other": 1
+    },
+    "new": 0,
+    "qualified": 0,
+    "in_communication": 2,
+    "follow_up": 2,
+    "prospect_lost": 0,
+    "junk": 1,
+    "owner_sell": 0,
+    "future_fu": 0
+  },
+
+  "meta": {
+    "spend_aed": 312,
+    "impressions": 48000,
+    "link_clicks": 290,
+    "leads_form": 0,
+    "cpl_aed": 0,
+    "top_campaign": "Middle-leads",
+    "note": "Переходный период — кампании на низком бюджете"
+  },
+
+  "smm": {
+    "reach": 1785,
+    "views": 2100,
+    "interactions": 89,
+    "link_clicks": 15,
+    "follows": 4,
+    "profile_visits": 112
+  },
+
+  "whatsapp_outreach": {
+    "campaigns": [],
+    "contacts_sent": 0,
+    "replied": 0,
+    "in_communication": 0,
+    "prospect_lost": 0,
+    "opt
