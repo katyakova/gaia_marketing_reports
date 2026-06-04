@@ -3,236 +3,465 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gaia Marketing Reports</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Gaia · Marketing Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; }
-.header { background: #1e293b; padding: 24px 32px; border-bottom: 1px solid #334155; }
-.header h1 { font-size: 24px; color: #f1f5f9; }
-.header p { color: #94a3b8; margin-top: 4px; }
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 24px 32px; }
-.kpi-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-.kpi-card .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-.kpi-card .value { font-size: 32px; font-weight: 700; margin-top: 8px; }
-.kpi-card .sub { font-size: 12px; color: #64748b; margin-top: 4px; }
-.green { color: #4ade80; }
-.yellow { color: #fbbf24; }
-.red { color: #f87171; }
-.blue { color: #60a5fa; }
-.purple { color: #a78bfa; }
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 32px 24px; }
-.chart-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-.chart-card h3 { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
-.chart-full { padding: 0 32px 24px; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: #0f172a; padding: 10px 12px; text-align: left; color: #64748b; font-weight: 500; border-bottom: 1px solid #334155; }
-td { padding: 10px 12px; border-bottom: 1px solid #1e293b; }
-tr:hover td { background: #263148; }
-.table-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; margin: 0 32px 32px; }
-.table-card h3 { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
-.pct-bar { background: #334155; border-radius: 4px; height: 6px; width: 100px; display: inline-block; vertical-align: middle; margin-left: 8px; }
-.pct-fill { height: 6px; border-radius: 4px; }
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: #ECEAE7;
+  color: #1A1A1A;
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: #111111;
+  padding: 18px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-wrap { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 32px; height: 32px;
+  background: #FFFFFF;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 14px; color: #111;
+  letter-spacing: -1px;
+}
+.logo-name  { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
+.logo-sub   { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
+.header-right { text-align: right; }
+.header-title  { font-size: 11px; font-weight: 600; color: #FFF; letter-spacing: 2px; text-transform: uppercase; }
+.header-period { font-size: 10px; color: #555; margin-top: 3px; }
+
+/* ── WEEK TABS ── */
+.tabs-wrap {
+  background: #FFF;
+  border-bottom: 1px solid #E0DDD9;
+  padding: 0 36px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+.tab {
+  padding: 14px 24px 12px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  user-select: none;
+}
+.tab-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #AAAAAA; }
+.tab-dates { font-size: 10px; color: #BBBBBB; margin-top: 2px; }
+.tab:hover .tab-label { color: #333; }
+.tab.active { border-bottom-color: #111; }
+.tab.active .tab-label { color: #111; }
+.tab.active .tab-dates  { color: #666; }
+
+/* ── COMPARISON STRIP ── */
+.comp-strip {
+  background: #1A1A1A;
+  padding: 10px 36px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+}
+.comp-metric {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 20px 6px 0;
+  margin-right: 20px;
+  border-right: 1px solid #2E2E2E;
+  min-width: 120px;
+}
+.comp-metric:last-child { border-right: none; }
+.comp-metric-label {
+  font-size: 9px; color: #555;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.comp-bars { display: flex; gap: 8px; align-items: flex-end; }
+.comp-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.comp-bar-val {
+  font-size: 13px; font-weight: 700; color: #888;
+  line-height: 1;
+}
+.comp-bar-val.current { color: #FFFFFF; font-size: 15px; }
+.comp-bar-bg {
+  width: 28px; border-radius: 3px 3px 0 0;
+  background: #2E2E2E; min-height: 4px;
+  transition: all .3s;
+}
+.comp-bar-bg.current { background: #FFFFFF; }
+.comp-bar-wk { font-size: 9px; color: #444; margin-top: 2px; }
+.comp-bar-wk.current { color: #888; }
+.comp-delta {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 3px;
+  margin-top: 4px; align-self: flex-start;
+}
+.delta-pos  { background: rgba(74,222,128,.15); color: #4ade80; }
+.delta-neg  { background: rgba(248,113,113,.15); color: #f87171; }
+.delta-good-neg { background: rgba(74,222,128,.15); color: #4ade80; }
+
+/* ── MAIN LAYOUT ── */
+.main { padding: 28px 36px; }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; margin-top: 28px;
+}
+.sec-head:first-child { margin-top: 0; }
+.sec-icon {
+  width: 24px; height: 24px; border-radius: 5px;
+  background: #1A1A1A;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+.sec-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: #888;
+}
+
+/* ── KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  border: 1px solid #E4E2DF;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 10px 10px 0 0;
+}
+.kpi.k-black::after  { background: #1A1A1A; }
+.kpi.k-green::after  { background: #22c55e; }
+.kpi.k-amber::after  { background: #f59e0b; }
+.kpi.k-red::after    { background: #ef4444; }
+.kpi.k-blue::after   { background: #3b82f6; }
+.kpi.k-purple::after { background: #8b5cf6; }
+.kpi.k-pink::after   { background: #ec4899; }
+
+.kpi-label {
+  font-size: 9px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px; color: #999;
+}
+.kpi-value {
+  font-size: 32px; font-weight: 800;
+  line-height: 1; margin: 8px 0 4px;
+  color: #1A1A1A;
+}
+.kpi-sub   { font-size: 10px; color: #AAA; }
+.kpi-trend { font-size: 11px; font-weight: 600; margin-top: 5px; }
+.trend-up   { color: #22c55e; }
+.trend-down { color: #ef4444; }
+.trend-good-down { color: #22c55e; }
+.trend-neutral   { color: #999; }
+
+/* ── CHART CARDS ── */
+.chart-grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.chart-grid-3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.chart-card {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #E4E2DF;
+}
+.chart-card.span-2 { grid-column: span 2; }
+.chart-card.span-3 { grid-column: span 3; }
+.chart-card h3 {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
+  margin-bottom: 16px;
+}
+.chart-wrap { position: relative; }
+
+/* ── INSIGHTS ── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.insight {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 16px 18px;
+  border: 1px solid #E4E2DF;
+  border-left: 4px solid #1A1A1A;
+}
+.insight.i-meta   { border-left-color: #3b82f6; }
+.insight.i-smm    { border-left-color: #8b5cf6; }
+.insight.i-leads  { border-left-color: #22c55e; }
+.insight.i-wa     { border-left-color: #f59e0b; }
+.insight-tag {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: #AAA;
+  margin-bottom: 6px;
+}
+.insight-text { font-size: 12px; line-height: 1.65; color: #333; }
+
+/* ── RED QUIZ TABLE ── */
+.table-card {
+  background: #FFF;
+  border-radius: 10px;
+  border: 1px solid #E4E2DF;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.table-card h3 {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #F0EDEA;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  padding: 9px 16px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: #AAA; text-align: left;
+  background: #FAFAF9;
+  border-bottom: 1px solid #F0EDEA;
+}
+td {
+  padding: 9px 16px;
+  border-bottom: 1px solid #F7F6F4;
+  font-size: 12px; color: #333;
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFAF9; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.b-qualified { background: #dcfce7; color: #15803d; }
+.b-comm      { background: #fef9c3; color: #a16207; }
+.b-fu        { background: #ede9fe; color: #6d28d9; }
+.b-lost      { background: #fee2e2; color: #b91c1c; }
+.b-junk      { background: #f1f5f9; color: #475569; }
+.b-new       { background: #dbeafe; color: #1d4ed8; }
+.b-owner     { background: #fce7f3; color: #9d174d; }
+.b-future    { background: #e0f2fe; color: #0369a1; }
+
+.flag { font-size: 14px; margin-right: 4px; }
+
+/* ── WA CAMPAIGNS ── */
+.wa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px; margin-bottom: 20px;
+}
+.wa-card {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid #E4E2DF;
+  border-top: 3px solid #f59e0b;
+}
+.wa-name { font-size: 11px; font-weight: 700; color: #1A1A1A; margin-bottom: 8px; }
+.wa-stat { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.wa-stat-label { font-size: 10px; color: #999; }
+.wa-stat-val   { font-size: 10px; font-weight: 600; color: #333; }
+
+/* ── FOOTER ── */
+.footer {
+  background: #111;
+  color: #444;
+  text-align: center;
+  padding: 18px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-top: 40px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  .chart-card.span-2, .chart-card.span-3 { grid-column: span 1; }
+  .main { padding: 16px; }
+  .tabs-wrap { padding: 0 16px; }
+  .comp-strip { padding: 10px 16px; }
+  .header { padding: 14px 16px; }
+}
+
+/* ── EMPTY STATE ── */
+.empty { color: #AAA; font-style: italic; font-size: 12px; }
+.partial-note {
+  display: inline-block;
+  background: #FFF8E1;
+  color: #B45309;
+  font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 4px;
+  margin-left: 8px; vertical-align: middle;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>📊 Gaia Marketing Reports</h1>
-  <p>WhatsApp Campaigns Analytics — June 2025</p>
-</div>
-
-<div class="kpi-grid" id="kpiGrid"></div>
-
-<div class="charts-grid">
-  <div class="chart-card">
-    <h3>TARGET vs DELIVERED vs READ</h3>
-    <canvas id="chartDelivery"></canvas>
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-mark">G</div>
+    <div>
+      <div class="logo-name">GAIA</div>
+      <div class="logo-sub">Real Estate</div>
+    </div>
   </div>
-  <div class="chart-card">
-    <h3>DELIVERY RATE BY CAMPAIGN (%)</h3>
-    <canvas id="chartDeliveryPct"></canvas>
+  <div class="header-right">
+    <div class="header-title">Marketing Dashboard</div>
+    <div class="header-period" id="hPeriod">Loading…</div>
   </div>
-</div>
+</header>
 
-<div class="chart-full">
-  <div class="chart-card">
-    <h3>READ RATE BY CAMPAIGN (%)</h3>
-    <canvas id="chartReadPct"></canvas>
-  </div>
-</div>
+<!-- TABS -->
+<div class="tabs-wrap" id="tabsWrap"></div>
 
-<div class="table-card">
-  <h3>ALL CAMPAIGNS</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Campaign</th>
-        <th>Broker</th>
-        <th>Date</th>
-        <th>Target</th>
-        <th>Accepted</th>
-        <th>Delivered</th>
-        <th>Read</th>
-        <th>Failed</th>
-        <th>Replies</th>
-        <th>Delivery %</th>
-        <th>Read %</th>
-        <th>Reply %</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-</div>
+<!-- COMPARISON STRIP -->
+<div class="comp-strip" id="compStrip"></div>
+
+<!-- MAIN -->
+<main class="main" id="mainContent">
+  <p style="color:#AAA;padding:40px 0;text-align:center">Loading data…</p>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  GAIA Real Estate &nbsp;·&nbsp; Marketing Dashboard &nbsp;·&nbsp;
+  Week runs Fri → Wed &nbsp;·&nbsp; Report day: Thursday
+</footer>
 
 <script>
-fetch('data/campaigns.csv')
-  .then(r => r.text())
-  .then(text => {
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    const rows = lines.slice(1).map(l => {
-      const vals = l.split(',');
-      const obj = {};
-      headers.forEach((h, i) => obj[h] = vals[i] ? vals[i].trim() : '0');
-      return obj;
-    });
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
+const WEEK_FILES = [
+  'data/week_01.json',
+  'data/week_02.json',
+  'data/week_03.json',
+  'data/week_04.json',
+  'data/week_05.json'
+];
 
-    // KPI totals
-    const totalTarget    = rows.reduce((s, r) => s + (+r.target || 0), 0);
-    const totalAccepted  = rows.reduce((s, r) => s + (+r.meta_accepted || 0), 0);
-    const totalDelivered = rows.reduce((s, r) => s + (+r.delivered || 0), 0);
-    const totalRead      = rows.reduce((s, r) => s + (+r.read || 0), 0);
-    const totalFailed    = rows.reduce((s, r) => s + (+r.failed || 0), 0);
-    const totalReplies   = rows.reduce((s, r) => s + (+r.replies || 0), 0);
-    const avgDelivery    = totalTarget ? ((totalDelivered / totalTarget) * 100).toFixed(1) : 0;
-    const avgRead        = totalDelivered ? ((totalRead / totalDelivered) * 100).toFixed(1) : 0;
+const COMP_METRICS = [
+  { path: 'leads.total',       label: 'Total Leads',  goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.in_communication', label: 'In Comm', goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.qualified',   label: 'Qualified',    goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.spend_aed',    label: 'Meta Spend',   goodDir: 'none', fmt: 'aed' },
+  { path: 'meta.leads_form',   label: 'Meta Leads',   goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.cpl_aed',      label: 'CPL AED',      goodDir: 'down', fmt: 'aed' },
+  { path: 'smm.reach',         label: 'IG Reach',     goodDir: 'up',   fmt: 'k'   },
+  { path: 'smm.link_clicks',   label: 'IG Clicks',    goodDir: 'up',   fmt: 'num' },
+];
 
-    document.getElementById('kpiGrid').innerHTML = `
-      <div class="kpi-card">
-        <div class="label">Total Target</div>
-        <div class="value blue">${totalTarget.toLocaleString()}</div>
-        <div class="sub">${rows.length} campaigns</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Accepted</div>
-        <div class="value purple">${totalAccepted.toLocaleString()}</div>
-        <div class="sub">${totalTarget ? ((totalAccepted/totalTarget)*100).toFixed(1) : 0}% of target</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Delivered</div>
-        <div class="value green">${totalDelivered.toLocaleString()}</div>
-        <div class="sub">${avgDelivery}% delivery rate</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Read</div>
-        <div class="value yellow">${totalRead.toLocaleString()}</div>
-        <div class="sub">${avgRead}% read rate</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Failed</div>
-        <div class="value red">${totalFailed.toLocaleString()}</div>
-        <div class="sub">${totalTarget ? ((totalFailed/totalTarget)*100).toFixed(1) : 0}% failed</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">Replies</div>
-        <div class="value blue">${totalReplies.toLocaleString()}</div>
-        <div class="sub">${totalDelivered ? ((totalReplies/totalDelivered)*100).toFixed(1) : 0}% reply rate</div>
-      </div>
-    `;
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let weeks = [];
+let active = 0;
+let charts = {};
 
-    // Table
-    const tbody = document.getElementById('tableBody');
-    rows.forEach(r => {
-      const dpct = parseFloat(r.delivery_pct) || 0;
-      const rpct = parseFloat(r.read_pct) || 0;
-      const replypct = parseFloat(r.reply_pct) || 0;
-      const dColor = dpct >= 40 ? '#4ade80' : dpct >= 20 ? '#fbbf24' : '#f87171';
-      const rColor = rpct >= 30 ? '#4ade80' : rpct >= 15 ? '#fbbf24' : '#f87171';
-      tbody.innerHTML += `<tr>
-        <td style="font-weight:500;color:#f1f5f9">${r.campaign}</td>
-        <td style="color:#94a3b8">${r.broker}</td>
-        <td style="color:#64748b">${r.date}</td>
-        <td>${(+r.target).toLocaleString()}</td>
-        <td>${(+r.meta_accepted).toLocaleString()}</td>
-        <td style="color:#4ade80">${(+r.delivered).toLocaleString()}</td>
-        <td style="color:#fbbf24">${(+r.read).toLocaleString()}</td>
-        <td style="color:#f87171">${(+r.failed).toLocaleString()}</td>
-        <td style="color:#a78bfa">${(+r.replies).toLocaleString()}</td>
-        <td>
-          <span style="color:${dColor}">${dpct}%</span>
-          <span class="pct-bar"><span class="pct-fill" style="width:${Math.min(dpct,100)}%;background:${dColor}"></span></span>
-        </td>
-        <td>
-          <span style="color:${rColor}">${rpct}%</span>
-          <span class="pct-bar"><span class="pct-fill" style="width:${Math.min(rpct,100)}%;background:${rColor}"></span></span>
-        </td>
-        <td style="color:#a78bfa">${replypct}%</td>
-      </tr>`;
-    });
+// ════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════
+(async function boot() {
+  try {
+    const results = await Promise.allSettled(
+      WEEK_FILES.map(f => fetch(f).then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      }))
+    );
+    weeks = results
+      .map((r, i) => r.status === 'fulfilled' ? r.value : null)
+      .filter(Boolean);
 
-    const labels = rows.map(r => r.campaign);
-    const colors = ['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c','#e879f9','#38bdf8','#a3e635','#f472b6'];
+    if (!weeks.length) throw new Error('No data files found');
+    active = weeks.length - 1;
+    render();
+  } catch(e) {
+    document.getElementById('mainContent').innerHTML =
+      `<p style="color:#ef4444;padding:40px;text-align:center">
+        ⚠️ Could not load data files.<br>
+        <small style="color:#999">Make sure data/week_0X.json files exist in your repo.<br>${e.message}</small>
+      </p>`;
+  }
+})();
 
-    // Chart 1 — Target vs Delivered vs Read
-    new Chart(document.getElementById('chartDelivery'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Target', data: rows.map(r => +r.target), backgroundColor: '#334155' },
-          { label: 'Delivered', data: rows.map(r => +r.delivered), backgroundColor: '#60a5fa' },
-          { label: 'Read', data: rows.map(r => +r.read), backgroundColor: '#4ade80' }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8' } } },
-        scales: {
-          x: { ticks: { color: '#64748b', maxRotation: 45 } },
-          y: { ticks: { color: '#64748b' } }
-        }
-      }
-    });
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function get(obj, path) {
+  return path.split('.').reduce((o, k) => (o != null ? o[k] : 0), obj) ?? 0;
+}
 
-    // Chart 2 — Delivery % doughnut
-    new Chart(document.getElementById('chartDeliveryPct'), {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{ data: rows.map(r => parseFloat(r.delivery_pct) || 0), backgroundColor: colors }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
-      }
-    });
+function fmt(val, type) {
+  if (val == null || val === 0) return '—';
+  if (type === 'aed') return val.toLocaleString() + ' ₟';
+  if (type === 'k')   return val >= 1000 ? (val/1000).toFixed(1) + 'k' : val;
+  return val.toLocaleString();
+}
 
-    // Chart 3 — Read % line
-    new Chart(document.getElementById('chartReadPct'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Read Rate %',
-          data: rows.map(r => parseFloat(r.read_pct) || 0),
-          borderColor: '#fbbf24',
-          backgroundColor: 'rgba(251,191,36,0.1)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#fbbf24'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8' } } },
-        scales: {
-          x: { ticks: { color: '#64748b', maxRotation: 45 } },
-          y: { ticks: { color: '#64748b' }, min: 0 }
-        }
-      }
-    });
-  });
-</script>
-</body>
-</html>
+function delta(curr, prev, goodDir) {
+  if (!prev || !curr) return '';
+  const pct = Math.round(((curr - prev) / prev) * 100);
+  const sign = pct >= 0 ? '+' : '';
+  let cls = pct >= 0 ? 'delta-pos' : 'delta-neg';
+  if (goodDir === 'down' && pct < 0) cls = 'delta-good-neg';
+  if (goodDir === 'down' && pct > 0) cls = 'delta-neg';
+  return `<span class="comp-delta ${cls}">${sign}${pct}%</span>`;
+}
+
+function trendHtml(curr, prev, goodDir) {
+  if (!prev || !curr) return '';
+  const pct = Math.round(((curr - prev) / prev) * 100);
+  const sign = pct >= 0 ? '↑' : '↓';
+  let cls = 'trend-up';
+  if (pct < 0 && goodDir !== 'down') cls = 'trend-down';
+  if (pct < 0 && goodDir === 'down') cls = 'trend-good-down';
+  if (pct > 0 && goodDir === 'down') cls = 'trend-down';
+  const label = Math.abs(pct) + '% vs prev week';
+  return `<div class="kpi-trend ${cls}">${sign} ${label}</div>`;
+}
+
+function statusBadge(s) {
+  const map = {
+    'Qualified':      'b-qualified',
+    'In Communication':'b-comm',
+    'Follow-Up 1':    'b-fu',
+    'Follow-Up 2':    'b-fu',
+    'Follow-Up 3':    'b-fu',
+    'Follow-Up 4':    'b-fu',
+    'Follow-Up 5':    'b-fu',
+    '
