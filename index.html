@@ -464,4 +464,826 @@ function statusBadge(s) {
     'Follow-Up 3':    'b-fu',
     'Follow-Up 4':    'b-fu',
     'Follow-Up 5':    'b-fu',
-    '
+    'Prospect Lost':  'b-lost',
+    'Junk Lead':      'b-junk',
+    'New Leads':      'b-new',
+    'Owner to sell':  'b-owner',
+    'Future Follow-Up':'b-future',
+  };
+  const cls = map[s] || 'b-new';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+function countryFlag(country) {
+  const flags = {
+    'United Kingdom': '🇬🇧', 'Serbia': '🇷🇸', 'Turkey': '🇹🇷',
+    'Italy': '🇮🇹', 'India': '🇮🇳', 'Portugal': '🇵🇹',
+    'Libya': '🇱🇾', 'Canada': '🇨🇦', 'Romania': '🇷🇴',
+    'UAE': '🇦🇪', 'Germany': '🇩🇪', 'France': '🇫🇷',
+    'Saudi Arabia': '🇸🇦', 'Kuwait': '🇰🇼', 'Qatar': '🇶🇦',
+  };
+  return flags[country] || '🌍';
+}
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e) {} });
+  charts = {};
+}
+
+// ════════════════════════════════════════════
+//  RENDER MASTER
+// ════════════════════════════════════════════
+function render() {
+  renderTabs();
+  renderCompStrip();
+  renderMain();
+}
+
+function switchWeek(idx) {
+  active = idx;
+  destroyCharts();
+  renderTabs();
+  renderCompStrip();
+  renderMain();
+  document.getElementById('hPeriod').textContent = weeks[active].period;
+}
+
+// ════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════
+function renderTabs() {
+  document.getElementById('hPeriod').textContent = weeks[active].period;
+  document.getElementById('tabsWrap').innerHTML = weeks.map((w, i) => `
+    <div class="tab ${i === active ? 'active' : ''}" onclick="switchWeek(${i})">
+      <div class="tab-label">
+        ${w.week_label}
+        ${w.is_partial ? '<span class="partial-note">Partial</span>' : ''}
+      </div>
+      <div class="tab-dates">${w.period}</div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════
+//  COMPARISON STRIP
+// ════════════════════════════════════════════
+function renderCompStrip() {
+  const w = weeks[active];
+  const BAR_MAX_H = 32;
+
+  const html = COMP_METRICS.map(m => {
+    const vals = weeks.map(wk => get(wk, m.path));
+    const maxV = Math.max(...vals.filter(v => v > 0), 1);
+    const curr = vals[active];
+    const prev = active > 0 ? vals[active - 1] : null;
+
+    const barsHtml = vals.map((v, i) => {
+      const h = v > 0 ? Math.max(4, Math.round((v / maxV) * BAR_MAX_H)) : 4;
+      const isCurr = i === active;
+      return `
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-val ${isCurr ? 'current' : ''}">
+            ${fmt(v, m.fmt)}
+          </div>
+          <div class="comp-bar-bg ${isCurr ? 'current' : ''}"
+               style="height:${h}px"></div>
+          <div class="comp-bar-wk ${isCurr ? 'current' : ''}">
+            ${weeks[i].week_label}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="comp-metric">
+        <div class="comp-metric-label">${m.label}</div>
+        <div class="comp-bars">${barsHtml}</div>
+        ${delta(curr, prev, m.goodDir)}
+      </div>`;
+  }).join('');
+
+  document.getElementById('compStrip').innerHTML = html;
+}
+
+// ════════════════════════════════════════════
+//  MAIN CONTENT
+// ════════════════════════════════════════════
+function renderMain() {
+  const w = weeks[active];
+  const prev = active > 0 ? weeks[active - 1] : null;
+
+  const html = `
+    ${renderOverviewKPIs(w, prev)}
+    ${renderMetaSection(w, prev)}
+    ${renderSmmSection(w, prev)}
+    ${renderLeadsSection(w, prev)}
+    ${renderWaSection(w, prev)}
+    ${w.red_quiz_leads?.length ? renderRedQuiz(w) : ''}
+    ${renderInsights(w)}
+  `;
+
+  document.getElementById('mainContent').innerHTML = html;
+  drawCharts(w, prev);
+}
+
+// ════════════════════════════════════════════
+//  OVERVIEW KPIs
+// ════════════════════════════════════════════
+function renderOverviewKPIs(w, prev) {
+  const p = prev;
+  const kpis = [
+    {
+      label: 'Total Leads', color: 'k-black',
+      value: w.leads.total,
+      sub: `W${w.week_num} · ${w.period}`,
+      trend: trendHtml(w.leads.total, p?.leads?.total, 'up')
+    },
+    {
+      label: 'In Communication', color: 'k-green',
+      value: w.leads.in_communication,
+      sub: `${w.leads.total ? Math.round(w.leads.in_communication/w.leads.total*100) : 0}% of total`,
+      trend: trendHtml(w.leads.in_communication, p?.leads?.in_communication, 'up')
+    },
+    {
+      label: 'Qualified', color: 'k-blue',
+      value: w.leads.qualified,
+      sub: 'Hot leads this week',
+      trend: trendHtml(w.leads.qualified, p?.leads?.qualified, 'up')
+    },
+    {
+      label: 'Follow-Up', color: 'k-purple',
+      value: w.leads.follow_up,
+      sub: 'Active pipeline',
+      trend: trendHtml(w.leads.follow_up, p?.leads?.follow_up, 'up')
+    },
+    {
+      label: 'Prospect Lost', color: 'k-red',
+      value: w.leads.prospect_lost,
+      sub: `${w.leads.total ? Math.round(w.leads.prospect_lost/w.leads.total*100) : 0}% loss rate`,
+      trend: trendHtml(w.leads.prospect_lost, p?.leads?.prospect_lost, 'down')
+    },
+    {
+      label: 'Junk / Invalid', color: 'k-amber',
+      value: w.leads.junk,
+      sub: 'Filtered out',
+      trend: trendHtml(w.leads.junk, p?.leads?.junk, 'down')
+    },
+  ];
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📊</div>
+      <div class="sec-title">Weekly Overview</div>
+    </div>
+    <div class="kpi-grid">
+      ${kpis.map(k => `
+        <div class="kpi ${k.color}">
+          <div class="kpi-label">${k.label}</div>
+          <div class="kpi-value">${k.value ?? '—'}</div>
+          <div class="kpi-sub">${k.sub}</div>
+          ${k.trend}
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  META ADS SECTION
+// ════════════════════════════════════════════
+function renderMetaSection(w, prev) {
+  const m = w.meta;
+  const pm = prev?.meta;
+
+  const kpis = [
+    {
+      label: 'Meta Spend', color: 'k-blue',
+      value: m.spend_aed ? m.spend_aed.toLocaleString() + ' ₟' : '—',
+      sub: m.top_campaign || '—',
+      trend: trendHtml(m.spend_aed, pm?.spend_aed, 'none')
+    },
+    {
+      label: 'Impressions', color: 'k-blue',
+      value: m.impressions ? (m.impressions/1000).toFixed(0) + 'k' : '—',
+      sub: 'Total ad views',
+      trend: trendHtml(m.impressions, pm?.impressions, 'up')
+    },
+    {
+      label: 'Link Clicks', color: 'k-blue',
+      value: m.link_clicks ? m.link_clicks.toLocaleString() : '—',
+      sub: m.impressions && m.link_clicks
+        ? 'CTR ' + (m.link_clicks/m.impressions*100).toFixed(2) + '%'
+        : '—',
+      trend: trendHtml(m.link_clicks, pm?.link_clicks, 'up')
+    },
+    {
+      label: 'Leads (Forms)', color: 'k-green',
+      value: m.leads_form || '—',
+      sub: 'From lead forms',
+      trend: trendHtml(m.leads_form, pm?.leads_form, 'up')
+    },
+    {
+      label: 'CPL', color: m.cpl_aed > 100 ? 'k-amber' : 'k-green',
+      value: m.cpl_aed ? m.cpl_aed + ' ₟' : '—',
+      sub: 'Cost per lead',
+      trend: trendHtml(m.cpl_aed, pm?.cpl_aed, 'down')
+    },
+  ];
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">💰</div>
+      <div class="sec-title">Meta Ads</div>
+    </div>
+    <div class="kpi-grid">
+      ${kpis.map(k => `
+        <div class="kpi ${k.color}">
+          <div class="kpi-label">${k.label}</div>
+          <div class="kpi-value" style="font-size:${String(k.value).length > 6 ? '20px' : '28px'}">${k.value}</div>
+          <div class="kpi-sub">${k.sub}</div>
+          ${k.trend}
+        </div>`).join('')}
+    </div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <h3>Spend vs Leads — all weeks</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartMetaTrend"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>CPL trend — all weeks</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartCPL"></canvas>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  SMM SECTION
+// ════════════════════════════════════════════
+function renderSmmSection(w, prev) {
+  const s = w.smm;
+  const ps = prev?.smm;
+
+  const kpis = [
+    {
+      label: 'IG Reach', color: 'k-purple',
+      value: s.reach >= 1000 ? (s.reach/1000).toFixed(0)+'k' : s.reach || '—',
+      sub: 'Unique accounts',
+      trend: trendHtml(s.reach, ps?.reach, 'up')
+    },
+    {
+      label: 'IG Views', color: 'k-purple',
+      value: s.views >= 1000 ? (s.views/1000).toFixed(0)+'k' : s.views || '—',
+      sub: 'Content views',
+      trend: trendHtml(s.views, ps?.views, 'up')
+    },
+    {
+      label: 'Link Clicks', color: 'k-purple',
+      value: s.link_clicks || '—',
+      sub: 'Profile link taps',
+      trend: trendHtml(s.link_clicks, ps?.link_clicks, 'up')
+    },
+    {
+      label: 'Interactions', color: 'k-purple',
+      value: s.interactions || '—',
+      sub: 'Likes, comments, saves',
+      trend: trendHtml(s.interactions, ps?.interactions, 'up')
+    },
+    {
+      label: 'New Followers', color: 'k-pink',
+      value: s.follows || '—',
+      sub: 'This week',
+      trend: trendHtml(s.follows, ps?.follows, 'up')
+    },
+    {
+      label: 'Profile Visits', color: 'k-purple',
+      value: s.profile_visits || '—',
+      sub: 'Page views',
+      trend: trendHtml(s.profile_visits, ps?.profile_visits, 'up')
+    },
+  ];
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📸</div>
+      <div class="sec-title">Instagram / SMM</div>
+    </div>
+    <div class="kpi-grid">
+      ${kpis.map(k => `
+        <div class="kpi ${k.color}">
+          <div class="kpi-label">${k.label}</div>
+          <div class="kpi-value">${k.value}</div>
+          <div class="kpi-sub">${k.sub}</div>
+          ${k.trend}
+        </div>`).join('')}
+    </div>
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <h3>Reach & Views — all weeks</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartSmmReach"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Engagement breakdown — this week</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartSmmEngage"></canvas>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  LEADS BREAKDOWN SECTION
+// ════════════════════════════════════════════
+function renderLeadsSection(w, prev) {
+  const src = w.leads.by_source || {};
+  const srcEntries = Object.entries(src).filter(([,v]) => v > 0);
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">🎯</div>
+      <div class="sec-title">Leads Breakdown</div>
+    </div>
+    <div class="chart-grid-3">
+      <div class="chart-card">
+        <h3>By Source</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartLeadSource"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>By Status</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartLeadStatus"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Weekly Lead Volume</h3>
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chartLeadTrend"></canvas>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  WHATSAPP OUTREACH SECTION
+// ════════════════════════════════════════════
+function renderWaSection(w, prev) {
+  const wa = w.whatsapp_outreach;
+  if (!wa || wa.contacts_sent === 0) return `
+    <div class="sec-head">
+      <div class="sec-icon">💬</div>
+      <div class="sec-title">WhatsApp Outreach</div>
+    </div>
+    <div style="background:#FFF;border-radius:10px;padding:20px;
+                border:1px solid #E4E2DF;margin-bottom:20px;color:#AAA;font-size:12px">
+      No WhatsApp outreach campaigns this week.
+    </div>`;
+
+  const replyRate = wa.contacts_sent
+    ? Math.round(wa.replied / wa.contacts_sent * 100) : 0;
+  const commRate = wa.replied
+    ? Math.round(wa.in_communication / wa.replied * 100) : 0;
+  const optRate = wa.contacts_sent
+    ? Math.round(wa.opt_out / wa.contacts_sent * 100) : 0;
+
+  const campaignsHtml = (wa.campaigns || []).map(c => `
+    <div class="wa-card">
+      <div class="wa-name">📋 ${c}</div>
+      <div class="wa-stat">
+        <span class="wa-stat-label">Campaign</span>
+        <span class="wa-stat-val">Active</span>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">💬</div>
+      <div class="sec-title">WhatsApp Outreach</div>
+    </div>
+    <div class="kpi-grid" style="margin-bottom:14px">
+      <div class="kpi k-amber">
+        <div class="kpi-label">Contacts Sent</div>
+        <div class="kpi-value">${wa.contacts_sent}</div>
+        <div class="kpi-sub">Messages delivered</div>
+        ${trendHtml(wa.contacts_sent, prev?.whatsapp_outreach?.contacts_sent, 'none')}
+      </div>
+      <div class="kpi k-green">
+        <div class="kpi-label">Replied</div>
+        <div class="kpi-value">${wa.replied}</div>
+        <div class="kpi-sub">Reply rate: ${replyRate}%</div>
+        ${trendHtml(wa.replied, prev?.whatsapp_outreach?.replied, 'up')}
+      </div>
+      <div class="kpi k-blue">
+        <div class="kpi-label">In Communication</div>
+        <div class="kpi-value">${wa.in_communication}</div>
+        <div class="kpi-sub">${commRate}% of replies</div>
+        ${trendHtml(wa.in_communication, prev?.whatsapp_outreach?.in_communication, 'up')}
+      </div>
+      <div class="kpi k-red">
+        <div class="kpi-label">Prospect Lost</div>
+        <div class="kpi-value">${wa.prospect_lost}</div>
+        <div class="kpi-sub">Not interested</div>
+        ${trendHtml(wa.prospect_lost, prev?.whatsapp_outreach?.prospect_lost, 'down')}
+      </div>
+      <div class="kpi k-amber">
+        <div class="kpi-label">Opt-Out</div>
+        <div class="kpi-value">${wa.opt_out}</div>
+        <div class="kpi-sub">Opt-out rate: ${optRate}%</div>
+        ${trendHtml(wa.opt_out, prev?.whatsapp_outreach?.opt_out, 'down')}
+      </div>
+    </div>
+    ${wa.campaigns?.length ? `
+      <div class="wa-grid">${campaignsHtml}</div>` : ''}`;
+}
+
+// ════════════════════════════════════════════
+//  RED QUIZ LEADS
+// ════════════════════════════════════════════
+function renderRedQuiz(w) {
+  const leads = w.red_quiz_leads || [];
+  if (!leads.length) return '';
+
+  const rows = leads.map(l => `
+    <tr>
+      <td><span class="flag">${countryFlag(l.country)}</span>${l.name}</td>
+      <td>${l.country}</td>
+      <td><span class="badge ${l.purpose === 'invest' ? 'b-blue' : 'b-comm'}"
+               style="${l.purpose === 'invest' ? 'background:#dbeafe;color:#1d4ed8' : ''}">
+        ${l.purpose === 'invest' ? '📈 Investment' : '🏠 Living'}
+      </span></td>
+      <td>${statusBadge(l.status)}</td>
+    </tr>`).join('');
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">🔴</div>
+      <div class="sec-title">RED Quiz Leads — John Richmond Residences</div>
+    </div>
+    <div class="table-card">
+      <h3>International leads · Budget 240k+ AED · ${leads.length} this week</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Country</th>
+            <th>Purpose</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  INSIGHTS
+// ════════════════════════════════════════════
+function renderInsights(w) {
+  const ins = w.insights || {};
+  const items = [
+    { key: 'general', label: 'General',   cls: '',        icon: '💡' },
+    { key: 'meta',    label: 'Meta Ads',  cls: 'i-meta',  icon: '💰' },
+    { key: 'smm',     label: 'Instagram', cls: 'i-smm',   icon: '📸' },
+    { key: 'leads',   label: 'Leads',     cls: 'i-leads', icon: '🎯' },
+  ].filter(i => ins[i.key]);
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">💡</div>
+      <div class="sec-title">Weekly Insights</div>
+    </div>
+    <div class="insights-grid">
+      ${items.map(i => `
+        <div class="insight ${i.cls}">
+          <div class="insight-tag">${i.icon} ${i.label}</div>
+          <div class="insight-text">${ins[i.key]}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  CHARTS
+// ════════════════════════════════════════════
+function drawCharts(w, prev) {
+  requestAnimationFrame(() => {
+    drawMetaTrend();
+    drawCPL();
+    drawSmmReach();
+    drawSmmEngage(w);
+    drawLeadSource(w);
+    drawLeadStatus(w);
+    drawLeadTrend();
+  });
+}
+
+const WEEK_LABELS = () => weeks.map(w => w.week_label);
+
+const CHART_DEFAULTS = {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+    y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
+  },
+  responsive: true,
+  maintainAspectRatio: false,
+};
+
+function mkChart(id, config) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, config);
+}
+
+function drawMetaTrend() {
+  mkChart('chartMetaTrend', {
+    type: 'bar',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [
+        {
+          label: 'Spend AED',
+          data: weeks.map(w => w.meta.spend_aed || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#3b82f6' : '#DBEAFE'),
+          borderRadius: 4, yAxisID: 'y',
+        },
+        {
+          label: 'Leads',
+          data: weeks.map(w => w.meta.leads_form || 0),
+          type: 'line',
+          borderColor: '#22c55e',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#22c55e',
+          pointRadius: 4,
+          tension: 0.3,
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { size: 10 }, boxWidth: 10 }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: { font: { size: 10 } },
+          position: 'left',
+        },
+        y2: {
+          grid: { display: false },
+          ticks: { font: { size: 10 } },
+          position: 'right',
+        }
+      }
+    }
+  });
+}
+
+function drawCPL() {
+  mkChart('chartCPL', {
+    type: 'line',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [{
+        data: weeks.map(w => w.meta.cpl_aed || null),
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.08)',
+        pointBackgroundColor: weeks.map((w, i) =>
+          i === active ? '#f59e0b' : '#FCD34D'),
+        pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
+        fill: true,
+        tension: 0.3,
+        spanGaps: true,
+      }]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: { font: { size: 10 },
+            callback: v => v + ' ₟' }
+        }
+      }
+    }
+  });
+}
+
+function drawSmmReach() {
+  mkChart('chartSmmReach', {
+    type: 'line',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [
+        {
+          label: 'Reach',
+          data: weeks.map(w => w.smm.reach || 0),
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139,92,246,0.08)',
+          fill: true, tension: 0.3,
+          pointRadius: weeks.map((w, i) => i === active ? 6 : 3),
+          pointBackgroundColor: '#8b5cf6',
+        },
+        {
+          label: 'Views',
+          data: weeks.map(w => w.smm.views || 0),
+          borderColor: '#ec4899',
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          pointRadius: weeks.map((w, i) => i === active ? 6 : 3),
+          pointBackgroundColor: '#ec4899',
+          borderDash: [4, 3],
+        }
+      ]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { size: 10 }, boxWidth: 10 }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: {
+            font: { size: 10 },
+            callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v
+          }
+        }
+      }
+    }
+  });
+}
+
+function drawSmmEngage(w) {
+  const s = w.smm;
+  mkChart('chartSmmEngage', {
+    type: 'doughnut',
+    data: {
+      labels: ['Link Clicks', 'Interactions', 'Follows', 'Profile Visits'],
+      datasets: [{
+        data: [
+          s.link_clicks || 0,
+          s.interactions || 0,
+          s.follows || 0,
+          s.profile_visits || 0
+        ],
+        backgroundColor: ['#8b5cf6','#ec4899','#22c55e','#f59e0b'],
+        borderWidth: 2,
+        borderColor: '#FFF',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
+        }
+      },
+      cutout: '65%',
+    }
+  });
+}
+
+function drawLeadSource(w) {
+  const src = w.leads.by_source || {};
+  const entries = Object.entries(src).filter(([,v]) => v > 0);
+  const COLORS = ['#1A1A1A','#3b82f6','#22c55e','#f59e0b',
+                  '#ef4444','#8b5cf6','#ec4899','#14b8a6'];
+
+  mkChart('chartLeadSource', {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([k]) => k.replace(/_/g,' ')),
+      datasets: [{
+        data: entries.map(([,v]) => v),
+        backgroundColor: COLORS.slice(0, entries.length),
+        borderWidth: 2,
+        borderColor: '#FFF',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
+        }
+      },
+      cutout: '60%',
+    }
+  });
+}
+
+function drawLeadStatus(w) {
+  const statuses = [
+    { key: 'qualified',         label: 'Qualified',    color: '#22c55e' },
+    { key: 'in_communication',  label: 'In Comm',      color: '#f59e0b' },
+    { key: 'follow_up',         label: 'Follow-Up',    color: '#8b5cf6' },
+    { key: 'prospect_lost',     label: 'Lost',         color: '#ef4444' },
+    { key: 'junk',              label: 'Junk',         color: '#94a3b8' },
+    { key: 'owner_sell',        label: 'Owner→Sell',   color: '#ec4899' },
+    { key: 'future_fu',         label: 'Future FU',    color: '#3b82f6' },
+  ];
+
+  const data   = statuses.map(s => w.leads[s.key] || 0);
+  const labels = statuses.map(s => s.label);
+  const colors = statuses.map(s => s.color);
+
+  mkChart('chartLeadStatus', {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#FFF',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
+        }
+      },
+      cutout: '60%',
+    }
+  });
+}
+
+function drawLeadTrend() {
+  mkChart('chartLeadTrend', {
+    type: 'bar',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [
+        {
+          label: 'Total',
+          data: weeks.map(w => w.leads.total || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#1A1A1A' : '#E4E2DF'),
+          borderRadius: 4,
+        },
+        {
+          label: 'In Comm',
+          data: weeks.map(w => w.leads.in_communication || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#f59e0b' : 'rgba(245,158,11,0.3)'),
+          borderRadius: 4,
+        },
+        {
+          label: 'Qualified',
+          data: weeks.map(w => w.leads.qualified || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#22c55e' : 'rgba(34,197,94,0.3)'),
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { size: 10 }, boxWidth: 10 }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } }, stacked: false },
+        y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════
+//  EXPOSE switchWeek globally
+// ════════════════════════════════════════════
+window.switchWeek = switchWeek;
+</script>
+</body>
+</html>
