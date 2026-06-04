@@ -1,4 +1,4 @@
-{
+ {
     "week_num": 5,
     "label": "First WhatsApp Launch — Week 5",
     "period_start": "2026-05-21",
@@ -797,4 +797,14 @@
     "6060": "Dmitrii Novikov",
     "8172": "Vladimir Kuznetsov",
     "8296": "Hicham Akharraz",
-    "8206": "Alikhan Bi
+    "8206": "Alikhan Bitokov",
+    "8202": "Rency Reji",
+    "8176": "Lev Kazakov"
+  },
+
+  "pipeline_stages": {
+    "positive": ["New Leads", "In Communication", "Owner Looking to Sell", "Qualified", "Follow-Up"],
+    "negative": ["Prospect Lost", "Junk Lead"],
+    "opt_out": ["Opt-Out"]
+  }
+}
