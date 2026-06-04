@@ -9,11 +9,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════ -->
-<!--  HEADER                                -->
-<!-- ═══════════════════════════════════════ -->
 <header class="header">
-
   <a href="index.html" class="logo-wrap">
     <div class="logo-mark">G</div>
     <div>
@@ -23,40 +19,32 @@
   </a>
 
   <nav class="nav-menu">
-    <!-- 1. Оставляем только нужные кнопки: Dashboard / Meta / Instagram / WhatsApp / RED / Others -->
     <a href="index.html" class="nav-btn btn-dashboard active">
       <span class="nav-btn-icon">📊</span>
       <span class="nav-btn-label">Dashboard</span>
     </a>
-
     <div class="nav-sep"></div>
-
     <a href="meta.html" class="nav-btn btn-meta">
       <span class="nav-btn-icon">◈</span>
       <span class="nav-btn-label">Meta</span>
       <span class="nav-btn-badge" id="badge-meta">—</span>
     </a>
-
     <a href="smm.html" class="nav-btn btn-smm">
       <span class="nav-btn-icon">✦</span>
       <span class="nav-btn-label">Instagram</span>
       <span class="nav-btn-badge" id="badge-smm">—</span>
     </a>
-
     <div class="nav-sep"></div>
-
     <a href="whatsapp.html" class="nav-btn btn-wa">
       <span class="nav-btn-icon">💬</span>
       <span class="nav-btn-label">WhatsApp</span>
       <span class="nav-btn-badge" id="badge-wa">—</span>
     </a>
-
     <a href="red.html" class="nav-btn btn-red">
       <span class="nav-btn-icon">◉</span>
       <span class="nav-btn-label">RED</span>
       <span class="nav-btn-badge" id="badge-red">—</span>
     </a>
-
     <a href="others.html" class="nav-btn btn-others">
       <span class="nav-btn-icon">⊹</span>
       <span class="nav-btn-label">Others</span>
@@ -67,29 +55,15 @@
     <div class="header-title">Marketing Dashboard</div>
     <div class="header-period" id="hPeriod">Loading…</div>
   </div>
-
 </header>
 
-<!-- ═══════════════════════════════════════ -->
-<!--  WEEK TABS                             -->
-<!-- ═══════════════════════════════════════ -->
 <div class="tabs-wrap" id="tabsWrap"></div>
-
-<!-- ═══════════════════════════════════════ -->
-<!--  COMPARISON STRIP                      -->
-<!-- ═══════════════════════════════════════ -->
 <div class="comp-strip" id="compStrip"></div>
 
-<!-- ═══════════════════════════════════════ -->
-<!--  MAIN CONTENT                          -->
-<!-- ═══════════════════════════════════════ -->
 <main class="main" id="mainContent">
   <p style="color:#AAA;padding:40px 0;text-align:center">Loading data…</p>
 </main>
 
-<!-- ═══════════════════════════════════════ -->
-<!--  FOOTER                                -->
-<!-- ═══════════════════════════════════════ -->
 <footer class="footer">
   GAIA Real Estate &nbsp;·&nbsp; Marketing Dashboard &nbsp;·&nbsp;
   Week runs Fri → Wed &nbsp;·&nbsp; Report day: Thursday
@@ -107,7 +81,6 @@ const WEEK_FILES = [
   'data/week_05.json',
 ];
 
-// Файлы WA — для подгрузки реальных данных в карточку
 const WA_FILES = {
   5: 'data/whatsapp/wa_week_05.json',
 };
@@ -118,6 +91,7 @@ const COMP_METRICS = [
   { path: 'meta.cpl_aed',    label: 'CPL AED',     goodDir: 'down', fmt: 'aed' },
   { path: 'smm.reach',       label: 'IG Reach',    goodDir: 'up',   fmt: 'k'   },
   { path: 'smm.link_clicks', label: 'IG Clicks',   goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.total',     label: 'CRM Total',   goodDir: 'up',   fmt: 'num' },
 ];
 
 // ════════════════════════════════════════════
@@ -126,7 +100,7 @@ const COMP_METRICS = [
 let weeks   = [];
 let active  = 0;
 let charts  = {};
-let waCache = {};   // кэш загруженных WA JSON
+let waCache = {};
 
 // ════════════════════════════════════════════
 //  BOOT
@@ -146,77 +120,65 @@ let waCache = {};   // кэш загруженных WA JSON
     if (!weeks.length) throw new Error('No data files found');
     active = weeks.length - 1;
 
-    // Предзагружаем WA данные для текущей недели
     await loadWAForWeek(active);
-
     updateBadges();
     render();
   } catch(e) {
     document.getElementById('mainContent').innerHTML =
       `<p style="color:#ef4444;padding:40px;text-align:center">
         ⚠️ Could not load data files.<br>
-        <small style="color:#999">
-          Make sure data/week_0X.json files exist.<br>${e.message}
-        </small>
+        <small style="color:#999">${e.message}</small>
       </p>`;
   }
 })();
 
 // ════════════════════════════════════════════
-//  LOAD WA DATA FOR WEEK
+//  LOAD WA JSON
 // ════════════════════════════════════════════
 async function loadWAForWeek(idx) {
   const w = weeks[idx];
   if (!w) return;
-  const weekNum = w.week_num;
-
-  // Уже загружен
-  if (waCache[weekNum] !== undefined) return;
-
-  const file = WA_FILES[weekNum];
-  if (!file) {
-    waCache[weekNum] = null;
-    return;
-  }
-
+  const wn = w.week_num;
+  if (waCache[wn] !== undefined) return;
+  const file = WA_FILES[wn];
+  if (!file) { waCache[wn] = null; return; }
   try {
     const resp = await fetch(file);
     if (!resp.ok) throw new Error('not found');
-    const raw = await resp.json();
-    waCache[weekNum] = computeWA(raw);
+    waCache[wn] = computeWA(await resp.json());
   } catch(e) {
-    waCache[weekNum] = null;
+    waCache[wn] = null;
   }
 }
 
 // ════════════════════════════════════════════
-//  COMPUTE WA METRICS FROM RAW JSON
-//  (та же логика что в whatsapp.html)
+//  COMPUTE WA METRICS
 // ════════════════════════════════════════════
 function computeWA(raw) {
-  const { campaigns, crm_leads, brokers, pipeline_stages } = raw;
+  const { campaigns, crm_leads, pipeline_stages } = raw;
   if (!campaigns || !crm_leads) return null;
 
   const positiveStages = new Set(pipeline_stages?.positive || []);
 
   const T = {
-    target:        campaigns.reduce((s,c) => s + (c.target||0), 0),
-    meta_accepted: campaigns.reduce((s,c) => s + (c.meta_accepted||0), 0),
-    delivered:     campaigns.reduce((s,c) => s + (c.delivered||0), 0),
-    read:          campaigns.reduce((s,c) => s + (c.read||0), 0),
-    failed:        campaigns.reduce((s,c) => s + (c.failed||0), 0),
-    replies_wa:    campaigns.reduce((s,c) => s + (c.replies_wa||0), 0),
+    target:          campaigns.reduce((s,c) => s + (c.target||0), 0),
+    meta_accepted:   campaigns.reduce((s,c) => s + (c.meta_accepted||0), 0),
+    delivered:       campaigns.reduce((s,c) => s + (c.delivered||0), 0),
+    read:            campaigns.reduce((s,c) => s + (c.read||0), 0),
+    failed:          campaigns.reduce((s,c) => s + (c.failed||0), 0),
+    replies_wa:      campaigns.reduce((s,c) => s + (c.replies_wa||0), 0),
     campaigns_count: campaigns.length,
   };
 
-  T.delivery_rate_pct     = T.target ? +((T.delivered / T.target) * 100).toFixed(1) : 0;
-  T.reply_rate_of_read    = T.read   ? +((T.replies_wa / T.read) * 100).toFixed(1) : 0;
-  T.failed_rate_pct       = T.target ? +((T.failed / T.target) * 100).toFixed(1) : 0;
+  T.delivery_rate_pct  = T.target ? +((T.delivered / T.target) * 100).toFixed(1) : 0;
+  T.reply_rate_of_read = T.read   ? +((T.replies_wa / T.read)   * 100).toFixed(1) : 0;
+  T.failed_rate_pct    = T.target ? +((T.failed    / T.target)  * 100).toFixed(1) : 0;
 
   const crm_total    = crm_leads.length;
   const crm_positive = crm_leads.filter(l => positiveStages.has(l.stage) && !l.opt_out).length;
   const crm_opt_out  = crm_leads.filter(l => l.opt_out).length;
   const crm_in_comm  = crm_leads.filter(l => l.stage === 'In Communication' && !l.opt_out).length;
+  const crm_qual     = crm_leads.filter(l => l.stage === 'Qualified' && !l.opt_out).length;
 
   return {
     ...T,
@@ -224,6 +186,7 @@ function computeWA(raw) {
     crm_positive,
     crm_opt_out,
     crm_in_communication: crm_in_comm,
+    crm_qualified: crm_qual,
     budget_usd: raw.meta?.budget_usd || null,
   };
 }
@@ -235,20 +198,17 @@ function updateBadges() {
   const w = weeks[active];
   if (!w) return;
 
-  const spend = w.meta?.spend_aed;
   document.getElementById('badge-meta').textContent =
-    spend ? spend.toLocaleString() : '—';
+    w.meta?.spend_aed ? w.meta.spend_aed.toLocaleString() : '—';
 
   const reach = w.smm?.reach;
   document.getElementById('badge-smm').textContent =
     reach ? (reach >= 1000 ? Math.round(reach/1000)+'k' : reach) : '—';
 
-  // WA badge — реальные данные из wa_week_XX.json
   const waData = waCache[w.week_num];
   document.getElementById('badge-wa').textContent =
-    waData ? waData.crm_in_communication : '—';
+    waData ? waData.crm_in_communication : (w.whatsapp_outreach?.in_communication || '—');
 
-  // RED badge
   document.getElementById('badge-red').textContent =
     w.red_quiz_leads?.length || '—';
 }
@@ -257,7 +217,17 @@ function updateBadges() {
 //  HELPERS
 // ════════════════════════════════════════════
 function get(obj, path) {
-  return path.split('.').reduce((o, k) => (o != null ? o[k] : 0), obj) ?? 0;
+  return path.split('.').reduce((o,k) => o != null ? o[k] : 0, obj) ?? 0;
+}
+
+function fmtNum(v) {
+  if (v == null || v === 0 || v === '') return '—';
+  return Number(v).toLocaleString();
+}
+
+function fmtAed(v) {
+  if (!v) return '—';
+  return v.toLocaleString() + ' ₟';
 }
 
 function fmtVal(val, type) {
@@ -267,25 +237,33 @@ function fmtVal(val, type) {
   return val.toLocaleString();
 }
 
-function delta(curr, prev, goodDir) {
-  if (!prev || !curr) return '';
-  const pct = Math.round(((curr - prev) / prev) * 100);
-  const sign = pct >= 0 ? '+' : '';
-  let cls = pct >= 0 ? 'delta-pos' : 'delta-neg';
-  if (goodDir === 'down' && pct < 0) cls = 'delta-good-neg';
-  if (goodDir === 'down' && pct > 0) cls = 'delta-neg';
-  return `<span class="comp-delta ${cls}">${sign}${pct}%</span>`;
+function pct(a, b) {
+  if (!b || !a) return null;
+  return Math.round(a / b * 100);
+}
+
+function deltaPct(curr, prev) {
+  if (!prev || !curr) return null;
+  return Math.round((curr - prev) / prev * 100);
 }
 
 function trendHtml(curr, prev, goodDir) {
   if (prev == null || curr == null || prev === 0) return '';
-  const pct = Math.round(((curr - prev) / prev) * 100);
-  const sign = pct >= 0 ? '↑' : '↓';
-  let cls = 'trend-up';
-  if (pct < 0 && goodDir !== 'down') cls = 'trend-down';
-  if (pct < 0 && goodDir === 'down') cls = 'trend-good-down';
-  if (pct > 0 && goodDir === 'down') cls = 'trend-down';
-  return `<div class="kpi-trend ${cls}">${sign} ${Math.abs(pct)}% vs prev week</div>`;
+  const p = Math.round(((curr - prev) / prev) * 100);
+  const sign = p >= 0 ? '↑' : '↓';
+  let cls = p >= 0 ? 'trend-up' : 'trend-down';
+  if (goodDir === 'down') cls = p < 0 ? 'trend-good-down' : 'trend-down';
+  return `<div class="kpi-trend ${cls}">${sign} ${Math.abs(p)}% vs prev week</div>`;
+}
+
+function delta(curr, prev, goodDir) {
+  if (!prev || !curr) return '';
+  const p = Math.round(((curr - prev) / prev) * 100);
+  const sign = p >= 0 ? '+' : '';
+  let cls = p >= 0 ? 'delta-pos' : 'delta-neg';
+  if (goodDir === 'down' && p < 0) cls = 'delta-good-neg';
+  if (goodDir === 'down' && p > 0) cls = 'delta-neg';
+  return `<span class="comp-delta ${cls}">${sign}${p}%</span>`;
 }
 
 function destroyCharts() {
@@ -324,7 +302,7 @@ async function switchWeek(idx) {
 // ════════════════════════════════════════════
 function renderTabs() {
   document.getElementById('hPeriod').textContent = weeks[active].period;
-  document.getElementById('tabsWrap').innerHTML = weeks.map((w, i) => `
+  document.getElementById('tabsWrap').innerHTML = weeks.map((w,i) => `
     <div class="tab ${i === active ? 'active' : ''}" onclick="switchWeek(${i})">
       <div class="tab-label">
         ${w.week_label}
@@ -340,26 +318,20 @@ function renderTabs() {
 // ════════════════════════════════════════════
 function renderCompStrip() {
   const BAR_MAX_H = 32;
-
   const html = COMP_METRICS.map(m => {
     const vals = weeks.map(wk => get(wk, m.path));
     const maxV = Math.max(...vals.filter(v => v > 0), 1);
     const curr = vals[active];
-    const prev = active > 0 ? vals[active - 1] : null;
+    const prev = active > 0 ? vals[active-1] : null;
 
-    const barsHtml = vals.map((v, i) => {
-      const h = v > 0 ? Math.max(4, Math.round((v / maxV) * BAR_MAX_H)) : 4;
+    const barsHtml = vals.map((v,i) => {
+      const h = v > 0 ? Math.max(4, Math.round((v/maxV)*BAR_MAX_H)) : 4;
       const isCurr = i === active;
       return `
         <div class="comp-bar-wrap">
-          <div class="comp-bar-val ${isCurr ? 'current' : ''}">
-            ${fmtVal(v, m.fmt)}
-          </div>
-          <div class="comp-bar-bg ${isCurr ? 'current' : ''}"
-               style="height:${h}px"></div>
-          <div class="comp-bar-wk ${isCurr ? 'current' : ''}">
-            ${weeks[i].week_label}
-          </div>
+          <div class="comp-bar-val ${isCurr?'current':''}">${fmtVal(v,m.fmt)}</div>
+          <div class="comp-bar-bg ${isCurr?'current':''}" style="height:${h}px"></div>
+          <div class="comp-bar-wk ${isCurr?'current':''}">${weeks[i].week_label}</div>
         </div>`;
     }).join('');
 
@@ -379,104 +351,223 @@ function renderCompStrip() {
 // ════════════════════════════════════════════
 function renderDashboard() {
   const w    = weeks[active];
-  const prev = active > 0 ? weeks[active - 1] : null;
+  const prev = active > 0 ? weeks[active-1] : null;
 
   document.getElementById('mainContent').innerHTML = `
+    ${renderCrmSummary(w, prev)}
     ${renderChannelSummary(w, prev)}
     ${renderTrendChart()}
     ${renderInsights(w)}
   `;
 
-  requestAnimationFrame(() => {
-    drawWeeklyTrend();
-  });
+  requestAnimationFrame(() => drawWeeklyTrend());
 }
 
 // ════════════════════════════════════════════
-//  CHANNEL SUMMARY CARDS
-//  WhatsApp — данные из wa_week_XX.json
+//  CRM SUMMARY STRIP — общая сводка из CRM
+// ════════════════════════════════════════════
+function renderCrmSummary(w, prev) {
+  const p = prev;
+  const l = w.leads;
+  if (!l) return '';
+
+  // Источники лидов — топ строка
+  const src = l.by_source || {};
+  const srcItems = Object.entries(src)
+    .filter(([,v]) => v > 0)
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => `
+      <div class="crm-src-item">
+        <span class="crm-src-name">${srcLabel(k)}</span>
+        <span class="crm-src-val">${v}</span>
+        <div class="crm-src-bar">
+          <div class="crm-src-bar-fill" style="width:${Math.round(v/l.total*100)}%"></div>
+        </div>
+        <span class="crm-src-pct">${Math.round(v/l.total*100)}%</span>
+      </div>`)
+    .join('');
+
+  const kpis = [
+    {
+      val: l.total,
+      label: 'Total from CRM',
+      sub: `${w.week_label} · ${w.period}`,
+      cls: 'k-black',
+      trend: trendHtml(l.total, p?.leads?.total, 'up'),
+    },
+    {
+      val: l.in_communication,
+      label: 'In Communication',
+      sub: pct(l.in_communication, l.total) != null
+        ? `${pct(l.in_communication, l.total)}% of total` : '',
+      cls: 'k-green',
+      trend: trendHtml(l.in_communication, p?.leads?.in_communication, 'up'),
+    },
+    {
+      val: l.qualified,
+      label: 'Qualified',
+      sub: pct(l.qualified, l.total) != null
+        ? `${pct(l.qualified, l.total)}% of total` : '',
+      cls: 'k-blue',
+      trend: trendHtml(l.qualified, p?.leads?.qualified, 'up'),
+    },
+    {
+      val: l.follow_up,
+      label: 'Follow-Up',
+      sub: 'Active pipeline',
+      cls: 'k-purple',
+      trend: trendHtml(l.follow_up, p?.leads?.follow_up, 'up'),
+    },
+    {
+      val: l.prospect_lost,
+      label: 'Prospect Lost',
+      sub: pct(l.prospect_lost, l.total) != null
+        ? `${pct(l.prospect_lost, l.total)}% loss rate` : '',
+      cls: 'k-red',
+      trend: trendHtml(l.prospect_lost, p?.leads?.prospect_lost, 'down'),
+    },
+    {
+      val: l.junk,
+      label: 'Junk / Invalid',
+      sub: pct(l.junk, l.total) != null
+        ? `${pct(l.junk, l.total)}% filtered` : '',
+      cls: 'k-amber',
+      trend: trendHtml(l.junk, p?.leads?.junk, 'down'),
+    },
+  ];
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📊</div>
+      <div class="sec-title">CRM — All Sources Combined
+        <span class="sec-sub">week ${w.week_label} · ${w.period}</span>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      ${kpis.map(k => `
+        <div class="kpi ${k.cls}">
+          <div class="kpi-label">${k.label}</div>
+          <div class="kpi-value">${k.val ?? '—'}</div>
+          ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ''}
+          ${k.trend}
+        </div>`).join('')}
+    </div>
+
+    <div class="crm-sources">
+      <div class="crm-sources-title">Sources breakdown</div>
+      <div class="crm-src-list">${srcItems}</div>
+    </div>`;
+}
+
+function srcLabel(k) {
+  const map = {
+    facebook:           'Facebook Ads',
+    whatsapp_outreach:  'WhatsApp',
+    red_quiz:           'RED Quiz',
+    property_finder:    'Property Finder',
+    website:            'Website',
+    instagram:          'Instagram',
+    other:              'Other',
+  };
+  return map[k] || k.replace(/_/g,' ');
+}
+
+// ════════════════════════════════════════════
+//  CHANNEL CARDS
 // ════════════════════════════════════════════
 function renderChannelSummary(w, prev) {
   const p = prev;
 
-  // ── META ──
-  const metaCpl   = w.meta?.cpl_aed;
-  const metaDelta = p?.meta?.cpl_aed
-    ? Math.round((metaCpl - p.meta.cpl_aed) / p.meta.cpl_aed * 100) : null;
-  const metaDeltaHtml = metaDelta !== null
-    ? `<span style="font-size:10px;color:${metaDelta < 0 ? '#22c55e' : '#ef4444'}">
-        ${metaDelta > 0 ? '↑' : '↓'} CPL ${Math.abs(metaDelta)}%
+  // ── META ──────────────────────────────────
+  const metaLeads  = w.meta?.leads_form || 0;
+  // Квалифицированные от Meta — берём из by_source facebook
+  // и соотносим с общим qualified пропорционально
+  const fbShare    = w.leads?.by_source?.facebook || 0;
+  const totalSrc   = w.leads?.total || 1;
+  // Приблизительный qual от Meta (пропорция)
+  const metaQual   = w.leads?.qualified
+    ? Math.round(w.leads.qualified * (fbShare / totalSrc))
+    : 0;
+  const metaQualPct = metaLeads ? pct(metaQual, metaLeads) : null;
+  // Конверсия form → CRM lead (facebook / leads_form)
+  const metaConv   = metaLeads ? pct(fbShare, metaLeads) : null;
+
+  const metaCplDelta = p?.meta?.cpl_aed
+    ? deltaPct(w.meta?.cpl_aed, p.meta.cpl_aed) : null;
+  const metaCplDeltaHtml = metaCplDelta !== null
+    ? `<span class="chan-delta ${metaCplDelta < 0 ? 'good' : 'bad'}">
+        ${metaCplDelta > 0 ? '↑' : '↓'} CPL ${Math.abs(metaCplDelta)}% vs prev
        </span>` : '';
 
-  // ── SMM ──
-  const smmReach  = w.smm?.reach;
-  const smmDelta  = p?.smm?.reach
-    ? Math.round((smmReach - p.smm.reach) / p.smm.reach * 100) : null;
-  const smmDeltaHtml = smmDelta !== null
-    ? `<span style="font-size:10px;color:${smmDelta > 0 ? '#22c55e' : '#ef4444'}">
-        ${smmDelta > 0 ? '↑' : '↓'} ${Math.abs(smmDelta)}% reach
+  // ── WHATSAPP ──────────────────────────────
+  const waData   = waCache[w.week_num];
+  const waLeads  = w.leads?.by_source?.whatsapp_outreach || 0;
+  // WA qual — из crm_leads если есть wa файл
+  const waQual   = waData?.crm_qualified || 0;
+  const waQualPct = waLeads ? pct(waQual, waLeads) : null;
+  // Конверсия: WA replied → CRM lead
+  const waReplied = w.whatsapp_outreach?.replied || waData?.replies_wa || 0;
+  const waConv   = waReplied ? pct(waLeads, waReplied) : null;
+
+  const waCardStats = `
+    <div class="chan-stat-row">
+      <div class="chan-stat">
+        <div class="chan-stat-val">${fmtNum(waLeads)}</div>
+        <div class="chan-stat-lbl">Leads (CRM)</div>
+      </div>
+      <div class="chan-stat">
+        <div class="chan-stat-val">${fmtNum(waQual) || '—'}</div>
+        <div class="chan-stat-lbl">Qualified</div>
+      </div>
+      <div class="chan-stat">
+        <div class="chan-stat-val">${waQualPct != null ? waQualPct+'%' : '—'}</div>
+        <div class="chan-stat-lbl">Qual rate</div>
+      </div>
+      <div class="chan-stat">
+        <div class="chan-stat-val">${waConv != null ? waConv+'%' : '—'}</div>
+        <div class="chan-stat-lbl">Reply→Lead</div>
+      </div>
+    </div>
+    <div class="chan-delivery-row">
+      ${waData ? `
+        <span class="chan-tag">📦 ${waData.delivery_rate_pct}% delivered</span>
+        <span class="chan-tag">💬 ${waData.replies_wa} WA replies</span>
+        <span class="chan-tag">✅ ${waData.crm_positive} positive pipeline</span>
+      ` : `
+        <span class="chan-tag neutral">${w.whatsapp_outreach?.campaigns?.length || 0} campaigns · ${w.whatsapp_outreach?.contacted || w.whatsapp_outreach?.contacts_sent || 0} sent</span>
+      `}
+    </div>`;
+
+  // ── RED ───────────────────────────────────
+  const redLeads  = w.red_quiz_leads?.length || 0;
+  const redQual   = w.red_quiz_leads?.filter(l => l.status === 'Qualified').length || 0;
+  const redInComm = w.red_quiz_leads?.filter(l => l.status === 'In Communication').length || 0;
+  const redActive = redQual + redInComm +
+    (w.red_quiz_leads?.filter(l => l.status?.startsWith('Follow')).length || 0);
+  const redQualPct = redLeads ? pct(redQual, redLeads) : null;
+  // Конверсия: CRM red_quiz / quiz submissions — нет данных по views, ставим —
+  const redCountries = w.red_quiz_leads
+    ? [...new Set(w.red_quiz_leads.map(l => l.country))].length : 0;
+  const redInvestors = w.red_quiz_leads
+    ? w.red_quiz_leads.filter(l => l.purpose === 'invest').length : 0;
+
+  // ── INSTAGRAM / SMM ───────────────────────
+  const smmReachDelta = p?.smm?.reach
+    ? deltaPct(w.smm?.reach, p.smm.reach) : null;
+  const smmDeltaHtml = smmReachDelta !== null
+    ? `<span class="chan-delta ${smmReachDelta > 0 ? 'good' : 'bad'}">
+        ${smmReachDelta > 0 ? '↑' : '↓'} ${Math.abs(smmReachDelta)}% reach vs prev
        </span>` : '';
-
-  // ── WHATSAPP — берём из wa_week_XX.json ──
-  const waData = waCache[w.week_num];
-  const waCard = waData ? `
-    <div class="channel-stats">
-      <div class="channel-stat-item">
-        <div class="channel-stat-val">${waData.target.toLocaleString()}</div>
-        <div class="channel-stat-label">Target</div>
-      </div>
-      <div class="channel-stat-item">
-        <div class="channel-stat-val">${waData.delivered.toLocaleString()}</div>
-        <div class="channel-stat-label">Delivered</div>
-      </div>
-      <div class="channel-stat-item">
-        <div class="channel-stat-val">${waData.replies_wa}</div>
-        <div class="channel-stat-label">WA Replies</div>
-      </div>
-      <div class="channel-stat-item">
-        <div class="channel-stat-val">${waData.crm_total}</div>
-        <div class="channel-stat-label">CRM Leads</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;">
-      <span style="font-size:10px;color:#AAA">
-        📦 ${waData.delivery_rate_pct}% delivery
-      </span>
-      <span style="font-size:10px;color:#AAA">
-        💬 ${waData.reply_rate_of_read}% reply/read
-      </span>
-      <span style="font-size:10px;color:#AAA">
-        ✅ ${waData.crm_positive} positive pipeline
-      </span>
-      <span style="font-size:10px;color:#AAA">
-        ${waData.campaigns_count} campaigns
-        ${waData.budget_usd ? '· $' + waData.budget_usd : ''}
-      </span>
-    </div>
-  ` : `
-    <div class="channel-stats">
-      <div class="channel-stat-item">
-        <div class="channel-stat-val">—</div>
-        <div class="channel-stat-label">No launch</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;font-size:10px;color:#AAA">
-      No WhatsApp campaign this week
-    </div>
-  `;
-
-  // ── RED ──
-  const redCount = w.red_quiz_leads?.length || 0;
-  const redQual  = w.red_quiz_leads?.filter(l => l.status === 'Qualified').length || 0;
 
   return `
-    <div class="sec-head">
+    <div class="sec-head" style="margin-top:28px">
       <div class="sec-icon">📡</div>
       <div class="sec-title">Channels at a Glance — click to explore</div>
     </div>
     <div class="channel-grid">
 
-      <!-- META ADS -->
+      <!-- ═══ META ADS ═══ -->
       <a href="meta.html" class="channel-card c-meta">
         <div class="channel-header">
           <div class="channel-icon-wrap">
@@ -485,34 +576,51 @@ function renderChannelSummary(w, prev) {
           </div>
           <span class="channel-arrow">→</span>
         </div>
-        <div class="channel-stats">
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.meta?.spend_aed ? w.meta.spend_aed.toLocaleString()+'₟' : '—'}
-            </div>
-            <div class="channel-stat-label">Spend</div>
+
+        <!-- Строка спенд + CPL -->
+        <div class="chan-top-row">
+          <div class="chan-top-item">
+            <div class="chan-top-val">${fmtAed(w.meta?.spend_aed)}</div>
+            <div class="chan-top-lbl">Spend</div>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.meta?.leads_form || '—'}</div>
-            <div class="channel-stat-label">Leads</div>
+          <div class="chan-top-item">
+            <div class="chan-top-val">${fmtAed(w.meta?.cpl_aed)}</div>
+            <div class="chan-top-lbl">CPL</div>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.meta?.cpl_aed ? w.meta.cpl_aed+'₟' : '—'}
-            </div>
-            <div class="channel-stat-label">CPL</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.meta?.impressions ? Math.round(w.meta.impressions/1000)+'k' : '—'}
-            </div>
-            <div class="channel-stat-label">Impressions</div>
+          <div class="chan-top-item">
+            <div class="chan-top-val">${fmtNum(w.meta?.impressions ? Math.round(w.meta.impressions/1000)+'k' : null)}</div>
+            <div class="chan-top-lbl">Impressions</div>
           </div>
         </div>
-        <div style="margin-top:10px">${metaDeltaHtml}</div>
+
+        <!-- Воронка лидов -->
+        <div class="chan-funnel">
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">Form leads</span>
+            <span class="chan-funnel-val">${fmtNum(metaLeads)}</span>
+          </div>
+          <div class="chan-funnel-arrow">↓</div>
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">CRM (Facebook)</span>
+            <span class="chan-funnel-val">${fmtNum(fbShare)}
+              ${metaConv != null
+                ? `<span class="chan-conv">${metaConv}% conv</span>` : ''}
+            </span>
+          </div>
+          <div class="chan-funnel-arrow">↓</div>
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">Qualified</span>
+            <span class="chan-funnel-val">${fmtNum(metaQual)}
+              ${metaQualPct != null
+                ? `<span class="chan-conv">${metaQualPct}%</span>` : ''}
+            </span>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">${metaCplDeltaHtml}</div>
       </a>
 
-      <!-- INSTAGRAM -->
+      <!-- ═══ INSTAGRAM ═══ -->
       <a href="smm.html" class="channel-card c-smm">
         <div class="channel-header">
           <div class="channel-icon-wrap">
@@ -521,34 +629,55 @@ function renderChannelSummary(w, prev) {
           </div>
           <span class="channel-arrow">→</span>
         </div>
-        <div class="channel-stats">
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
+
+        <div class="chan-top-row">
+          <div class="chan-top-item">
+            <div class="chan-top-val">
               ${w.smm?.reach >= 1000
                 ? Math.round(w.smm.reach/1000)+'k' : w.smm?.reach || '—'}
             </div>
-            <div class="channel-stat-label">Reach</div>
+            <div class="chan-top-lbl">Reach</div>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
+          <div class="chan-top-item">
+            <div class="chan-top-val">
               ${w.smm?.views >= 1000
                 ? Math.round(w.smm.views/1000)+'k' : w.smm?.views || '—'}
             </div>
-            <div class="channel-stat-label">Views</div>
+            <div class="chan-top-lbl">Views</div>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.smm?.link_clicks || '—'}</div>
-            <div class="channel-stat-label">Link Clicks</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${w.smm?.follows || '—'}</div>
-            <div class="channel-stat-label">New Followers</div>
+          <div class="chan-top-item">
+            <div class="chan-top-val">${w.smm?.link_clicks || '—'}</div>
+            <div class="chan-top-lbl">Link Clicks</div>
           </div>
         </div>
-        <div style="margin-top:10px">${smmDeltaHtml}</div>
+
+        <div class="chan-stat-row" style="margin-top:10px">
+          <div class="chan-stat">
+            <div class="chan-stat-val">${w.smm?.follows || '—'}</div>
+            <div class="chan-stat-lbl">New Followers</div>
+          </div>
+          <div class="chan-stat">
+            <div class="chan-stat-val">${w.smm?.profile_visits || '—'}</div>
+            <div class="chan-stat-lbl">Profile Visits</div>
+          </div>
+          <div class="chan-stat">
+            <div class="chan-stat-val">${w.smm?.interactions || '—'}</div>
+            <div class="chan-stat-lbl">Interactions</div>
+          </div>
+          <div class="chan-stat">
+            <div class="chan-stat-val">
+              ${w.smm?.reach && w.smm?.link_clicks
+                ? ((w.smm.link_clicks / w.smm.reach)*100).toFixed(2)+'%'
+                : '—'}
+            </div>
+            <div class="chan-stat-lbl">CTR</div>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">${smmDeltaHtml}</div>
       </a>
 
-      <!-- WHATSAPP — данные из wa_week_XX.json -->
+      <!-- ═══ WHATSAPP ═══ -->
       <a href="whatsapp.html" class="channel-card c-wa">
         <div class="channel-header">
           <div class="channel-icon-wrap">
@@ -557,46 +686,44 @@ function renderChannelSummary(w, prev) {
           </div>
           <span class="channel-arrow">→</span>
         </div>
-        ${waCard}
+        ${waCardStats}
       </a>
 
-      <!-- RED -->
+      <!-- ═══ RED QUIZ ═══ -->
       <a href="red.html" class="channel-card c-red">
         <div class="channel-header">
           <div class="channel-icon-wrap">
             <span class="channel-icon">◉</span>
-            <span class="channel-name">RED</span>
+            <span class="channel-name">RED Quiz</span>
           </div>
           <span class="channel-arrow">→</span>
         </div>
-        <div class="channel-stats">
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${redCount || '—'}</div>
-            <div class="channel-stat-label">Total Leads</div>
+
+        <!-- Воронка лидов -->
+        <div class="chan-funnel">
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">Quiz leads</span>
+            <span class="chan-funnel-val">${fmtNum(redLeads)}</span>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">${redQual || '—'}</div>
-            <div class="channel-stat-label">Qualified</div>
+          <div class="chan-funnel-arrow">↓</div>
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">Active pipeline</span>
+            <span class="chan-funnel-val">${fmtNum(redActive)}</span>
           </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.red_quiz_leads
-                ? [...new Set(w.red_quiz_leads.map(l => l.country))].length || '—'
-                : '—'}
-            </div>
-            <div class="channel-stat-label">Countries</div>
-          </div>
-          <div class="channel-stat-item">
-            <div class="channel-stat-val">
-              ${w.red_quiz_leads
-                ? w.red_quiz_leads.filter(l => l.purpose === 'invest').length || '—'
-                : '—'}
-            </div>
-            <div class="channel-stat-label">Investors</div>
+          <div class="chan-funnel-arrow">↓</div>
+          <div class="chan-funnel-item">
+            <span class="chan-funnel-lbl">Qualified</span>
+            <span class="chan-funnel-val">${fmtNum(redQual)}
+              ${redQualPct != null
+                ? `<span class="chan-conv">${redQualPct}%</span>` : ''}
+            </span>
           </div>
         </div>
-        <div style="margin-top:10px;font-size:10px;color:#AAA">
-          John Richmond Residences · 240k+ AED
+
+        <div class="chan-delivery-row" style="margin-top:10px">
+          <span class="chan-tag">🌍 ${redCountries} countries</span>
+          <span class="chan-tag">💼 ${redInvestors} investors</span>
+          <span class="chan-tag neutral">JR Residences · 240k+ AED</span>
         </div>
       </a>
 
@@ -629,10 +756,10 @@ function renderTrendChart() {
 }
 
 function drawWeeklyTrend() {
-  const labels = WEEK_LABELS();
+  const labels   = WEEK_LABELS();
   const baseFont = { size: 10 };
 
-  // Chart 1 — Meta spend vs CPL
+  // ── Chart 1: Meta Spend vs CPL ──
   mkChart('chartWeeklyMeta', {
     type: 'bar',
     data: {
@@ -641,8 +768,7 @@ function drawWeeklyTrend() {
         {
           label: 'Spend AED',
           data: weeks.map(w => w.meta?.spend_aed || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#3b82f6' : '#DBEAFE'),
+          backgroundColor: weeks.map((w,i) => i === active ? '#3b82f6' : '#DBEAFE'),
           borderRadius: 4,
           yAxisID: 'y',
         },
@@ -652,9 +778,9 @@ function drawWeeklyTrend() {
           type: 'line',
           borderColor: '#f59e0b',
           backgroundColor: 'transparent',
-          pointBackgroundColor: weeks.map((w, i) =>
+          pointBackgroundColor: weeks.map((w,i) =>
             i === active ? '#f59e0b' : '#FCD34D'),
-          pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
+          pointRadius: weeks.map((w,i) => i === active ? 6 : 4),
           tension: 0.3,
           spanGaps: true,
           yAxisID: 'y2',
@@ -668,12 +794,8 @@ function drawWeeklyTrend() {
         legend: { display: true, labels: { font: baseFont, boxWidth: 10 } }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: baseFont } },
-        y: {
-          grid: { color: '#F0EFED' },
-          ticks: { font: baseFont },
-          position: 'left',
-        },
+        x:  { grid: { display: false }, ticks: { font: baseFont } },
+        y:  { grid: { color: '#F0EFED' }, ticks: { font: baseFont }, position: 'left' },
         y2: {
           grid: { display: false },
           ticks: { font: baseFont, callback: v => v + ' ₟' },
@@ -683,7 +805,7 @@ function drawWeeklyTrend() {
     }
   });
 
-  // Chart 2 — SMM reach & clicks
+  // ── Chart 2: SMM Reach & Clicks ──
   mkChart('chartWeeklySmm', {
     type: 'bar',
     data: {
@@ -692,20 +814,19 @@ function drawWeeklyTrend() {
         {
           label: 'Reach',
           data: weeks.map(w => w.smm?.reach || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#8b5cf6' : '#EDE9FE'),
+          backgroundColor: weeks.map((w,i) => i === active ? '#8b5cf6' : '#EDE9FE'),
           borderRadius: 4,
           yAxisID: 'y',
-                  },
+        },
         {
           label: 'Link Clicks',
           data: weeks.map(w => w.smm?.link_clicks || 0),
           type: 'line',
           borderColor: '#ec4899',
           backgroundColor: 'transparent',
-          pointBackgroundColor: weeks.map((w, i) =>
+          pointBackgroundColor: weeks.map((w,i) =>
             i === active ? '#ec4899' : '#FBCFE8'),
-          pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
+          pointRadius: weeks.map((w,i) => i === active ? 6 : 4),
           tension: 0.3,
           spanGaps: true,
           yAxisID: 'y2',
@@ -719,309 +840,195 @@ function drawWeeklyTrend() {
         legend: { display: true, labels: { font: baseFont, boxWidth: 10 } }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: baseFont } },
-        y: {
-          grid: { color: '#F0EFED' },
-          ticks: { font: baseFont },
-          position: 'left',
-        },
-        y2: {
-          grid: { display: false },
-          ticks: { font: baseFont },
-          position: 'right',
-        }
+        x:  { grid: { display: false }, ticks: { font: baseFont } },
+        y:  { grid: { color: '#F0EFED' }, ticks: { font: baseFont }, position: 'left' },
+        y2: { grid: { display: false },  ticks: { font: baseFont }, position: 'right' }
       }
     }
   });
 }
 
 // ════════════════════════════════════════════
-//  WEEKLY INSIGHTS — автогенерация из данных
+//  INSIGHTS
 // ════════════════════════════════════════════
 function renderInsights(w) {
-  const prev = active > 0 ? weeks[active - 1] : null;
+  const prev   = active > 0 ? weeks[active-1] : null;
   const waData = waCache[w.week_num];
+  const auto   = generateAutoInsights(w, prev, waData);
+  const ins    = w.insights || {};
 
-  // Собираем автоматические инсайты
-  const autoInsights = generateAutoInsights(w, prev, waData);
-
-  // Если в JSON есть ручные инсайты — добавляем их тоже
-  const ins = w.insights || {};
   const manualItems = [
     { key: 'general', label: 'General',   icon: '💡' },
     { key: 'meta',    label: 'Meta Ads',  icon: '◈'  },
     { key: 'smm',     label: 'Instagram', icon: '✦'  },
     { key: 'wa',      label: 'WhatsApp',  icon: '💬' },
     { key: 'red',     label: 'RED',       icon: '◉'  },
+    { key: 'leads',   label: 'Leads',     icon: '🎯' },
   ].filter(i => ins[i.key]);
 
-  if (!autoInsights.length && !manualItems.length) return '';
-
-  const autoHtml = autoInsights.map(item => `
-    <div class="insight ${item.cls}">
-      <div class="insight-tag">${item.icon} ${item.label}</div>
-      <div class="insight-text">${item.text}</div>
-    </div>
-  `).join('');
-
-  const manualHtml = manualItems.map(i => `
-    <div class="insight">
-      <div class="insight-tag">${i.icon} ${i.label}</div>
-      <div class="insight-text">${ins[i.key]}</div>
-    </div>
-  `).join('');
+  if (!auto.length && !manualItems.length) return '';
 
   return `
     <div class="sec-head" style="margin-top:28px">
       <div class="sec-icon">💡</div>
       <div class="sec-title">Weekly Insights
-        <span style="font-family:var(--font-secondary);font-size:10px;
-          color:var(--text-muted);font-weight:400;margin-left:8px;">
-          auto-generated from data
+        <span style="font-size:10px;color:var(--text-muted);
+          font-weight:400;margin-left:8px;">
+          auto-generated · ${w.week_label}
         </span>
       </div>
     </div>
     <div class="insights-grid">
-      ${autoHtml}
-      ${manualHtml}
+      ${auto.map(item => `
+        <div class="insight ${item.cls || ''}">
+          <div class="insight-tag">${item.icon} ${item.label}</div>
+          <div class="insight-text">${item.text}</div>
+        </div>`).join('')}
+      ${manualItems.map(i => `
+        <div class="insight">
+          <div class="insight-tag">${i.icon} ${i.label}</div>
+          <div class="insight-text">${ins[i.key]}</div>
+        </div>`).join('')}
     </div>`;
 }
 
 // ════════════════════════════════════════════
-//  AUTO-GENERATE INSIGHTS FROM DATA
+//  AUTO INSIGHTS
 // ════════════════════════════════════════════
 function generateAutoInsights(w, prev, waData) {
-  const insights = [];
-  const p = prev;
+  const p   = prev;
+  const ins = [];
 
-  // ── META ────────────────────────────────
+  // ── META ──
   if (w.meta?.cpl_aed && p?.meta?.cpl_aed) {
-    const cplDelta = Math.round(
-      (w.meta.cpl_aed - p.meta.cpl_aed) / p.meta.cpl_aed * 100
-    );
-    if (cplDelta <= -10) {
-      insights.push({
-        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
-        text: `CPL dropped ${Math.abs(cplDelta)}% vs last week
-          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
-          campaign efficiency is improving.`
-      });
-    } else if (cplDelta >= 15) {
-      insights.push({
-        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
-        text: `⚠️ CPL increased ${cplDelta}% vs last week
-          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
-          review ad creatives and audience targeting.`
-      });
-    }
+    const d = deltaPct(w.meta.cpl_aed, p.meta.cpl_aed);
+    if (d <= -10) ins.push({
+      icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+      text: `CPL dropped ${Math.abs(d)}% vs last week
+        (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) —
+        campaign efficiency improving.`
+    });
+    else if (d >= 15) ins.push({
+      icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+      text: `⚠️ CPL up ${d}% vs last week
+        (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) —
+        review creatives and targeting.`
+    });
   }
 
   if (w.meta?.leads_form && p?.meta?.leads_form) {
-    const leadsDelta = Math.round(
-      (w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100
-    );
-    if (leadsDelta >= 20) {
-      insights.push({
-        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
-        text: `Meta leads up ${leadsDelta}% this week
-          (${p.meta.leads_form} → ${w.meta.leads_form}).
-          Strong form performance — consider increasing budget.`
-      });
-    } else if (leadsDelta <= -20) {
-      insights.push({
-        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
-        text: `Meta leads down ${Math.abs(leadsDelta)}% this week
-          (${p.meta.leads_form} → ${w.meta.leads_form}).
-          Check ad fatigue and audience size.`
-      });
-    }
+    const d = deltaPct(w.meta.leads_form, p.meta.leads_form);
+    if (d >= 20) ins.push({
+      icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+      text: `Meta leads +${d}% (${p.meta.leads_form} → ${w.meta.leads_form}).
+        Strong form performance.`
+    });
+    else if (d <= -20) ins.push({
+      icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+      text: `Meta leads down ${Math.abs(d)}%
+        (${p.meta.leads_form} → ${w.meta.leads_form}).
+        Check ad fatigue.`
+    });
   }
 
-  if (w.meta?.spend_aed && p?.meta?.spend_aed) {
-    const spendDelta = Math.round(
-      (w.meta.spend_aed - p.meta.spend_aed) / p.meta.spend_aed * 100
-    );
-    const leadsChange = w.meta?.leads_form && p?.meta?.leads_form
-      ? Math.round((w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100)
-      : null;
-    // Spend вырос, но лиды упали — плохой сигнал
-    if (spendDelta >= 10 && leadsChange !== null && leadsChange < 0) {
-      insights.push({
-        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
-        text: `Spend +${spendDelta}% but leads ${leadsChange}% — 
-          budget efficiency declining. 
-          Review campaign structure before scaling further.`
-      });
-    }
-  }
-
-  // ── INSTAGRAM ───────────────────────────
+  // ── SMM ──
   if (w.smm?.reach && p?.smm?.reach) {
-    const reachDelta = Math.round(
-      (w.smm.reach - p.smm.reach) / p.smm.reach * 100
-    );
-    if (reachDelta >= 20) {
-      insights.push({
-        icon: '✦', label: 'Instagram', cls: 'i-smm',
-        text: `Reach up ${reachDelta}% this week 
-          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
-          Strong content performance — replicate format next week.`
-      });
-    } else if (reachDelta <= -20) {
-      insights.push({
-        icon: '✦', label: 'Instagram', cls: 'i-smm',
-        text: `Reach dropped ${Math.abs(reachDelta)}% 
-          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
-          Review posting frequency and content type.`
-      });
-    }
-  }
-
-  if (w.smm?.link_clicks && p?.smm?.link_clicks) {
-    const clicksDelta = Math.round(
-      (w.smm.link_clicks - p.smm.link_clicks) / p.smm.link_clicks * 100
-    );
-    if (clicksDelta >= 30) {
-      insights.push({
-        icon: '✦', label: 'Instagram', cls: 'i-smm',
-        text: `Link clicks +${clicksDelta}% — bio/story CTA is converting well.
-          Check if landing page is optimised for this traffic.`
-      });
-    }
+    const d = deltaPct(w.smm.reach, p.smm.reach);
+    if (d >= 20) ins.push({
+      icon: '✦', label: 'Instagram', cls: 'i-smm',
+      text: `Reach +${d}%
+        (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+        Strong content performance.`
+    });
+    else if (d <= -20) ins.push({
+      icon: '✦', label: 'Instagram', cls: 'i-smm',
+      text: `Reach −${Math.abs(d)}%
+        (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+        Review posting frequency.`
+    });
   }
 
   if (w.smm?.reach && w.smm?.link_clicks) {
-    const ctr = ((w.smm.link_clicks / w.smm.reach) * 100).toFixed(2);
-    if (ctr < 0.1) {
-      insights.push({
-        icon: '✦', label: 'Instagram', cls: 'i-smm',
-        text: `IG click-through rate is ${ctr}% — 
-          reach is high but CTA conversion is low. 
-          Test stronger calls-to-action in captions and stories.`
-      });
-    }
+    const ctr = ((w.smm.link_clicks / w.smm.reach)*100).toFixed(2);
+    if (ctr < 0.1) ins.push({
+      icon: '✦', label: 'Instagram', cls: 'i-smm',
+      text: `IG CTR is ${ctr}% — high reach but low CTA conversion.
+        Test stronger calls-to-action.`
+    });
   }
 
-  // ── WHATSAPP ────────────────────────────
+  // ── WHATSAPP ──
   if (waData) {
-    if (waData.failed_rate_pct >= 60) {
-      insights.push({
-        icon: '💬', label: 'WhatsApp', cls: '',
-        text: `🔴 WA failed rate ${waData.failed_rate_pct}% — 
-          base quality is critical. 
-          Verify all numbers before next launch.`
-      });
-    } else if (waData.delivery_rate_pct >= 70) {
-      insights.push({
-        icon: '💬', label: 'WhatsApp', cls: '',
-        text: `✅ WA delivery rate ${waData.delivery_rate_pct}% — 
-          strong base quality this week. 
-          ${waData.reply_rate_of_read}% reply/read rate.`
-      });
-    }
-
-    if (waData.crm_positive > 0) {
-      const posRate = waData.crm_total
-        ? Math.round(waData.crm_positive / waData.crm_total * 100) : 0;
-      insights.push({
-        icon: '💬', label: 'WhatsApp', cls: '',
-        text: `${waData.crm_positive} leads in positive pipeline 
-          (${posRate}% of ${waData.crm_total} CRM leads) — 
-          ${waData.crm_positive} contacts to prioritise for follow-up.`
-      });
-    }
-
+    if (waData.failed_rate_pct >= 60) ins.push({
+      icon: '💬', label: 'WhatsApp', cls: '',
+      text: `🔴 WA failed rate ${waData.failed_rate_pct}% —
+        verify base quality before next launch.`
+    });
+    else if (waData.delivery_rate_pct >= 70) ins.push({
+      icon: '💬', label: 'WhatsApp', cls: '',
+      text: `✅ WA delivery ${waData.delivery_rate_pct}% —
+        strong base quality. Reply/read rate: ${waData.reply_rate_of_read}%.`
+    });
     if (waData.crm_opt_out > 0) {
-      const optRate = waData.crm_total
+      const r = waData.crm_total
         ? Math.round(waData.crm_opt_out / waData.crm_total * 100) : 0;
-      if (optRate >= 5) {
-        insights.push({
-          icon: '💬', label: 'WhatsApp', cls: '',
-          text: `Opt-out rate ${optRate}% (${waData.crm_opt_out} contacts) — 
-            review message tone and targeting. 
-            Consider warming up cold segments first.`
-        });
-      }
+      if (r >= 5) ins.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `Opt-out rate ${r}% (${waData.crm_opt_out} contacts) —
+          review message tone.`
+      });
     }
   }
 
-  // ── RED ─────────────────────────────────
+  // ── RED ──
   if (w.red_quiz_leads?.length) {
-    const total   = w.red_quiz_leads.length;
-    const qual    = w.red_quiz_leads.filter(l => l.status === 'Qualified').length;
-    const invest  = w.red_quiz_leads.filter(l => l.purpose === 'invest').length;
-    const qualPct = Math.round(qual / total * 100);
-
-    if (qualPct >= 40) {
-      insights.push({
-        icon: '◉', label: 'RED', cls: '',
-        text: `High RED qualification rate: ${qual}/${total} leads qualified (${qualPct}%).
-          ${invest} investors — strong intent signals.`
-      });
-    } else if (qualPct < 20 && total >= 5) {
-      insights.push({
-        icon: '◉', label: 'RED', cls: '',
-        text: `RED qualification rate ${qualPct}% (${qual}/${total}) — 
-          quiz funnel may need tighter qualification questions.`
-      });
-    }
-
+    const total    = w.red_quiz_leads.length;
+    const qual     = w.red_quiz_leads.filter(l => l.status === 'Qualified').length;
+    const qualPct  = Math.round(qual/total*100);
+    const invest   = w.red_quiz_leads.filter(l => l.purpose === 'invest').length;
+    if (qualPct >= 40) ins.push({
+      icon: '◉', label: 'RED', cls: '',
+      text: `High RED qual rate: ${qual}/${total} (${qualPct}%).
+        ${invest} investors — strong intent.`
+    });
     if (p?.red_quiz_leads?.length) {
-      const prevTotal = p.red_quiz_leads.length;
-      const delta = Math.round((total - prevTotal) / prevTotal * 100);
-      if (delta >= 30) {
-        insights.push({
-          icon: '◉', label: 'RED', cls: '',
-          text: `RED leads up ${delta}% vs last week (${prevTotal} → ${total}).
-            Check traffic source — what drove the spike?`
-        });
-      }
-    }
-  }
-
-  // ── GENERAL (cross-channel) ─────────────
-  // Считаем общий conversion: Meta leads → qualified
-  if (w.meta?.leads_form && w.leads?.qualified) {
-    const convRate = Math.round(
-      w.leads.qualified / w.meta.leads_form * 100
-    );
-    if (convRate >= 20) {
-      insights.push({
-        icon: '📊', label: 'General', cls: '',
-        text: `Strong lead quality: ${convRate}% of Meta form submissions 
-          are qualified (${w.leads.qualified}/${w.meta.leads_form}).`
-      });
-    } else if (convRate < 8 && w.meta.leads_form >= 10) {
-      insights.push({
-        icon: '📊', label: 'General', cls: '',
-        text: `Low qualification rate: only ${convRate}% of Meta leads 
-          convert to qualified (${w.leads.qualified}/${w.meta.leads_form}).
-          Review lead quality from ads — consider form pre-qualification.`
+      const d = deltaPct(total, p.red_quiz_leads.length);
+      if (d >= 30) ins.push({
+        icon: '◉', label: 'RED', cls: '',
+        text: `RED leads +${d}% vs last week
+          (${p.red_quiz_leads.length} → ${total}).`
       });
     }
   }
 
-  // Junk rate предупреждение
+  // ── GENERAL ──
   if (w.leads?.junk && w.leads?.total) {
-    const junkRate = Math.round(w.leads.junk / w.leads.total * 100);
-    if (junkRate >= 30) {
-      insights.push({
-        icon: '📊', label: 'General', cls: '',
-        text: `⚠️ Junk lead rate ${junkRate}% (${w.leads.junk}/${w.leads.total}) — 
-          high noise in pipeline. 
-          Check targeting settings across all channels.`
-      });
-    }
+    const r = Math.round(w.leads.junk / w.leads.total * 100);
+    if (r >= 30) ins.push({
+      icon: '📊', label: 'General', cls: '',
+      text: `⚠️ Junk rate ${r}%
+        (${w.leads.junk}/${w.leads.total}) —
+        review targeting across channels.`
+    });
   }
 
-  return insights;
+  if (w.leads?.total && p?.leads?.total) {
+    const d = deltaPct(w.leads.total, p.leads.total);
+    if (d >= 50) ins.push({
+      icon: '📊', label: 'General', cls: '',
+      text: `Total CRM leads +${d}% vs last week
+        (${p.leads.total} → ${w.leads.total}) —
+        best week so far. Identify top driver.`
+    });
+  }
+
+  return ins;
 }
 
 // ════════════════════════════════════════════
-//  EXPOSE GLOBALLY
+//  GLOBAL
 // ════════════════════════════════════════════
 window.switchWeek = switchWeek;
-
 </script>
 </body>
 </html>
