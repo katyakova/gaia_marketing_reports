@@ -1,0 +1,79 @@
+{
+  "period": "28 May – 03 Jun 2026",
+  "week_label": "W5",
+  "week_num": 5,
+  "is_partial": false,
+
+  "leads": {
+    "total": 113,
+    "by_source": {
+      "facebook": 62,
+      "whatsapp_outreach": 22,
+      "red_quiz": 9,
+      "property_finder": 7,
+      "website": 3,
+      "instagram": 3,
+      "other": 7
+    },
+    "new": 3,
+    "qualified": 1,
+    "in_communication": 22,
+    "follow_up": 55,
+    "prospect_lost": 16,
+    "junk": 9,
+    "owner_sell": 2,
+    "future_fu": 2
+  },
+
+  "meta": {
+    "spend_aed": 1847,
+    "impressions": 198000,
+    "link_clicks": 1074,
+    "leads_form": 47,
+    "cpl_aed": 39,
+    "top_campaign": "M_sales_jtbd (d_28_05)",
+    "note": "Запуск новой кампании 28 мая — резкий рост"
+  },
+
+  "smm": {
+    "reach": 213159,
+    "views": 161133,
+    "interactions": 215,
+    "link_clicks": 1300,
+    "follows": 23,
+    "profile_visits": 249
+  },
+
+  "whatsapp_outreach": {
+    "campaigns": [
+      "act_towers", "grande", "viceroy_five_palm",
+      "arabian_ranches_010626", "royal_atlantis",
+      "como_residences", "sidra_hot_and_avrg_1",
+      "sidra_hot_and_avrg_2"
+    ],
+    "contacts_sent": 28,
+    "replied": 12,
+    "in_communication": 9,
+    "prospect_lost": 7,
+    "opt_out": 3
+  },
+
+  "red_quiz_leads": [
+    {"name": "Yasser",        "country": "United Kingdom", "purpose": "living", "status": "Qualified"},
+    {"name": "Dragana",       "country": "Serbia",         "purpose": "living", "status": "Follow-Up 1"},
+    {"name": "Melis",         "country": "Turkey",         "purpose": "invest", "status": "Follow-Up 2"},
+    {"name": "Antonino",      "country": "Italy",          "purpose": "living", "status": "Follow-Up 1"},
+    {"name": "Nikhil Butani", "country": "India",          "purpose": "invest", "status": "Follow-Up 1"},
+    {"name": "jose",          "country": "Portugal",       "purpose": "living", "status": "In Communication"},
+    {"name": "Luca",          "country": "Libya/Italy",    "purpose": "invest", "status": "Follow-Up 1"},
+    {"name": "William Tucker","country": "Canada",         "purpose": "invest", "status": "Follow-Up 2"},
+    {"name": "Jurj Alin",     "country": "Romania",        "purpose": "invest", "status": "Follow-Up 1"}
+  ],
+
+  "insights": {
+    "general": "Лучшая неделя! +157% лидов vs W4. Запуск M_sales_jtbd 28 мая дал взрывной рост. RED Quiz (John Richmond Residences) генерирует качественные международные лиды.",
+    "meta": "CPL упал с 474 AED (W2) до 39 AED (-92%). M_sales_jtbd — главный драйвер. 47 лид-форм за неделю.",
+    "smm": "Органический охват +476% vs W4 (213k vs 37k). rency_reel вирусный рост на GCC аудитории. Link clicks x40.",
+    "leads": "9 RED Quiz лидов из Европы/Азии — высокое качество (бюджет 240k+, John Richmond). Yasser (UK) — Qualified. 22 лида In Communication."
+  }
+}
