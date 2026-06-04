@@ -1,0 +1,60 @@
+{
+  "period": "21–27 May 2026",
+  "week_label": "W4",
+  "week_num": 4,
+  "is_partial": false,
+
+  "leads": {
+    "total": 44,
+    "by_source": {
+      "facebook": 2,
+      "whatsapp_outreach": 39,
+      "instagram": 1,
+      "exhibition": 1,
+      "other": 1
+    },
+    "new": 1,
+    "qualified": 1,
+    "in_communication": 7,
+    "follow_up": 4,
+    "prospect_lost": 27,
+    "junk": 2,
+    "owner_sell": 0,
+    "future_fu": 0
+  },
+
+  "meta": {
+    "spend_aed": 558,
+    "impressions": 12400,
+    "link_clicks": 27,
+    "leads_form": 0,
+    "cpl_aed": 0,
+    "top_campaign": "CPA (Leads) UAE + UK",
+    "note": "Старт новых CPA кампаний"
+  },
+
+  "smm": {
+    "reach": 36995,
+    "views": 8309,
+    "interactions": 185,
+    "link_clicks": 32,
+    "follows": 5,
+    "profile_visits": 173
+  },
+
+  "whatsapp_outreach": {
+    "campaigns": ["maple_average", "maple_hot"],
+    "contacts_sent": 43,
+    "replied": 16,
+    "in_communication": 7,
+    "prospect_lost": 27,
+    "opt_out": 8
+  },
+
+  "insights": {
+    "general": "Массовый запуск WhatsApp outreach по базе maple (UAE номера). 44 лида, но 61% — Prospect Lost. 1 Qualified (Digesh Sagar).",
+    "meta": "CPA кампании только стартовали — бюджет тестовый 558 AED. Лид-формы пока не работают.",
+    "smm": "Охват вырос в 20x vs W3 — старт продвижения Reels контента.",
+    "leads": "WhatsApp outreach даёт количество, но низкое качество по холодной базе. Реальный интерес: Digesh Sagar (WA), Tino, Olga M, Moayad, AMK, Nasser, Jayprakash, Taha."
+  }
+}
