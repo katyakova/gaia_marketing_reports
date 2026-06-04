@@ -695,4 +695,332 @@ function drawWeeklyTrend() {
           backgroundColor: weeks.map((w, i) =>
             i === active ? '#8b5cf6' : '#EDE9FE'),
           borderRadius: 4,
-          yAxisID: 'y',
+          yAxisID: 'y',        },
+        {
+          label: 'Link Clicks',
+          data: weeks.map(w => w.smm?.link_clicks || 0),
+          type: 'line',
+          borderColor: '#ec4899',
+          backgroundColor: 'transparent',
+          pointBackgroundColor: weeks.map((w, i) =>
+            i === active ? '#ec4899' : '#FBCFE8'),
+          pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
+          tension: 0.3,
+          spanGaps: true,
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { font: baseFont, boxWidth: 10 } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: baseFont } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: { font: baseFont },
+          position: 'left',
+        },
+        y2: {
+          grid: { display: false },
+          ticks: { font: baseFont },
+          position: 'right',
+        }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════
+//  WEEKLY INSIGHTS — автогенерация из данных
+// ════════════════════════════════════════════
+function renderInsights(w) {
+  const prev = active > 0 ? weeks[active - 1] : null;
+  const waData = waCache[w.week_num];
+
+  // Собираем автоматические инсайты
+  const autoInsights = generateAutoInsights(w, prev, waData);
+
+  // Если в JSON есть ручные инсайты — добавляем их тоже
+  const ins = w.insights || {};
+  const manualItems = [
+    { key: 'general', label: 'General',   icon: '💡' },
+    { key: 'meta',    label: 'Meta Ads',  icon: '◈'  },
+    { key: 'smm',     label: 'Instagram', icon: '✦'  },
+    { key: 'wa',      label: 'WhatsApp',  icon: '💬' },
+    { key: 'red',     label: 'RED',       icon: '◉'  },
+  ].filter(i => ins[i.key]);
+
+  if (!autoInsights.length && !manualItems.length) return '';
+
+  const autoHtml = autoInsights.map(item => `
+    <div class="insight ${item.cls}">
+      <div class="insight-tag">${item.icon} ${item.label}</div>
+      <div class="insight-text">${item.text}</div>
+    </div>
+  `).join('');
+
+  const manualHtml = manualItems.map(i => `
+    <div class="insight">
+      <div class="insight-tag">${i.icon} ${i.label}</div>
+      <div class="insight-text">${ins[i.key]}</div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="sec-head" style="margin-top:28px">
+      <div class="sec-icon">💡</div>
+      <div class="sec-title">Weekly Insights
+        <span style="font-family:var(--font-secondary);font-size:10px;
+          color:var(--text-muted);font-weight:400;margin-left:8px;">
+          auto-generated from data
+        </span>
+      </div>
+    </div>
+    <div class="insights-grid">
+      ${autoHtml}
+      ${manualHtml}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  AUTO-GENERATE INSIGHTS FROM DATA
+// ════════════════════════════════════════════
+function generateAutoInsights(w, prev, waData) {
+  const insights = [];
+  const p = prev;
+
+  // ── META ────────────────────────────────
+  if (w.meta?.cpl_aed && p?.meta?.cpl_aed) {
+    const cplDelta = Math.round(
+      (w.meta.cpl_aed - p.meta.cpl_aed) / p.meta.cpl_aed * 100
+    );
+    if (cplDelta <= -10) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `CPL dropped ${Math.abs(cplDelta)}% vs last week
+          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
+          campaign efficiency is improving.`
+      });
+    } else if (cplDelta >= 15) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `⚠️ CPL increased ${cplDelta}% vs last week
+          (${p.meta.cpl_aed}₟ → ${w.meta.cpl_aed}₟) — 
+          review ad creatives and audience targeting.`
+      });
+    }
+  }
+
+  if (w.meta?.leads_form && p?.meta?.leads_form) {
+    const leadsDelta = Math.round(
+      (w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100
+    );
+    if (leadsDelta >= 20) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Meta leads up ${leadsDelta}% this week
+          (${p.meta.leads_form} → ${w.meta.leads_form}).
+          Strong form performance — consider increasing budget.`
+      });
+    } else if (leadsDelta <= -20) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Meta leads down ${Math.abs(leadsDelta)}% this week
+          (${p.meta.leads_form} → ${w.meta.leads_form}).
+          Check ad fatigue and audience size.`
+      });
+    }
+  }
+
+  if (w.meta?.spend_aed && p?.meta?.spend_aed) {
+    const spendDelta = Math.round(
+      (w.meta.spend_aed - p.meta.spend_aed) / p.meta.spend_aed * 100
+    );
+    const leadsChange = w.meta?.leads_form && p?.meta?.leads_form
+      ? Math.round((w.meta.leads_form - p.meta.leads_form) / p.meta.leads_form * 100)
+      : null;
+    // Spend вырос, но лиды упали — плохой сигнал
+    if (spendDelta >= 10 && leadsChange !== null && leadsChange < 0) {
+      insights.push({
+        icon: '◈', label: 'Meta Ads', cls: 'i-meta',
+        text: `Spend +${spendDelta}% but leads ${leadsChange}% — 
+          budget efficiency declining. 
+          Review campaign structure before scaling further.`
+      });
+    }
+  }
+
+  // ── INSTAGRAM ───────────────────────────
+  if (w.smm?.reach && p?.smm?.reach) {
+    const reachDelta = Math.round(
+      (w.smm.reach - p.smm.reach) / p.smm.reach * 100
+    );
+    if (reachDelta >= 20) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Reach up ${reachDelta}% this week 
+          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+          Strong content performance — replicate format next week.`
+      });
+    } else if (reachDelta <= -20) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Reach dropped ${Math.abs(reachDelta)}% 
+          (${(p.smm.reach/1000).toFixed(1)}k → ${(w.smm.reach/1000).toFixed(1)}k).
+          Review posting frequency and content type.`
+      });
+    }
+  }
+
+  if (w.smm?.link_clicks && p?.smm?.link_clicks) {
+    const clicksDelta = Math.round(
+      (w.smm.link_clicks - p.smm.link_clicks) / p.smm.link_clicks * 100
+    );
+    if (clicksDelta >= 30) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `Link clicks +${clicksDelta}% — bio/story CTA is converting well.
+          Check if landing page is optimised for this traffic.`
+      });
+    }
+  }
+
+  if (w.smm?.reach && w.smm?.link_clicks) {
+    const ctr = ((w.smm.link_clicks / w.smm.reach) * 100).toFixed(2);
+    if (ctr < 0.1) {
+      insights.push({
+        icon: '✦', label: 'Instagram', cls: 'i-smm',
+        text: `IG click-through rate is ${ctr}% — 
+          reach is high but CTA conversion is low. 
+          Test stronger calls-to-action in captions and stories.`
+      });
+    }
+  }
+
+  // ── WHATSAPP ────────────────────────────
+  if (waData) {
+    if (waData.failed_rate_pct >= 60) {
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `🔴 WA failed rate ${waData.failed_rate_pct}% — 
+          base quality is critical. 
+          Verify all numbers before next launch.`
+      });
+    } else if (waData.delivery_rate_pct >= 70) {
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `✅ WA delivery rate ${waData.delivery_rate_pct}% — 
+          strong base quality this week. 
+          ${waData.reply_rate_of_read}% reply/read rate.`
+      });
+    }
+
+    if (waData.crm_positive > 0) {
+      const posRate = waData.crm_total
+        ? Math.round(waData.crm_positive / waData.crm_total * 100) : 0;
+      insights.push({
+        icon: '💬', label: 'WhatsApp', cls: '',
+        text: `${waData.crm_positive} leads in positive pipeline 
+          (${posRate}% of ${waData.crm_total} CRM leads) — 
+          ${waData.crm_positive} contacts to prioritise for follow-up.`
+      });
+    }
+
+    if (waData.crm_opt_out > 0) {
+      const optRate = waData.crm_total
+        ? Math.round(waData.crm_opt_out / waData.crm_total * 100) : 0;
+      if (optRate >= 5) {
+        insights.push({
+          icon: '💬', label: 'WhatsApp', cls: '',
+          text: `Opt-out rate ${optRate}% (${waData.crm_opt_out} contacts) — 
+            review message tone and targeting. 
+            Consider warming up cold segments first.`
+        });
+      }
+    }
+  }
+
+  // ── RED ─────────────────────────────────
+  if (w.red_quiz_leads?.length) {
+    const total   = w.red_quiz_leads.length;
+    const qual    = w.red_quiz_leads.filter(l => l.status === 'Qualified').length;
+    const invest  = w.red_quiz_leads.filter(l => l.purpose === 'invest').length;
+    const qualPct = Math.round(qual / total * 100);
+
+    if (qualPct >= 40) {
+      insights.push({
+        icon: '◉', label: 'RED', cls: '',
+        text: `High RED qualification rate: ${qual}/${total} leads qualified (${qualPct}%).
+          ${invest} investors — strong intent signals.`
+      });
+    } else if (qualPct < 20 && total >= 5) {
+      insights.push({
+        icon: '◉', label: 'RED', cls: '',
+        text: `RED qualification rate ${qualPct}% (${qual}/${total}) — 
+          quiz funnel may need tighter qualification questions.`
+      });
+    }
+
+    if (p?.red_quiz_leads?.length) {
+      const prevTotal = p.red_quiz_leads.length;
+      const delta = Math.round((total - prevTotal) / prevTotal * 100);
+      if (delta >= 30) {
+        insights.push({
+          icon: '◉', label: 'RED', cls: '',
+          text: `RED leads up ${delta}% vs last week (${prevTotal} → ${total}).
+            Check traffic source — what drove the spike?`
+        });
+      }
+    }
+  }
+
+  // ── GENERAL (cross-channel) ─────────────
+  // Считаем общий conversion: Meta leads → qualified
+  if (w.meta?.leads_form && w.leads?.qualified) {
+    const convRate = Math.round(
+      w.leads.qualified / w.meta.leads_form * 100
+    );
+    if (convRate >= 20) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `Strong lead quality: ${convRate}% of Meta form submissions 
+          are qualified (${w.leads.qualified}/${w.meta.leads_form}).`
+      });
+    } else if (convRate < 8 && w.meta.leads_form >= 10) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `Low qualification rate: only ${convRate}% of Meta leads 
+          convert to qualified (${w.leads.qualified}/${w.meta.leads_form}).
+          Review lead quality from ads — consider form pre-qualification.`
+      });
+    }
+  }
+
+  // Junk rate предупреждение
+  if (w.leads?.junk && w.leads?.total) {
+    const junkRate = Math.round(w.leads.junk / w.leads.total * 100);
+    if (junkRate >= 30) {
+      insights.push({
+        icon: '📊', label: 'General', cls: '',
+        text: `⚠️ Junk lead rate ${junkRate}% (${w.leads.junk}/${w.leads.total}) — 
+          high noise in pipeline. 
+          Check targeting settings across all channels.`
+      });
+    }
+  }
+
+  return insights;
+}
+
+// ════════════════════════════════════════════
+//  EXPOSE GLOBALLY
+// ════════════════════════════════════════════
+window.switchWeek = switchWeek;
+
+</script>
+</body>
+</html>
