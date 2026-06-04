@@ -1,0 +1,60 @@
+{
+  "period": "07–13 May 2026",
+  "week_label": "W2",
+  "week_num": 2,
+  "is_partial": false,
+
+  "leads": {
+    "total": 10,
+    "by_source": {
+      "facebook": 2,
+      "whatsapp_inbound": 4,
+      "call": 1,
+      "instagram": 1,
+      "other": 2
+    },
+    "new": 1,
+    "qualified": 1,
+    "in_communication": 2,
+    "follow_up": 3,
+    "prospect_lost": 1,
+    "junk": 3,
+    "owner_sell": 1,
+    "future_fu": 0
+  },
+
+  "meta": {
+    "spend_aed": 1897,
+    "impressions": 287000,
+    "link_clicks": 2180,
+    "leads_form": 4,
+    "cpl_aed": 474,
+    "top_campaign": "Top-ABO-Messages (UAE/UK/EEA)",
+    "note": "WhatsApp Messages кампании активны"
+  },
+
+  "smm": {
+    "reach": 3200,
+    "views": 4574,
+    "interactions": 143,
+    "link_clicks": 22,
+    "follows": 7,
+    "profile_visits": 169
+  },
+
+  "whatsapp_outreach": {
+    "campaigns": [],
+    "contacts_sent": 0,
+    "replied": 0,
+    "in_communication": 0,
+    "prospect_lost": 0,
+    "opt_out": 0
+  },
+
+  "insights": {
+    "general": "Активны Meta WhatsApp Messages кампании с высоким охватом. Небольшое количество входящих лидов. 1 Qualified (LUISA — холодный звонок).",
+    "meta": "Top-ABO-Messages: 287k impressions, 2180 кликов, CPL 474 AED — высокий, кампания в стадии обучения.",
+    "smm": "Instagram органика на базовом уровне. Без платного продвижения постов.",
+    "leads": "10 лидов, качество среднее. 1 перспективный лид — Anirudh (owner to sell, 3BR + maids под 3.3M AED)."
+  }
+}
