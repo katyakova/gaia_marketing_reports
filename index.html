@@ -20,64 +20,65 @@ body { font-family: -apple-system, sans-serif; background: #0f172a; color: #e2e8
 .yellow { color: #fbbf24; }
 .red { color: #f87171; }
 .blue { color: #60a5fa; }
+.purple { color: #a78bfa; }
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 32px 24px; }
 .chart-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
 .chart-card h3 { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
 .chart-full { padding: 0 32px 24px; }
-.chart-full .chart-card { }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th { background: #0f172a; padding: 10px 12px; text-align: left; color: #64748b; font-weight: 500; border-bottom: 1px solid #334155; }
 td { padding: 10px 12px; border-bottom: 1px solid #1e293b; }
-tr:hover td { background: #1e293b; }
-.badge { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-.badge-green { background: #14532d; color: #4ade80; }
-.badge-yellow { background: #451a03; color: #fbbf24; }
-.badge-red { background: #450a0a; color: #f87171; }
+tr:hover td { background: #263148; }
 .table-card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; margin: 0 32px 32px; }
 .table-card h3 { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
+.pct-bar { background: #334155; border-radius: 4px; height: 6px; width: 100px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+.pct-fill { height: 6px; border-radius: 4px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>📊 Gaia Marketing Reports</h1>
-  <p>WhatsApp Campaigns Analytics</p>
+  <p>WhatsApp Campaigns Analytics — June 2025</p>
 </div>
 
 <div class="kpi-grid" id="kpiGrid"></div>
 
 <div class="charts-grid">
   <div class="chart-card">
-    <h3>SENT vs DELIVERED</h3>
+    <h3>TARGET vs DELIVERED vs READ</h3>
     <canvas id="chartDelivery"></canvas>
   </div>
   <div class="chart-card">
-    <h3>OPEN RATE BY CAMPAIGN</h3>
-    <canvas id="chartOpen"></canvas>
+    <h3>DELIVERY RATE BY CAMPAIGN (%)</h3>
+    <canvas id="chartDeliveryPct"></canvas>
   </div>
 </div>
 
 <div class="chart-full">
   <div class="chart-card">
-    <h3>CLICKS BY CAMPAIGN</h3>
-    <canvas id="chartClicks"></canvas>
+    <h3>READ RATE BY CAMPAIGN (%)</h3>
+    <canvas id="chartReadPct"></canvas>
   </div>
 </div>
 
 <div class="table-card">
   <h3>ALL CAMPAIGNS</h3>
-  <table id="campaignTable">
+  <table>
     <thead>
       <tr>
         <th>Campaign</th>
+        <th>Broker</th>
         <th>Date</th>
-        <th>Sent</th>
+        <th>Target</th>
+        <th>Accepted</th>
         <th>Delivered</th>
-        <th>Opened</th>
-        <th>Clicked</th>
-        <th>Open Rate</th>
-        <th>CTR</th>
-        <th>Status</th>
+        <th>Read</th>
+        <th>Failed</th>
+        <th>Replies</th>
+        <th>Delivery %</th>
+        <th>Read %</th>
+        <th>Reply %</th>
       </tr>
     </thead>
     <tbody id="tableBody"></tbody>
@@ -89,8 +90,149 @@ fetch('data/campaigns.csv')
   .then(r => r.text())
   .then(text => {
     const lines = text.trim().split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(',').map(h => h.trim());
     const rows = lines.slice(1).map(l => {
       const vals = l.split(',');
       const obj = {};
-      headers.forEach((h, i) => obj[h.trim()] = vals[i] ?
+      headers.forEach((h, i) => obj[h] = vals[i] ? vals[i].trim() : '0');
+      return obj;
+    });
+
+    // KPI totals
+    const totalTarget    = rows.reduce((s, r) => s + (+r.target || 0), 0);
+    const totalAccepted  = rows.reduce((s, r) => s + (+r.meta_accepted || 0), 0);
+    const totalDelivered = rows.reduce((s, r) => s + (+r.delivered || 0), 0);
+    const totalRead      = rows.reduce((s, r) => s + (+r.read || 0), 0);
+    const totalFailed    = rows.reduce((s, r) => s + (+r.failed || 0), 0);
+    const totalReplies   = rows.reduce((s, r) => s + (+r.replies || 0), 0);
+    const avgDelivery    = totalTarget ? ((totalDelivered / totalTarget) * 100).toFixed(1) : 0;
+    const avgRead        = totalDelivered ? ((totalRead / totalDelivered) * 100).toFixed(1) : 0;
+
+    document.getElementById('kpiGrid').innerHTML = `
+      <div class="kpi-card">
+        <div class="label">Total Target</div>
+        <div class="value blue">${totalTarget.toLocaleString()}</div>
+        <div class="sub">${rows.length} campaigns</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Accepted</div>
+        <div class="value purple">${totalAccepted.toLocaleString()}</div>
+        <div class="sub">${totalTarget ? ((totalAccepted/totalTarget)*100).toFixed(1) : 0}% of target</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Delivered</div>
+        <div class="value green">${totalDelivered.toLocaleString()}</div>
+        <div class="sub">${avgDelivery}% delivery rate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Read</div>
+        <div class="value yellow">${totalRead.toLocaleString()}</div>
+        <div class="sub">${avgRead}% read rate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Failed</div>
+        <div class="value red">${totalFailed.toLocaleString()}</div>
+        <div class="sub">${totalTarget ? ((totalFailed/totalTarget)*100).toFixed(1) : 0}% failed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Replies</div>
+        <div class="value blue">${totalReplies.toLocaleString()}</div>
+        <div class="sub">${totalDelivered ? ((totalReplies/totalDelivered)*100).toFixed(1) : 0}% reply rate</div>
+      </div>
+    `;
+
+    // Table
+    const tbody = document.getElementById('tableBody');
+    rows.forEach(r => {
+      const dpct = parseFloat(r.delivery_pct) || 0;
+      const rpct = parseFloat(r.read_pct) || 0;
+      const replypct = parseFloat(r.reply_pct) || 0;
+      const dColor = dpct >= 40 ? '#4ade80' : dpct >= 20 ? '#fbbf24' : '#f87171';
+      const rColor = rpct >= 30 ? '#4ade80' : rpct >= 15 ? '#fbbf24' : '#f87171';
+      tbody.innerHTML += `<tr>
+        <td style="font-weight:500;color:#f1f5f9">${r.campaign}</td>
+        <td style="color:#94a3b8">${r.broker}</td>
+        <td style="color:#64748b">${r.date}</td>
+        <td>${(+r.target).toLocaleString()}</td>
+        <td>${(+r.meta_accepted).toLocaleString()}</td>
+        <td style="color:#4ade80">${(+r.delivered).toLocaleString()}</td>
+        <td style="color:#fbbf24">${(+r.read).toLocaleString()}</td>
+        <td style="color:#f87171">${(+r.failed).toLocaleString()}</td>
+        <td style="color:#a78bfa">${(+r.replies).toLocaleString()}</td>
+        <td>
+          <span style="color:${dColor}">${dpct}%</span>
+          <span class="pct-bar"><span class="pct-fill" style="width:${Math.min(dpct,100)}%;background:${dColor}"></span></span>
+        </td>
+        <td>
+          <span style="color:${rColor}">${rpct}%</span>
+          <span class="pct-bar"><span class="pct-fill" style="width:${Math.min(rpct,100)}%;background:${rColor}"></span></span>
+        </td>
+        <td style="color:#a78bfa">${replypct}%</td>
+      </tr>`;
+    });
+
+    const labels = rows.map(r => r.campaign);
+    const colors = ['#60a5fa','#4ade80','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c','#e879f9','#38bdf8','#a3e635','#f472b6'];
+
+    // Chart 1 — Target vs Delivered vs Read
+    new Chart(document.getElementById('chartDelivery'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Target', data: rows.map(r => +r.target), backgroundColor: '#334155' },
+          { label: 'Delivered', data: rows.map(r => +r.delivered), backgroundColor: '#60a5fa' },
+          { label: 'Read', data: rows.map(r => +r.read), backgroundColor: '#4ade80' }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8' } } },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 45 } },
+          y: { ticks: { color: '#64748b' } }
+        }
+      }
+    });
+
+    // Chart 2 — Delivery % doughnut
+    new Chart(document.getElementById('chartDeliveryPct'), {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: rows.map(r => parseFloat(r.delivery_pct) || 0), backgroundColor: colors }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
+      }
+    });
+
+    // Chart 3 — Read % line
+    new Chart(document.getElementById('chartReadPct'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Read Rate %',
+          data: rows.map(r => parseFloat(r.read_pct) || 0),
+          borderColor: '#fbbf24',
+          backgroundColor: 'rgba(251,191,36,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#fbbf24'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8' } } },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 45 } },
+          y: { ticks: { color: '#64748b' }, min: 0 }
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
