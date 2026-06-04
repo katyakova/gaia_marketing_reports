@@ -19,15 +19,22 @@ body {
 /* ── HEADER ── */
 .header {
   background: #111111;
-  padding: 18px 36px;
+  padding: 0 36px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: 56px;
 }
-.logo-wrap { display: flex; align-items: center; gap: 10px; }
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  flex-shrink: 0;
+}
 .logo-mark {
   width: 32px; height: 32px;
   background: #FFFFFF;
@@ -36,11 +43,205 @@ body {
   font-weight: 900; font-size: 14px; color: #111;
   letter-spacing: -1px;
 }
-.logo-name  { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
-.logo-sub   { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
-.header-right { text-align: right; }
+.logo-name { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
+.logo-sub  { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
+
+  <header class="header">
+
+  <!-- LOGO -->
+  <div class="logo-wrap">
+    <div class="logo-mark">G</div>
+    <div>
+      <div class="logo-name">GAIA</div>
+      <div class="logo-sub">Real Estate</div>
+    </div>
+  </div>
+
+  <!-- NAV MENU -->
+  <nav class="nav-menu">
+
+    <!-- Dashboard -->
+    <button class="nav-btn btn-dashboard active" id="nav-dashboard"
+            onclick="switchView('dashboard')">
+      <span class="nav-btn-icon">📊</span>
+      <span class="nav-btn-label">Dashboard</span>
+    </button>
+
+    <div class="nav-sep"></div>
+
+    <!-- Meta Ads -->
+    <button class="nav-btn btn-meta" id="nav-meta"
+            onclick="switchView('meta')">
+      <span class="nav-btn-icon">💰</span>
+      <span class="nav-btn-label">Meta</span>
+      <span class="nav-btn-badge" id="badge-meta">—</span>
+    </button>
+
+    <!-- Instagram / SMM -->
+    <button class="nav-btn btn-smm" id="nav-smm"
+            onclick="switchView('smm')">
+      <span class="nav-btn-icon">📸</span>
+      <span class="nav-btn-label">Instagram</span>
+      <span class="nav-btn-badge" id="badge-smm">—</span>
+    </button>
+
+    <div class="nav-sep"></div>
+
+    <!-- Leads -->
+    <button class="nav-btn btn-leads" id="nav-leads"
+            onclick="switchView('leads')">
+      <span class="nav-btn-icon">🎯</span>
+      <span class="nav-btn-label">Leads</span>
+      <span class="nav-btn-badge" id="badge-leads">—</span>
+    </button>
+
+    <!-- WhatsApp -->
+    <button class="nav-btn btn-wa" id="nav-whatsapp"
+            onclick="switchView('whatsapp')">
+      <span class="nav-btn-icon">💬</span>
+      <span class="nav-btn-label">WhatsApp</span>
+      <span class="nav-btn-badge" id="badge-wa">—</span>
+    </button>
+
+    <!-- RED Quiz -->
+    <button class="nav-btn btn-red" id="nav-red"
+            onclick="switchView('red')">
+      <span class="nav-btn-icon">🔴</span>
+      <span class="nav-btn-label">RED Quiz</span>
+      <span class="nav-btn-badge" id="badge-red">—</span>
+    </button>
+
+  </nav>
+
+  <!-- HEADER RIGHT -->
+  <div class="header-right">
+    <div class="header-title">Marketing Dashboard</div>
+    <div class="header-period" id="hPeriod">Loading…</div>
+  </div>
+
+</header>
+
+/* ── NAV ── */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 0 28px;
+  overflow-x: auto;
+}
+
+/* Текстовые пункты (Dashboard, Leads) */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.08);
+}
+.nav-item.active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.15);
+}
+.nav-item .nav-icon  { font-size: 13px; line-height: 1; }
+.nav-item .nav-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #666;
+  transition: color .2s;
+}
+.nav-item:hover .nav-label { color: #BBB; }
+.nav-item.active .nav-label { color: #FFF; }
+
+/* Разделитель */
+.nav-sep {
+  width: 1px; height: 20px;
+  background: #2A2A2A;
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+/* Цветные кнопки */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+.nav-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+.nav-btn.active {
+  box-shadow: 0 0 0 2px #FFF;
+}
+.nav-btn .nav-btn-icon  { font-size: 14px; line-height: 1; }
+.nav-btn .nav-btn-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #FFF;
+}
+.nav-btn .nav-btn-badge {
+  background: rgba(0,0,0,0.2);
+  color: #FFF;
+  font-size: 9px; font-weight: 700;
+  padding: 1px 5px; border-radius: 8px;
+  min-width: 18px; text-align: center;
+}
+
+/* Цвета кнопок */
+.btn-dashboard { background: #333333; }
+.btn-meta      { background: #1877F2; }
+.btn-smm       { background: linear-gradient(135deg,#833AB4,#E1306C,#F77737); }
+.btn-leads     { background: #22c55e; }
+.btn-wa        { background: #25D366; }
+.btn-red       { background: #E53935; }
+
+/* HEADER RIGHT */
+.header-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 0;
+  flex-shrink: 0;
+}
 .header-title  { font-size: 11px; font-weight: 600; color: #FFF; letter-spacing: 2px; text-transform: uppercase; }
 .header-period { font-size: 10px; color: #555; margin-top: 3px; }
+
+/* Мобильный */
+@media (max-width: 1100px) {
+  .header { padding: 0 16px; }
+  .nav-menu { padding: 0 10px; gap: 4px; }
+  .nav-btn  { padding: 5px 10px; }
+  .nav-btn .nav-btn-label { display: none; }
+  .nav-btn .nav-btn-icon  { font-size: 16px; }
+  .nav-btn .nav-btn-badge { display: none; }
+  .nav-sep  { margin: 0 2px; }
+  .header-right { display: none; }
+}
+@media (max-width: 600px) {
+  .nav-item .nav-label { display: none; }
+  .logo-name { font-size: 15px; }
+}
 
 /* ── WEEK TABS ── */
 .tabs-wrap {
