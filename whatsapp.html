@@ -813,7 +813,7 @@ async function loadWeek(num) {
 ════════════════════════════════════════ */
 function renderAll(d) {
   renderLaunchHeader(d);
-  renderKPIs(d.totals, d.crm);
+  renderKPIs(d.totals, d.crm, d.campaigns.length);  // ← добавлен третий аргумент
   renderFunnel(d.totals, d.crm);
   renderCharts(d.campaigns);
   renderCampaignsTable(d.campaigns);
