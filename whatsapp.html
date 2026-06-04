@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaia · WhatsApp Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: #ECEAE7;
+  color: #1A1A1A;
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: #111111;
+  padding: 0 36px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 56px;
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  flex-shrink: 0;
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: #FFFFFF;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 14px; color: #111;
+  letter-spacing: -1px;
+}
+.logo-name { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
+.logo-sub  { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
+
+/* ── NAV ── */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 0 28px;
+  overflow-x: auto;
+}
+.nav-sep {
+  width: 1px; height: 20px;
+  background: #2A2A2A;
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.nav-btn.active { box-shadow: 0 0 0 2px #FFF; }
+.nav-btn .nav-btn-icon  { font-size: 14px; line-height: 1; }
+.nav-btn .nav-btn-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: #FFF;
+}
+.btn-back      { background: #333333; }
+.btn-wa        { background: #25D366; }
+
+/* ── HEADER RIGHT ── */
+.header-right {
+  text-align: right;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 12px 0; flex-shrink: 0;
+}
+.header-title  { font-size: 11px; font-weight: 600; color: #FFF; letter-spacing: 2px; text-transform: uppercase; }
+.header-period { font-size: 10px; color: #555; margin-top: 3px; }
+
+/* ── WEEK TABS ── */
+.tabs-wrap {
+  background: #FFF;
+  border-bottom: 1px solid #E0DDD9;
+  padding: 0 36px;
+  display: flex;
+  overflow-x: auto;
+}
+.tab {
+  padding: 14px 24px 12px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  user-select: none;
+}
+.tab-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #AAAAAA; }
+.tab-dates { font-size: 10px; color: #BBBBBB; margin-top: 2px; }
+.tab:hover .tab-label { color: #333; }
+.tab.active { border-bottom-color: #25D366; }
+.tab.active .tab-label { color: #111; }
+.tab.active .tab-dates  { color: #666; }
+
+/* ── COMPARISON STRIP ── */
+.comp-strip {
+  background: #1A1A1A;
+  padding: 10px 36px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+}
+.comp-metric {
+  display: flex; flex-direction: column;
+  padding: 6px 20px 6px 0;
+  margin-right: 20px;
+  border-right: 1px solid #2E2E2E;
+  min-width: 110px;
+}
+.comp-metric:last-child { border-right: none; }
+.comp-metric-label {
+  font-size: 9px; color: #555;
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+.comp-bars { display: flex; gap: 8px; align-items: flex-end; }
+.comp-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.comp-bar-val { font-size: 11px; font-weight: 700; color: #888; line-height: 1; }
+.comp-bar-val.current { color: #FFF; font-size: 13px; }
+.comp-bar-bg {
+  width: 24px; border-radius: 3px 3px 0 0;
+  background: #2E2E2E; min-height: 4px; transition: all .3s;
+}
+.comp-bar-bg.current { background: #25D366; }
+.comp-bar-wk { font-size: 9px; color: #444; margin-top: 2px; }
+.comp-bar-wk.current { color: #888; }
+.comp-delta {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 3px; margin-top: 4px;
+}
+.delta-pos      { background: rgba(74,222,128,.15); color: #4ade80; }
+.delta-neg      { background: rgba(248,113,113,.15); color: #f87171; }
+.delta-good-neg { background: rgba(74,222,128,.15); color: #4ade80; }
+
+/* ── MAIN ── */
+.main { padding: 28px 36px; }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; margin-top: 28px;
+}
+.sec-head:first-child { margin-top: 0; }
+.sec-icon {
+  width: 24px; height: 24px; border-radius: 5px;
+  background: #1A1A1A;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+.sec-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: #888;
+}
+
+/* ── KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.kpi {
+  background: #FFF;
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  border: 1px solid #E4E2DF;
+  position: relative; overflow: hidden;
+}
+.kpi::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 10px 10px 0 0;
+}
+.kpi.k-green::after  { background: #25D366; }
+.kpi.k-amber::after  { background: #f59e0b; }
+.kpi.k-red::after    { background: #ef4444; }
+.kpi.k-blue::after   { background: #3b82f6; }
+.kpi.k-purple::after { background: #8b5cf6; }
+.kpi.k-black::after  { background: #1A1A1A; }
+.kpi.k-dollar::after { background: #16a34a; }
+
+.kpi-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #999; }
+.kpi-value { font-size: 30px; font-weight: 800; line-height: 1; margin: 8px 0 4px; color: #1A1A1A; }
+.kpi-value.small { font-size: 22px; }
+.kpi-sub   { font-size: 10px; color: #AAA; }
+.kpi-currency {
+  font-size: 10px; font-weight: 700;
+  color: #16a34a;
+  background: #dcfce7;
+  display: inline-block;
+  padding: 1px 6px; border-radius: 4px;
+  margin-top: 4px;
+}
+.kpi-trend { font-size: 11px; font-weight: 600; margin-top: 5px; }
+.trend-up        { color: #22c55e; }
+.trend-down      { color: #ef4444; }
+.trend-good-down { color: #22c55e; }
+
+/* ── CHART CARDS ── */
+.chart-grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.chart-grid-3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.chart-card {
+  background: #FFF; border-radius: 10px;
+  padding: 20px; border: 1px solid #E4E2DF;
+}
+.chart-card h3 {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
+  margin-bottom: 16px;
+}
+.chart-wrap { position: relative; }
+
+/* ── CAMPAIGNS TABLE ── */
+.table-card {
+  background: #FFF; border-radius: 10px;
+  border: 1px solid #E4E2DF; overflow: hidden; margin-bottom: 20px;
+}
+.table-card h3 {
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
+  padding: 16px 20px 12px; border-bottom: 1px solid #F0EDEA;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+  padding: 9px 16px; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: #AAA; text-align: left; background: #FAFAF9;
+  border-bottom: 1px solid #F0EDEA;
+}
+td {
+  padding: 10px 16px; border-bottom: 1px solid #F7F6F4;
+  font-size: 12px; color: #333; vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFAF9; }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-bar-bg {
+  flex: 1; height: 6px; background: #F0EFED;
+  border-radius: 3px; overflow: hidden;
+}
+.progress-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+.progress-label { font-size: 10px; font-weight: 700; color: #555; min-width: 30px; }
+
+/* ── INSIGHTS ── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.insight {
+  background: #FFF; border-radius: 10px;
+  padding: 16px 18px; border: 1px solid #E4E2DF;
+  border-left: 4px solid #25D366;
+}
+.insight-tag {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: #AAA;
+  margin-bottom: 6px;
+}
+.insight-text { font-size: 12px; line-height: 1.65; color: #333; }
+
+/* ── SUMMARY BOX ── */
+.summary-box {
+  background: #111;
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  border: 1px solid #222;
+}
+.summary-box h3 {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: #25D366; margin-bottom: 16px;
+}
+.summary-row {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-label { font-size: 11px; color: #666; }
+.summary-value { font-size: 13px; font-weight: 700; color: #FFF; }
+.summary-value.good  { color: #25D366; }
+.summary-value.warn  { color: #f59e0b; }
+.summary-value.bad   { color: #ef4444; }
+
+/* ── FOOTER ── */
+.footer {
+  background: #111; color: #444;
+  text-align: center; padding: 18px;
+  font-size: 10px; letter-spacing: 1px; margin-top: 40px;
+}
+
+/* ── PARTIAL NOTE ── */
+.partial-note {
+  display: inline-block; background: #FFF8E1; color: #B45309;
+  font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 4px;
+  margin-left: 8px; vertical-align: middle;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .header { padding: 0 16px; }
+  .nav-menu { padding: 0 10px; gap: 4px; }
+  .nav-btn .nav-btn-label { display: none; }
+  .nav-btn .nav-btn-icon  { font-size: 16px; }
+  .header-right { display: none; }
+}
+@media (max-width: 900px) {
+  .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  .main { padding: 16px; }
+  .tabs-wrap { padding: 0 16px; }
+  .comp-strip { padding: 10px 16px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  HEADER                                -->
+<!-- ═══════════════════════════════════════ -->
+<header class="header">
+
+  <div class="logo-wrap">
+    <div class="logo-mark">G</div>
+    <div>
+      <div class="logo-name">GAIA</div>
+      <div class="logo-sub">Real Estate</div>
+    </div>
+  </div>
+
+  <nav class="nav-menu">
+    <!-- Кнопка назад на главный дашборд -->
+    <a class="nav-btn btn-back" href="index.html">
+      <span class="nav-btn-icon">←</span>
+      <span class="nav-btn-label">Dashboard</span>
+    </a>
+
+    <div class="nav-sep"></div>
+
+    <!-- Текущая страница -->
+    <button class="nav-btn btn-wa active">
+      <span class="nav-btn-icon">💬</span>
+      <span class="nav-btn-label">WhatsApp</span>
+    </button>
+  </nav>
+
+  <div class="header-right">
+    <div class="header-title">WhatsApp Dashboard</div>
+    <div class="header-period" id="hPeriod">Loading…</div>
+  </div>
+
+</header>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  WEEK TABS                             -->
+<!-- ═══════════════════════════════════════ -->
+<div class="tabs-wrap" id="tabsWrap"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  COMPARISON STRIP                      -->
+<!-- ═══════════════════════════════════════ -->
+<div class="comp-strip" id="compStrip"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  MAIN                                  -->
+<!-- ═══════════════════════════════════════ -->
+<main class="main" id="mainContent">
+  <p style="color:#AAA;padding:40px 0;text-align:center">Loading…</p>
+</main>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  FOOTER                                -->
+<!-- ═══════════════════════════════════════ -->
+<footer class="footer">
+  GAIA Real Estate &nbsp;·&nbsp; WhatsApp Dashboard &nbsp;·&nbsp;
+  Week runs Fri → Wed &nbsp;·&nbsp; Report day: Thursday
+</footer>
+
+<!-- ═══════════════════════════════════════ -->
+<!--  JAVASCRIPT                            -->
+<!-- ═══════════════════════════════════════ -->
+<script>
+
+// ════════════════════════════════════════════
+//  CONFIG — те же файлы что и в index.html
+// ════════════════════════════════════════════
+const WEEK_FILES = [
+  'data/week_01.json',
+  'data/week_02.json',
+  'data/week_03.json',
+  'data/week_04.json',
+  'data/week_05.json'
+];
+
+// Метрики для comparison strip
+const COMP_METRICS = [
+  { path: 'whatsapp_outreach.contacts_sent',    label: 'Sent',         goodDir: 'up',   fmt: 'num' },
+  { path: 'whatsapp_outreach.replied',          label: 'Replied',      goodDir: 'up',   fmt: 'num' },
+  { path: 'whatsapp_outreach.in_communication', label: 'In Comm',      goodDir: 'up',   fmt: 'num' },
+  { path: 'whatsapp_outreach.prospect_lost',    label: 'Lost',         goodDir: 'down', fmt: 'num' },
+  { path: 'whatsapp_outreach.opt_out',          label: 'Opt-Out',      goodDir: 'down', fmt: 'num' },
+  { path: 'whatsapp_outreach.cost_usd',         label: 'Cost $',       goodDir: 'none', fmt: 'usd' },
+];
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let weeks  = [];
+let active = 0;
+let charts = {};
+
+// ════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════
+(async function boot() {
+  try {
+    const results = await Promise.allSettled(
+      WEEK_FILES.map(f => fetch(f).then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      }))
+    );
+    weeks = results
+      .map(r => r.status === 'fulfilled' ? r.value : null)
+      .filter(Boolean);
+
+    if (!weeks.length) throw new Error('No data files found');
+    active = weeks.length - 1;
+    render();
+  } catch(e) {
+    document.getElementById('mainContent').innerHTML = `
+      <p style="color:#ef4444;padding:40px;text-align:center">
+        ⚠️ Could not load data.<br>
+        <small style="color:#999">${e.message}</small>
+      </p>`;
+  }
+})();
+
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function get(obj, path) {
+  return path.split('.').reduce((o, k) => (o != null ? o[k] : 0), obj) ?? 0;
+}
+
+function fmt(val, type) {
+  if (val == null || val === 0) return '—';
+  if (type === 'usd') return '$' + val.toLocaleString();
+  if (type === 'pct') return val + '%';
+  if (type === 'k')   return val >= 1000 ? (val/1000).toFixed(1)+'k' : val;
+  return val.toLocaleString();
+}
+
+function delta(curr, prev, goodDir) {
+  if (!prev || !curr) return '';
+  const pct  = Math.round(((curr - prev) / prev) * 100);
+  const sign = pct >= 0 ? '+' : '';
+  let cls = pct >= 0 ? 'delta-pos' : 'delta-neg';
+  if (goodDir === 'down' && pct < 0) cls = 'delta-good-neg';
+  if (goodDir === 'down' && pct > 0) cls = 'delta-neg';
+  return `<span class="comp-delta ${cls}">${sign}${pct}%</span>`;
+}
+
+function trendHtml(curr, prev, goodDir) {
+  if (!prev || !curr) return '';
+  const pct  = Math.round(((curr - prev) / prev) * 100);
+  const sign = pct >= 0 ? '↑' : '↓';
+  let cls = 'trend-up';
+  if (pct < 0 && goodDir !== 'down') cls = 'trend-down';
+  if (pct < 0 && goodDir === 'down') cls = 'trend-good-down';
+  if (pct > 0 && goodDir === 'down') cls = 'trend-down';
+  return `<div class="kpi-trend ${cls}">${sign} ${Math.abs(pct)}% vs prev week</div>`;
+}
+
+function pct(a, b) {
+  if (!b || !a) return 0;
+  return Math.round(a / b * 100);
+}
+
+function progressBar(value, max, color) {
+  const w = max > 0 ? Math.round(value / max * 100) : 0;
+  return `
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill"
+             style="width:${w}%;background:${color}"></div>
+      </div>
+      <div class="progress-label">${w}%</div>
+    </div>`;
+}
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  charts = {};
+}
+
+function mkChart(id, config) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, config);
+}
+
+const WEEK_LABELS = () => weeks.map(w => w.week_label);
+
+// ════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════
+function render() {
+  renderTabs();
+  renderCompStrip();
+  renderMain();
+}
+
+function switchWeek(idx) {
+  active = idx;
+  destroyCharts();
+  renderTabs();
+  renderCompStrip();
+  renderMain();
+}
+
+// ════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════
+function renderTabs() {
+  document.getElementById('hPeriod').textContent = weeks[active].period;
+  document.getElementById('tabsWrap').innerHTML = weeks.map((w, i) => `
+    <div class="tab ${i === active ? 'active' : ''}" onclick="switchWeek(${i})">
+      <div class="tab-label">
+        ${w.week_label}
+        ${w.is_partial ? '<span class="partial-note">Partial</span>' : ''}
+      </div>
+      <div class="tab-dates">${w.period}</div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════
+//  COMPARISON STRIP
+// ════════════════════════════════════════════
+function renderCompStrip() {
+  const BAR_MAX_H = 32;
+
+  const html = COMP_METRICS.map(m => {
+    const vals = weeks.map(wk => get(wk, m.path));
+    const maxV = Math.max(...vals.filter(v => v > 0), 1);
+    const curr = vals[active];
+    const prev = active > 0 ? vals[active - 1] : null;
+
+    const barsHtml = vals.map((v, i) => {
+      const h      = v > 0 ? Math.max(4, Math.round((v / maxV) * BAR_MAX_H)) : 4;
+      const isCurr = i === active;
+      return `
+        <div class="comp-bar-wrap">
+          <div class="comp-bar-val ${isCurr ? 'current' : ''}">
+            ${fmt(v, m.fmt)}
+          </div>
+          <div class="comp-bar-bg ${isCurr ? 'current' : ''}"
+               style="height:${h}px"></div>
+          <div class="comp-bar-wk ${isCurr ? 'current' : ''}">
+            ${weeks[i].week_label}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="comp-metric">
+        <div class="comp-metric-label">${m.label}</div>
+        <div class="comp-bars">${barsHtml}</div>
+        ${delta(curr, prev, m.goodDir)}
+      </div>`;
+  }).join('');
+
+  document.getElementById('compStrip').innerHTML = html;
+}
+
+// ════════════════════════════════════════════
+//  MAIN CONTENT
+// ════════════════════════════════════════════
+function renderMain() {
+  const w    = weeks[active];
+  const prev = active > 0 ? weeks[active - 1] : null;
+  const wa   = w.whatsapp_outreach;
+
+  if (!wa || wa.contacts_sent === 0) {
+    document.getElementById('mainContent').innerHTML = `
+      <div style="background:#FFF;border-radius:10px;padding:40px;
+                  border:1px solid #E4E2DF;color:#AAA;
+                  text-align:center;font-size:13px">
+        💬 No WhatsApp outreach data for this week.
+      </div>`;
+    return;
+  }
+
+  document.getElementById('mainContent').innerHTML = `
+    ${renderKPIs(w, prev)}
+    ${renderCharts(w)}
+    ${renderCampaignsTable(w)}
+    ${renderFunnelSection(w)}
+    ${renderInsights(w)}
+    ${renderWeeklySummary(w, prev)}
+  `;
+
+  requestAnimationFrame(() => drawCharts(w, prev));
+}
+
+// ════════════════════════════════════════════
+//  KPI CARDS
+// ════════════════════════════════════════════
+function renderKPIs(w, prev) {
+  const wa  = w.whatsapp_outreach;
+  const pwa = prev?.whatsapp_outreach;
+
+  const replyRate = pct(wa.replied, wa.contacts_sent);
+  const commRate  = pct(wa.in_communication, wa.replied);
+  const optRate   = pct(wa.opt_out, wa.contacts_sent);
+  const lostRate  = pct(wa.prospect_lost, wa.contacts_sent);
+  const costPerReply = wa.replied && wa.cost_usd
+    ? (wa.cost_usd / wa.replied).toFixed(2) : null;
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">💬</div>
+      <div class="sec-title">WhatsApp Outreach — Key Metrics</div>
+    </div>
+
+    <div class="kpi-grid">
+
+           <!-- MESSAGES SENT -->
+      <div class="kpi k-black">
+        <div class="kpi-label">Messages Sent</div>
+        <div class="kpi-value">${wa.contacts_sent}</div>
+        <div class="kpi-sub">Total outreach this week</div>
+        ${trendHtml(wa.contacts_sent, pwa?.contacts_sent, 'none')}
+      </div>
+
+      <!-- COST IN USD -->
+      <div class="kpi k-dollar">
+        <div class="kpi-label">Total Spend</div>
+        <div class="kpi-value small">${wa.cost_usd ? '$' + wa.cost_usd.toLocaleString() : '—'}</div>
+        <div class="kpi-currency">💵 US Dollars (USD)</div>
+        <div class="kpi-sub">${costPerReply ? '$' + costPerReply + ' per reply' : 'Cost per reply: —'}</div>
+        ${trendHtml(wa.cost_usd, pwa?.cost_usd, 'none')}
+      </div>
+
+      <!-- REPLIED -->
+      <div class="kpi k-green">
+        <div class="kpi-label">Replied</div>
+        <div class="kpi-value">${wa.replied}</div>
+        <div class="kpi-sub">Reply rate: ${replyRate}%</div>
+        ${trendHtml(wa.replied, pwa?.replied, 'up')}
+      </div>
+
+      <!-- IN COMMUNICATION -->
+      <div class="kpi k-blue">
+        <div class="kpi-label">In Communication</div>
+        <div class="kpi-value">${wa.in_communication}</div>
+        <div class="kpi-sub">${commRate}% of replies → active</div>
+        ${trendHtml(wa.in_communication, pwa?.in_communication, 'up')}
+      </div>
+
+      <!-- PROSPECT LOST -->
+      <div class="kpi k-red">
+        <div class="kpi-label">Prospect Lost</div>
+        <div class="kpi-value">${wa.prospect_lost}</div>
+        <div class="kpi-sub">Loss rate: ${lostRate}%</div>
+        ${trendHtml(wa.prospect_lost, pwa?.prospect_lost, 'down')}
+      </div>
+
+      <!-- OPT-OUT -->
+      <div class="kpi k-amber">
+        <div class="kpi-label">Opt-Out</div>
+        <div class="kpi-value">${wa.opt_out}</div>
+        <div class="kpi-sub">Opt-out rate: ${optRate}%</div>
+        ${trendHtml(wa.opt_out, pwa?.opt_out, 'down')}
+      </div>
+
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  CHARTS SECTION (HTML каркас)
+// ════════════════════════════════════════════
+function renderCharts(w) {
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📊</div>
+      <div class="sec-title">Trends — All Weeks</div>
+    </div>
+
+    <div class="chart-grid-2">
+
+      <div class="chart-card">
+        <h3>Messages Sent vs Replied — all weeks</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWaSentReplied"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Spend in USD — all weeks</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWaSpend"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="chart-grid-3">
+
+      <div class="chart-card">
+        <h3>Outcome breakdown — this week</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWaOutcome"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Reply rate trend — all weeks</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWaReplyRate"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Cost per reply — all weeks</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWaCostPerReply"></canvas>
+        </div>
+      </div>
+
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  CAMPAIGNS TABLE
+// ════════════════════════════════════════════
+function renderCampaignsTable(w) {
+  const wa = w.whatsapp_outreach;
+  const campaigns = wa.campaigns || [];
+
+  if (!campaigns.length) return '';
+
+  // Если в JSON кампании — просто строки, делаем красивую таблицу
+  const rows = campaigns.map((c, i) => {
+    // Поддержка двух форматов:
+    // 1) c — просто строка с названием
+    // 2) c — объект { name, sent, replied, status }
+    const isObj  = typeof c === 'object';
+    const name   = isObj ? c.name   : c;
+    const sent   = isObj ? c.sent   : '—';
+    const replied= isObj ? c.replied: '—';
+    const status = isObj ? c.status : 'Active';
+    const rRate  = (isObj && c.sent && c.replied)
+      ? pct(c.replied, c.sent) + '%' : '—';
+
+    const statusColor = status === 'Active'
+      ? 'background:#dcfce7;color:#15803d'
+      : status === 'Completed'
+      ? 'background:#dbeafe;color:#1d4ed8'
+      : 'background:#f1f5f9;color:#475569';
+
+    return `
+      <tr>
+        <td>
+          <span style="font-size:14px;margin-right:6px">📋</span>
+          <strong>${name}</strong>
+        </td>
+        <td style="text-align:center">${sent}</td>
+        <td style="text-align:center">${replied}</td>
+        <td>
+          ${(isObj && c.sent && c.replied)
+            ? progressBar(c.replied, c.sent, '#25D366')
+            : '<span style="color:#AAA">—</span>'}
+        </td>
+        <td>
+          <span style="display:inline-block;padding:2px 8px;border-radius:4px;
+                       font-size:9px;font-weight:700;text-transform:uppercase;
+                       ${statusColor}">
+            ${status}
+          </span>
+        </td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📋</div>
+      <div class="sec-title">Campaigns This Week</div>
+    </div>
+    <div class="table-card">
+      <h3>${campaigns.length} active campaign${campaigns.length > 1 ? 's' : ''}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campaign Name</th>
+            <th style="text-align:center">Sent</th>
+            <th style="text-align:center">Replied</th>
+            <th>Reply Rate</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  FUNNEL SECTION
+// ════════════════════════════════════════════
+function renderFunnelSection(w) {
+  const wa = w.whatsapp_outreach;
+
+  const steps = [
+    {
+      label : 'Sent',
+      value : wa.contacts_sent,
+      color : '#1A1A1A',
+      icon  : '📤',
+      sub   : '100% — starting point'
+    },
+    {
+      label : 'Replied',
+      value : wa.replied,
+      color : '#25D366',
+      icon  : '💬',
+      sub   : pct(wa.replied, wa.contacts_sent) + '% of sent'
+    },
+    {
+      label : 'In Communication',
+      value : wa.in_communication,
+      color : '#3b82f6',
+      icon  : '🤝',
+      sub   : pct(wa.in_communication, wa.contacts_sent) + '% of sent · '
+            + pct(wa.in_communication, wa.replied) + '% of replies'
+    },
+    {
+      label : 'Prospect Lost',
+      value : wa.prospect_lost,
+      color : '#ef4444',
+      icon  : '❌',
+      sub   : pct(wa.prospect_lost, wa.contacts_sent) + '% of sent'
+    },
+    {
+      label : 'Opt-Out',
+      value : wa.opt_out,
+      color : '#f59e0b',
+      icon  : '🚫',
+      sub   : pct(wa.opt_out, wa.contacts_sent) + '% of sent'
+    },
+  ];
+
+  const funnelRows = steps.map(s => `
+    <div style="
+      background:#FFF;
+      border-radius:8px;
+      padding:14px 18px;
+      border:1px solid #E4E2DF;
+      border-left:4px solid ${s.color};
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:8px;
+    ">
+      <div style="font-size:20px;flex-shrink:0">${s.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:1px;color:#999;margin-bottom:3px">
+          ${s.label}
+        </div>
+        ${progressBar(s.value, wa.contacts_sent, s.color)}
+        <div style="font-size:10px;color:#AAA;margin-top:3px">${s.sub}</div>
+      </div>
+      <div style="font-size:24px;font-weight:800;color:${s.color};
+                  flex-shrink:0;min-width:40px;text-align:right">
+        ${s.value}
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">🔽</div>
+      <div class="sec-title">Conversion Funnel</div>
+    </div>
+    <div style="margin-bottom:20px">${funnelRows}</div>`;
+}
+
+// ════════════════════════════════════════════
+//  INSIGHTS (только WA)
+// ════════════════════════════════════════════
+function renderInsights(w) {
+  const ins = w.insights || {};
+
+  // Берём WA-специфичный инсайт + общий
+  const items = [];
+
+  if (ins.whatsapp) {
+    items.push({
+      icon  : '💬',
+      label : 'WhatsApp Analysis',
+      text  : ins.whatsapp,
+      color : '#25D366'
+    });
+  }
+  if (ins.general) {
+    items.push({
+      icon  : '💡',
+      label : 'General Note',
+      text  : ins.general,
+      color : '#8b5cf6'
+    });
+  }
+
+  if (!items.length) return '';
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">💡</div>
+      <div class="sec-title">Insights — WhatsApp</div>
+    </div>
+    <div class="insights-grid">
+      ${items.map(i => `
+        <div class="insight" style="border-left-color:${i.color}">
+          <div class="insight-tag">${i.icon} ${i.label}</div>
+          <div class="insight-text">${i.text}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  WEEKLY SUMMARY (тёмный блок внизу)
+// ════════════════════════════════════════════
+function renderWeeklySummary(w, prev) {
+  const wa  = w.whatsapp_outreach;
+  const pwa = prev?.whatsapp_outreach;
+
+  const replyRate    = pct(wa.replied, wa.contacts_sent);
+  const commRate     = pct(wa.in_communication, wa.contacts_sent);
+  const lostRate     = pct(wa.prospect_lost, wa.contacts_sent);
+  const optRate      = pct(wa.opt_out, wa.contacts_sent);
+  const costPerReply = wa.replied && wa.cost_usd
+    ? '$' + (wa.cost_usd / wa.replied).toFixed(2) : '—';
+  const costPerComm  = wa.in_communication && wa.cost_usd
+    ? '$' + (wa.cost_usd / wa.in_communication).toFixed(2) : '—';
+
+  // Определяем класс для reply rate
+  const rateClass = replyRate >= 30 ? 'good'
+                  : replyRate >= 15 ? 'warn'
+                  : 'bad';
+
+  // Тренд vs прошлая неделя
+  const prevReplyRate = pwa ? pct(pwa.replied, pwa.contacts_sent) : null;
+  const replyTrend = prevReplyRate
+    ? (replyRate > prevReplyRate
+        ? `↑ +${replyRate - prevReplyRate}pp vs last week`
+        : replyRate < prevReplyRate
+        ? `↓ ${replyRate - prevReplyRate}pp vs last week`
+        : '→ Same as last week')
+    : 'First week of data';
+
+  const rows = [
+    {
+      label : '📤 Total messages sent',
+      value : wa.contacts_sent.toLocaleString(),
+      cls   : ''
+    },
+    {
+      label : '💵 Total spend (USD)',
+      value : wa.cost_usd ? '$' + wa.cost_usd.toLocaleString() : '—',
+      cls   : ''
+    },
+    {
+      label : '💬 Total replies received',
+      value : wa.replied + ' (' + replyRate + '%)',
+      cls   : rateClass
+    },
+    {
+      label : '🤝 Moved to communication',
+      value : wa.in_communication + ' (' + commRate + '% of sent)',
+      cls   : commRate >= 10 ? 'good' : 'warn'
+    },
+    {
+      label : '❌ Prospect lost',
+      value : wa.prospect_lost + ' (' + lostRate + '% of sent)',
+      cls   : lostRate <= 10 ? 'good' : lostRate <= 20 ? 'warn' : 'bad'
+    },
+    {
+      label : '🚫 Opt-out',
+      value : wa.opt_out + ' (' + optRate + '% of sent)',
+      cls   : optRate <= 5 ? 'good' : optRate <= 10 ? 'warn' : 'bad'
+    },
+    {
+      label : '💰 Cost per reply',
+      value : costPerReply,
+      cls   : ''
+    },
+    {
+      label : '🎯 Cost per active lead',
+      value : costPerComm,
+      cls   : ''
+    },
+    {
+      label : '📈 Reply rate trend',
+      value : replyTrend,
+      cls   : replyRate > (prevReplyRate || 0) ? 'good' : 'warn'
+    },
+  ];
+
+  return `
+    <div class="sec-head">
+      <div class="sec-icon">📋</div>
+      <div class="sec-title">Weekly Summary — WhatsApp</div>
+    </div>
+    <div class="summary-box">
+      <h3>💬 WhatsApp Outreach · ${w.week_label} · ${w.period}</h3>
+      ${rows.map(r => `
+        <div class="summary-row">
+          <span class="summary-label">${r.label}</span>
+          <span class="summary-value ${r.cls}">${r.value}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  DRAW ALL CHARTS
+// ════════════════════════════════════════════
+function drawCharts(w, prev) {
+  drawSentReplied();
+  drawSpend();
+  drawOutcome(w);
+  drawReplyRate();
+  drawCostPerReply();
+}
+
+// График 1: Sent vs Replied по неделям
+function drawSentReplied() {
+  mkChart('chartWaSentReplied', {
+    type: 'bar',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [
+        {
+          label: 'Sent',
+          data: weeks.map(w => w.whatsapp_outreach?.contacts_sent || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#1A1A1A' : '#E4E2DF'),
+          borderRadius: 4,
+        },
+        {
+          label: 'Replied',
+          data: weeks.map(w => w.whatsapp_outreach?.replied || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#25D366' : 'rgba(37,211,102,0.3)'),
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { size: 10 }, boxWidth: 10 }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// График 2: Spend в USD по неделям
+function drawSpend() {
+  mkChart('chartWaSpend', {
+    type: 'bar',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [{
+        label: 'Spend USD',
+        data: weeks.map(w => w.whatsapp_outreach?.cost_usd || 0),
+        backgroundColor: weeks.map((w, i) =>
+          i === active ? '#16a34a' : '#bbf7d0'),
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: {
+            font: { size: 10 },
+            callback: v => '$' + v
+          }
+        }
+      }
+    }
+  });
+}
+
+// График 3: Breakdown этой недели (donut)
+function drawOutcome(w) {
+  const wa = w.whatsapp_outreach;
+  mkChart('chartWaOutcome', {
+    type: 'doughnut',
+    data: {
+      labels: [
+        'In Communication',
+        'Prospect Lost',
+        'Opt-Out',
+        'No Response'
+      ],
+      datasets: [{
+        data: [
+          wa.in_communication || 0,
+          wa.prospect_lost    || 0,
+          wa.opt_out          || 0,
+          Math.max(0,
+            (wa.contacts_sent || 0)
+            - (wa.in_communication || 0)
+            - (wa.prospect_lost || 0)
+            - (wa.opt_out || 0))
+        ],
+        backgroundColor: ['#25D366', '#ef4444', '#f59e0b', '#E4E2DF'],
+        borderWidth: 2,
+        borderColor: '#FFF',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right',
+          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
+        }
+      },
+      cutout: '65%',
+    }
+  });
+}
+
+// График 4: Reply rate % по неделям
+function drawReplyRate() {
+  const data = weeks.map(w => {
+    const wa = w.whatsapp_outreach;
+    if (!wa || !wa.contacts_sent) return 0;
+    return Math.round(wa.replied / wa.contacts_sent * 100);
+  });
+
+  mkChart('chartWaReplyRate', {
+    type: 'line',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [{
+        label: 'Reply Rate %',
+        data,
+        borderColor: '#25D366',
+        backgroundColor: 'rgba(37,211,102,0.08)',
+        pointBackgroundColor: weeks.map((w, i) =>
+          i === active ? '#25D366' : '#86efac'),
+        pointRadius: weeks.map((w, i) => i === active ? 7 : 4),
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: {
+            font: { size: 10 },
+            callback: v => v + '%'
+          },
+          min: 0,
+          max: 100,
+        }
+      }
+    }
+  });
+}
+
+// График 5: Cost per reply по неделям
+function drawCostPerReply() {
+  const data = weeks.map(w => {
+    const wa = w.whatsapp_outreach;
+    if (!wa || !wa.replied || !wa.cost_usd) return null;
+    return parseFloat((wa.cost_usd / wa.replied).toFixed(2));
+  });
+
+  mkChart('chartWaCostPerReply', {
+    type: 'line',
+    data: {
+      labels: WEEK_LABELS(),
+      datasets: [{
+        label: '$ per reply',
+        data,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.08)',
+        pointBackgroundColor: weeks.map((w, i) =>
+          i === active ? '#f59e0b' : '#fcd34d'),
+        pointRadius: weeks.map((w, i) => i === active ? 7 : 4),
+        fill: true,
+        tension: 0.3,
+        spanGaps: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: {
+          grid: { color: '#F0EFED' },
+          ticks: {
+            font: { size: 10 },
+            callback: v => '$' + v
+          }
+        }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════
+//  EXPOSE GLOBALLY
+// ════════════════════════════════════════════
+window.switchWeek = switchWeek;
+
+</script>
+</body>
+</html>
