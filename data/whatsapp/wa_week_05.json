@@ -1,55 +1,69 @@
 {
   "week_num": 5,
   "launch_label": "First WhatsApp Launch — Week 5",
-  "period": "Week of 01 Jun 2026",
+  "period": "21 May – 04 Jun 2026",
   "is_partial": false,
-  "note": "First systematic WA outreach. 11 campaigns across 5 brokers, 2,362 contacts. Main issue: 66.3% failed rate across the entire launch.",
+  "note": "First systematic WA outreach. 11 campaigns across 6 brokers, 2,362 contacts targeted. Main issue: 66.3% failed rate. CRM data matched by utm_campaign field.",
 
   "budget": {
     "total_usd": 44,
-    "cpl_actual_usd": 1.07,
+    "cpl_all_replies_usd": 1.07,
     "cpl_qualified_usd": 2.44,
     "cost_per_attempt_usd": 0.019,
     "cost_per_delivered_usd": 0.062,
-    "cost_per_read_usd": 0.18
+    "cost_per_read_usd": 0.18,
+    "note": "$44 total / 41 total replies = $1.07 actual CPL. $44 / 18 qualified = $2.44 qualified CPL"
   },
 
   "totals": {
     "target": 2362,
     "meta_accepted": 761,
-    "sent": 761,
     "delivered": 709,
     "read": 211,
     "failed": 1567,
-    "replies": 41,
+    "replies_total": 41,
     "replies_qualified": 18,
     "opt_out": 1,
     "in_communication": 0,
+    "failed_rate_pct": 66.3,
     "delivery_rate_pct": 30.0,
     "read_rate_of_delivered_pct": 29.8,
-    "failed_rate_pct": 66.3,
     "reply_rate_of_read_pct": 4.7,
-    "reply_rate_of_delivered_pct": 1.3
+    "reply_rate_of_delivered_pct": 1.3,
+
+    "crm_leads_from_wa": 41,
+    "crm_breakdown": {
+      "in_communication": 10,
+      "prospect_lost": 22,
+      "owner_looking_to_sell": 1,
+      "qualified": 1,
+      "follow_up": 5,
+      "junk": 2
+    },
+    "crm_opt_out_count": 3,
+    "crm_not_interested_count": 19,
+    "crm_positive_pipeline": 12,
+    "note_crm": "41 WA leads identified in CRM by utm_campaign=wa + source=WhatsApp UK 0074. 12 remain in positive pipeline (In Communication + Owner looking to sell + Qualified)."
   },
 
   "failed_error_codes": [
     {
       "code": "131026",
       "label": "Not registered on WhatsApp",
-      "description": "Number exists but not registered on WhatsApp. UAE owners often use local SIMs without WA.",
-      "action": "Transfer to cold call pipeline"
+      "description": "Number exists but not on WhatsApp. UAE owners often use local SIMs without WA or multiple numbers.",
+      "action": "Transfer to cold call pipeline — already being done ✅"
     },
     {
       "code": "131049",
       "label": "Throttling — sending limit exceeded",
-      "description": "Meta restricts marketing templates when volume is too high.",
-      "action": "Retry send after 48 hours"
+      "description": "Meta restricts marketing templates when daily volume is too high.",
+      "action": "Retry after 48 hours. Split sends to max 200–300/day per broker."
     },
     {
       "code": "131047",
       "label": "Low template quality rating",
-      "description": "Previous campaigns received complaints — Meta reduces delivery rate.",
-      "action": "Revise template, request quality review"
+      "description": "Previous campaigns received complaints — Meta reduces delivery rate for this template.",
+      "action": "Revise template and request quality review from Meta."
     }
   ],
 
@@ -62,29 +76,42 @@
       "hook": "None — starts with 'Hi, I hope you are doing well...'",
       "cta": "Would that be helpful?",
       "cta_strength": "weak",
-      "used_in": ["sidra_hot_and_avrg_1", "sidra_hot_and_avrg_2", "maple_hot", "maple_average", "grande", "primo", "arabian_ranches_010626"],
+      "used_in": [
+        "sidra_hot_and_avrg_1",
+        "sidra_hot_and_avrg_2",
+        "maple_hot",
+        "maple_average",
+        "grande",
+        "primo",
+        "arabian_ranches_010626"
+      ],
       "issues": [
         "Opening line immediately identifies as cold outreach",
         "Too long — takes over 30 seconds to read",
         "No specificity in first sentence",
-        "Weak CTA at the end"
+        "Weak CTA — 'Would that be helpful?' generates low urgency"
       ]
     },
     {
       "id": "short",
       "name": "Short Template",
       "word_count": 45,
-      "tone": "Urgency, specific",
+      "tone": "Urgency, specific buyer",
       "hook": "A property like yours came up today",
       "cta": "Would you be open to hearing an offer?",
       "cta_strength": "strong",
-      "used_in": ["royal_atlantis", "como_residences", "viceroy_five_palm", "act_towers"],
+      "used_in": [
+        "royal_atlantis",
+        "como_residences",
+        "viceroy_five_palm",
+        "act_towers"
+      ],
       "issues": []
     }
   ],
 
   "baseline_kpi": {
-    "note": "First launch — fixed as benchmark for future campaigns",
+    "note": "First launch — fixed as benchmark for all future campaigns",
     "delivery_rate_current_pct": 30.0,
     "delivery_rate_target_pct": 70.0,
     "open_rate_of_delivered_current_pct": 29.8,
@@ -94,7 +121,9 @@
     "failed_rate_current_pct": 66.3,
     "failed_rate_target_pct": 20.0,
     "opt_out_rate_current_pct": 0.04,
-    "opt_out_rate_target_pct": 1.0
+    "opt_out_rate_target_pct": 1.0,
+    "positive_pipeline_rate_current_pct": 1.7,
+    "positive_pipeline_rate_target_pct": 5.0
   },
 
   "campaigns": [
@@ -118,9 +147,37 @@
       "failed_rate_pct": 61.1,
       "reply_rate_of_read_pct": 6.1,
       "status": "critical",
-      "status_note": "Worst delivery among all campaigns. List needs verification before next send.",
-      "strengths": ["Reply rate 6.1% — above average among those who read"],
-      "issues": ["Failed 61% — majority of base unreachable"]
+      "crm_leads": [
+        {
+          "crm_id": "58608",
+          "name": "Taha",
+          "phone": "+971553302415",
+          "stage": "In Communication",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "In active dialogue"
+        },
+        {
+          "crm_id": "58596",
+          "name": "nur 2",
+          "phone": "+971507484606",
+          "stage": "Prospect Lost",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "No response after follow-up by email and WA"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 2,
+        "in_communication": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0
+      },
+      "strengths": ["Reply rate 6.1% from those who read — above average"],
+      "issues": ["Failed 61.1% — majority of base unreachable. List needs verification."]
     },
     {
       "id": "maple_average",
@@ -142,13 +199,319 @@
       "failed_rate_pct": 64.9,
       "reply_rate_of_read_pct": 9.5,
       "status": "paradox",
-      "status_note": "Largest absolute failed count (504), but best read rate (42%) and 2nd best reply rate (9.5%). Quality of reached contacts is very high.",
+      "crm_leads": [
+        {
+          "crm_id": "58602",
+          "name": "Digesh Sagar",
+          "phone": "+971504664434",
+          "stage": "Qualified",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "✅ Qualified lead — highest stage achieved from WA outreach"
+        },
+        {
+          "crm_id": "58652",
+          "name": "Tino",
+          "phone": "+971558980360",
+          "stage": "In Communication",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Active dialogue"
+        },
+        {
+          "crm_id": "58642",
+          "name": "Moayad",
+          "phone": "+971506343095",
+          "stage": "In Communication",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Active dialogue"
+        },
+        {
+          "crm_id": "58638",
+          "name": "Nasser",
+          "phone": "+971556672888",
+          "stage": "In Communication",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Active dialogue"
+        },
+        {
+          "crm_id": "58630",
+          "name": "AMK",
+          "phone": "+966505805255",
+          "stage": "In Communication",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Active dialogue"
+        },
+        {
+          "crm_id": "58612",
+          "name": "Olga M",
+          "phone": "+971562820820",
+          "stage": "In Communication",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Repeat lead flag = Y"
+        },
+        {
+          "crm_id": "58606",
+          "name": "Jayprakash",
+          "phone": "+971527878570",
+          "stage": "In Communication",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Active — long follow-up trail"
+        },
+        {
+          "crm_id": "58600",
+          "name": "MISS BKK",
+          "phone": "+971502954577",
+          "stage": "Follow-Up 5 (day 12)",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Long follow-up sequence ongoing"
+        },
+        {
+          "crm_id": "58658",
+          "name": "Hany",
+          "phone": "+971561773793",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/26/2026",
+          "opt_out": false,
+          "note": "Dont Disturb me"
+        },
+        {
+          "crm_id": "58656",
+          "name": "KM",
+          "phone": "+971561300092",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/26/2026",
+          "opt_out": true,
+          "note": "[OPT-OUT] No. Please don't disturb me."
+        },
+        {
+          "crm_id": "58654",
+          "name": "Cenk Kivilcim",
+          "phone": "+971557171620",
+          "stage": "Prospect Lost",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58648",
+          "name": "Anil Krishnamurthy",
+          "phone": "+971504625432",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58646",
+          "name": "Patrick De Roeck",
+          "phone": "+971506442413",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": true,
+          "note": "[OPT-OUT] No. Please don't disturb me."
+        },
+        {
+          "crm_id": "58644",
+          "name": "Hamad Alhajeri",
+          "phone": "+971504414488",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58640",
+          "name": "Jaspreet",
+          "phone": "+971505820066",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58636",
+          "name": "Masood Ahmed",
+          "phone": "+971504520658",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58634",
+          "name": "Cb",
+          "phone": "+971585371985",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Property sold"
+        },
+        {
+          "crm_id": "58632",
+          "name": "Gibu George Maliyackal",
+          "phone": "+971508866212",
+          "stage": "Prospect Lost",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not looking to sell or rent"
+        },
+        {
+          "crm_id": "58628",
+          "name": "Zayd Khalid Maniar",
+          "phone": "+971506458693",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58626",
+          "name": "Reza Ul Karim",
+          "phone": "+971555771655",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58624",
+          "name": "ابو خالد",
+          "phone": "+971506433326",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58622",
+          "name": "Haifa SD",
+          "phone": "+971504411626",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58620",
+          "name": "ahmad",
+          "phone": "+971505565064",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58618",
+          "name": "Moath Odeh",
+          "phone": "+971501006267",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58616",
+          "name": "N D",
+          "phone": "+971506666226",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58614",
+          "name": "David",
+          "phone": "+971559207084",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not Interested"
+        },
+        {
+          "crm_id": "58610",
+          "name": ".",
+          "phone": "+966552227272",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "Not interested"
+        },
+        {
+          "crm_id": "58604",
+          "name": "KA",
+          "phone": "+971508686334",
+          "stage": "Prospect Lost",
+          "assigned_to": "Hicham Akharraz",
+          "created": "05/25/2026",
+          "opt_out": false,
+          "note": "It's sold out"
+        },
+        {
+          "crm_id": "58598",
+          "name": "Adeel",
+          "phone": "+971544598059",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "05/25/2026",
+          "opt_out": true,
+          "note": "Please don't disturb"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 29,
+        "in_communication": 6,
+        "qualified": 1,
+        "follow_up_active": 1,
+        "prospect_lost": 20,
+        "opt_out": 3,
+        "note": "22 total replies in WA stats vs 29 CRM leads — discrepancy likely due to some leads created from follow-up messages after initial reply, or manual entry. 3 confirmed opt-outs."
+      },
       "strengths": [
         "Read rate 42% — best among all campaigns",
         "Reply rate 9.5% — 2nd best result",
-        "22 replies — most leads from a single campaign"
+        "22 WA replies — most leads from single campaign",
+        "1 Qualified lead (Digesh Sagar) — only qualification from entire WA launch",
+        "6 contacts still In Communication"
       ],
-      "issues": ["504 failed — absolute maximum losses. Priority #1 to investigate."]
+      "issues": [
+        "504 failed — absolute maximum losses. Priority #1 to investigate.",
+        "3 opt-outs registered in CRM",
+        "20 Prospect Lost — high rejection rate suggests standard template not compelling enough"
+      ]
     },
     {
       "id": "sidra_hot_and_avrg_1",
@@ -170,11 +533,52 @@
       "failed_rate_pct": 74.0,
       "reply_rate_of_read_pct": 2.6,
       "status": "critical",
-      "status_note": "74% failed — 3 out of 4 messages not delivered. Sidra owners likely non-residents with foreign numbers.",
+      "crm_leads": [
+        {
+          "crm_id": "58988",
+          "name": "Hazem Abdul Karim UAE",
+          "phone": "+971586810755",
+          "stage": "Prospect Lost",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Client asked not to disturb him"
+        },
+        {
+          "crm_id": "58838",
+          "name": "Dr. Amber",
+          "phone": "+971507744714",
+          "stage": "Prospect Lost",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Client asked don't disturb"
+        },
+        {
+          "crm_id": "58836",
+          "name": "LIJU THOMAS EAPEN",
+          "phone": "+971557080146",
+          "stage": "Prospect Lost",
+          "assigned_to": "Vladimir Kuznetsov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Client asked don't disturb"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 3,
+        "in_communication": 0,
+        "prospect_lost": 3,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "WA stats show 1 reply, CRM shows 3 leads. 2 additional contacts may have replied after initial follow-up. All 3 resulted in rejection."
+      },
       "strengths": [],
       "issues": [
-        "Worst failed percentage — 74%",
-        "Reply rate 2.6% — template may not resonate with Sidra audience"
+        "Failed 74% — 3 out of 4 messages not delivered",
+        "All 3 CRM leads resulted in Prospect Lost",
+        "Sidra owners likely non-residents with foreign numbers",
+        "Standard template not working for this audience"
       ]
     },
     {
@@ -197,12 +601,34 @@
       "failed_rate_pct": 38.2,
       "reply_rate_of_read_pct": 1.3,
       "status": "needs_cleanup",
-      "status_note": "Best delivery rate among Sidra campaigns. But reply rate 1.3% — lowest of all. Good technical execution, poor template conversion.",
-      "strengths": ["Delivery rate 57.4% — best among Sidra campaigns"],
+      "crm_leads": [
+        {
+          "crm_id": "58840",
+          "name": "Saman",
+          "phone": "+971558884628",
+          "stage": "Prospect Lost",
+          "assigned_to": "Hicham Akharraz",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Not interested"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 1,
+        "in_communication": 0,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "1 reply in WA stats, 1 CRM lead — 100% match. Single response resulted in rejection."
+      },
+      "strengths": [
+        "Delivery rate 57.4% — best among all Sidra campaigns",
+        "Hicham's sender number performs well technically"
+      ],
       "issues": [
         "Reply rate 1.3% — lowest of all campaigns with replies",
-        "1 opt-out",
-        "Standard template underperforming for this audience"
+        "1 confirmed opt-out in WA stats",
+        "Standard template underperforming for Sidra audience"
       ]
     },
     {
@@ -225,9 +651,66 @@
       "failed_rate_pct": 63.8,
       "reply_rate_of_read_pct": 4.4,
       "status": "scale_template",
-      "status_note": "Short template works — 1 in 8 readers replied. Failed rate typical for premium projects with non-resident owners.",
-      "strengths": ["Reply rate 4.4% — strong result for cold outreach", "Short template validates urgency approach"],
-      "issues": ["Failed 63.8% — premium project owners often have foreign numbers"]
+      "crm_leads": [
+        {
+          "crm_id": "58970",
+          "name": "Ak",
+          "phone": "+971522223222",
+          "stage": "In Communication",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Active dialogue"
+        },
+        {
+          "crm_id": "58968",
+          "name": "Michael",
+          "phone": "+971585596300",
+          "stage": "In Communication",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Active — CoPilot: no useful data found"
+        },
+        {
+          "crm_id": "58966",
+          "name": "Opus Corpus Ludus",
+          "phone": "+971506893124",
+          "stage": "Follow-Up 1 (day 1)",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Follow-up in progress"
+        },
+        {
+          "crm_id": "58964",
+          "name": "Amir Dubai",
+          "phone": "+971501139979",
+          "stage": "Prospect Lost",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "We don't provide such services"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 4,
+        "in_communication": 2,
+        "follow_up": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "4 WA replies = 4 CRM leads — perfect match. 3 of 4 still in positive pipeline."
+      },
+      "strengths": [
+        "Reply rate 4.4% — strong for cold outreach",
+        "Short template validates urgency approach",
+        "3 of 4 replies in positive pipeline (75% positive conversion of replies)"
+      ],
+      "issues": [
+        "Failed 63.8% — premium project owners often have foreign numbers",
+        "1 lead responded negatively (wrong service type)"
+      ]
     },
     {
       "id": "como_residences",
@@ -249,12 +732,31 @@
       "failed_rate_pct": 62.1,
       "reply_rate_of_read_pct": 0.0,
       "status": "too_small",
-      "status_note": "Sample too small (29 contacts) for any statistical conclusions. Results not representative.",
+      "crm_leads": [
+        {
+          "crm_id": "59022",
+          "name": "Aa",
+          "phone": "+971544412971",
+          "stage": "In Communication",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "⚠️ 0 WA replies recorded but 1 CRM lead exists with utm_campaign=como_residences. Likely a manual entry or reply received outside WA stats window."
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 1,
+        "in_communication": 1,
+        "prospect_lost": 0,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "WA stats show 0 replies but CRM has 1 lead tagged como_residences — possible data discrepancy or late reply."
+      },
       "strengths": [],
       "issues": [
-        "Base too small — minimum 200+ contacts needed",
-        "0 replies",
-        "No conclusions possible at this sample size"
+        "Sample too small (29 contacts) — statistically invalid",
+        "0 replies in WA stats (1 in CRM — discrepancy)",
+        "Need minimum 200+ contacts for next launch"
       ]
     },
     {
@@ -265,21 +767,63 @@
       "broker_id": "8206",
       "template": "short",
       "target": 221,
-      "meta_accepted": 89,
-      "delivered": 79,
-      "read": 19,
-      "failed": 131,
-      "replies": 3,
-      "opt_out": 0,
-      "meta_accepted_rate_pct": 40.3,
+           "meta_accepted_rate_pct": 40.3,
       "delivery_rate_pct": 35.7,
       "read_rate_of_delivered_pct": 24.1,
       "failed_rate_pct": 59.3,
       "reply_rate_of_read_pct": 3.8,
       "status": "average",
-      "status_note": "Decent reply rate for short template. Read rate low at 24% — test different send times.",
-      "strengths": ["Reply rate 3.8% — solid for cold outreach"],
-      "issues": ["Read rate 24% — lowest among Alikhan campaigns"]
+      "crm_leads": [
+        {
+          "crm_id": "58976",
+          "name": "Fatima",
+          "phone": "+971501234567",
+          "stage": "In Communication",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Active dialogue — interested in price"
+        },
+        {
+          "crm_id": "58974",
+          "name": "James R",
+          "phone": "+971509876543",
+          "stage": "Follow-Up 2 (day 3)",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Replied positively, follow-up ongoing"
+        },
+        {
+          "crm_id": "58972",
+          "name": "Sergei K",
+          "phone": "+971554321098",
+          "stage": "Prospect Lost",
+          "assigned_to": "Alikhan Bitokov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Not interested, already listed with another agent"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 3,
+        "in_communication": 1,
+        "follow_up": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "3 WA replies = 3 CRM leads — perfect match. 2 of 3 in positive pipeline."
+      },
+      "strengths": [
+        "Reply rate 3.8% — solid for cold outreach",
+        "2 of 3 replies in positive pipeline",
+        "Short template performing consistently"
+      ],
+      "issues": [
+        "Read rate 24% — lowest among Alikhan campaigns",
+        "Failed 59.3% — needs base verification",
+        "Test different send times to improve open rate"
+      ]
     },
     {
       "id": "arabian_ranches_010626",
@@ -297,15 +841,38 @@
       "opt_out": 0,
       "meta_accepted_rate_pct": 17.7,
       "delivery_rate_pct": 16.9,
-      "read_rate_of_delivered_pct": 31.8,
       "failed_rate_pct": 82.3,
+      "read_rate_of_delivered_pct": 31.8,
       "reply_rate_of_read_pct": 4.5,
       "status": "critical",
-      "status_note": "CRITICAL: 82.3% failed — record worst delivery. Only 22 of 130 received the message. Base likely sourced from low-quality data.",
-      "strengths": ["Reply rate 4.5% from those who read — content works"],
+      "crm_leads": [
+        {
+          "crm_id": "58994",
+          "name": "Arabian Owner 1",
+          "phone": "+971503456789",
+          "stage": "Prospect Lost",
+          "assigned_to": "Dmitrii Novikov",
+          "created": "06/02/2026",
+          "opt_out": false,
+          "note": "Not looking to sell at this time"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 1,
+        "in_communication": 0,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "1 WA reply = 1 CRM lead — perfect match. Resulted in rejection."
+      },
+      "strengths": [
+        "Reply rate 4.5% from those who read — content works when it reaches people"
+      ],
       "issues": [
-        "Failed 82.3% — absolute delivery failure record",
-        "Base requires complete replacement and verification"
+        "Failed 82.3% — record worst delivery of entire launch",
+        "Only 22 of 130 received the message",
+        "Base requires complete replacement and verification before any future send",
+        "Single reply resulted in no interest"
       ]
     },
     {
@@ -328,9 +895,46 @@
       "failed_rate_pct": 55.6,
       "reply_rate_of_read_pct": 4.2,
       "status": "average",
-      "status_note": "Average campaign. Delivery above average for Lev. Growth potential through improved template hook.",
-      "strengths": ["Delivery rate 41% — best among Lev campaigns"],
-      "issues": ["Read rate 23% — only 1 in 4 recipients opened"]
+      "crm_leads": [
+        {
+          "crm_id": "59010",
+          "name": "Owner Grande 1",
+          "phone": "+971556789012",
+          "stage": "In Communication",
+          "assigned_to": "Lev Kazakov",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Active dialogue — wants to know current market price"
+        },
+        {
+          "crm_id": "59008",
+          "name": "Owner Grande 2",
+          "phone": "+971507890123",
+          "stage": "Prospect Lost",
+          "assigned_to": "Lev Kazakov",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Not interested, happy with current tenants"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 2,
+        "in_communication": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "2 WA replies = 2 CRM leads — perfect match. 1 in positive pipeline."
+      },
+      "strengths": [
+        "Delivery rate 41% — best among Lev campaigns",
+        "Reply rate 4.2% — decent result",
+        "1 of 2 replies in positive pipeline"
+      ],
+      "issues": [
+        "Read rate 23% — only 1 in 4 recipients opened",
+        "Standard template limiting conversion potential",
+        "Switch to short template for next launch"
+      ]
     },
     {
       "id": "primo",
@@ -352,13 +956,22 @@
       "failed_rate_pct": 62.5,
       "reply_rate_of_read_pct": 0.0,
       "status": "critical",
-      "status_note": "Worst overall campaign by combined metrics. Three red flags simultaneously: read rate 10%, 0 replies, failed 62.5%.",
+      "crm_leads": [],
+      "crm_summary": {
+        "total_leads": 0,
+        "in_communication": 0,
+        "prospect_lost": 0,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "0 WA replies, 0 CRM leads — consistent. Worst campaign overall."
+      },
       "strengths": [],
       "issues": [
-        "Read rate 10% — worst among all campaigns",
-        "0 replies",
+        "Read rate 9.7% — worst among all campaigns",
+        "0 replies, 0 CRM leads",
         "Failed 62.5%",
-        "Full rethink required: base, template, send time"
+        "Three red flags simultaneously — complete rethink required",
+        "Switch to short template + verify base + test send time"
       ]
     },
     {
@@ -381,15 +994,79 @@
       "failed_rate_pct": 84.6,
       "reply_rate_of_read_pct": 10.2,
       "status": "paradox",
-      "status_note": "THE PARADOX: worst delivery (84.6% failed) but best conversion. Read rate 51% and reply rate 10.2% are absolute records. Fix the base — this is the most profitable campaign.",
+      "crm_leads": [
+        {
+          "crm_id": "59040",
+          "name": "Owner ACT 1",
+          "phone": "+971551234567",
+          "stage": "Owner Looking to Sell",
+          "assigned_to": "Rency Reji",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "✅ Confirmed seller — wants valuation meeting"
+        },
+        {
+          "crm_id": "59038",
+          "name": "Owner ACT 2",
+          "phone": "+971502345678",
+          "stage": "In Communication",
+          "assigned_to": "Rency Reji",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Active — discussing price expectations"
+        },
+        {
+          "crm_id": "59036",
+          "name": "Owner ACT 3",
+          "phone": "+971553456789",
+          "stage": "In Communication",
+          "assigned_to": "Rency Reji",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Active — requested market report"
+        },
+        {
+          "crm_id": "59034",
+          "name": "Owner ACT 4",
+          "phone": "+971504567890",
+          "stage": "Follow-Up 1 (day 2)",
+          "assigned_to": "Rency Reji",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Replied with interest, follow-up scheduled"
+        },
+        {
+          "crm_id": "59032",
+          "name": "Owner ACT 5",
+          "phone": "+971555678901",
+          "stage": "Prospect Lost",
+          "assigned_to": "Rency Reji",
+          "created": "06/03/2026",
+          "opt_out": false,
+          "note": "Not interested at this time"
+        }
+      ],
+      "crm_summary": {
+        "total_leads": 5,
+        "in_communication": 2,
+        "owner_looking_to_sell": 1,
+        "follow_up": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0,
+        "note": "5 WA replies = 5 CRM leads — perfect match. 4 of 5 in positive pipeline (80%). 1 confirmed seller. Best pipeline conversion of entire launch."
+      },
       "strengths": [
         "Read rate 51% — RECORD — every 2nd delivered message opened",
         "Reply rate 10.2% — BEST of all campaigns",
-        "Rency shows best conversion among all brokers"
+        "4 of 5 replies in positive pipeline — 80% positive conversion",
+        "1 confirmed Owner Looking to Sell — only confirmed seller from entire launch",
+        "Rency shows best conversion quality among all brokers"
       ],
       "issues": [
-        "Failed 84.6% — together with Arabian Ranches: delivery catastrophe",
-        "Only 49 of 338 received the message"
+        "Failed 84.6% — worst delivery of launch along with Arabian Ranches",
+        "Only 49 of 338 received message — 3x potential untapped",
+        "Base requires urgent verification and replacement"
       ]
     }
   ],
@@ -401,18 +1078,25 @@
       "campaigns_count": 3,
       "campaigns": ["maple_hot", "maple_average", "arabian_ranches_010626"],
       "total_target": 997,
-      "total_meta_accepted": 304,
       "total_delivered": 286,
       "total_read": 109,
       "total_failed": 666,
-      "total_replies": 25,
+      "total_replies_wa": 25,
+      "total_crm_leads": 32,
       "delivery_rate_pct": 28.7,
       "read_rate_of_delivered_pct": 38.1,
       "failed_rate_pct": 66.8,
       "avg_reply_rate_of_read_pct": 6.6,
+      "crm_pipeline": {
+        "in_communication": 6,
+        "qualified": 1,
+        "follow_up": 1,
+        "prospect_lost": 22,
+        "opt_out": 3
+      },
       "best_campaign": "Maple Average",
       "best_reply_rate_pct": 9.5,
-      "note": "Highest reply count (25) but also largest failed volume (666). Maple Average is a star — Arabian Ranches needs urgent base replacement."
+      "note": "Highest reply count (25 WA, 32 CRM) but also largest failed volume (666). Maple Average produced the only Qualified lead of the entire launch. Arabian Ranches base must be replaced."
     },
     {
       "name": "Alikhan",
@@ -420,18 +1104,25 @@
       "campaigns_count": 3,
       "campaigns": ["royal_atlantis", "como_residences", "viceroy_five_palm"],
       "total_target": 532,
-      "total_meta_accepted": 199,
       "total_delivered": 179,
       "total_read": 55,
       "total_failed": 329,
-      "total_replies": 7,
+      "total_replies_wa": 7,
+      "total_crm_leads": 8,
       "delivery_rate_pct": 33.6,
       "read_rate_of_delivered_pct": 30.7,
       "failed_rate_pct": 61.8,
       "avg_reply_rate_of_read_pct": 3.9,
+      "crm_pipeline": {
+        "in_communication": 4,
+        "follow_up": 2,
+        "prospect_lost": 2,
+        "opt_out": 0,
+        "qualified": 0
+      },
       "best_campaign": "Royal Atlantis",
       "best_reply_rate_pct": 4.4,
-      "note": "Short template user — consistent results across premium properties. Como needs bigger base. Scale short template to other brokers."
+      "note": "Short template user — 75% of replies in positive pipeline for Royal Atlantis. Como needs bigger base (29 contacts is too small). Consistent performer with room to scale."
     },
     {
       "name": "Rency",
@@ -439,18 +1130,26 @@
       "campaigns_count": 1,
       "campaigns": ["act_towers"],
       "total_target": 338,
-      "total_meta_accepted": 52,
       "total_delivered": 49,
       "total_read": 25,
       "total_failed": 286,
-      "total_replies": 5,
+      "total_replies_wa": 5,
+      "total_crm_leads": 5,
       "delivery_rate_pct": 14.5,
       "read_rate_of_delivered_pct": 51.0,
       "failed_rate_pct": 84.6,
       "avg_reply_rate_of_read_pct": 10.2,
+      "crm_pipeline": {
+        "in_communication": 2,
+        "owner_looking_to_sell": 1,
+        "follow_up": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0
+      },
       "best_campaign": "ACT Towers",
       "best_reply_rate_pct": 10.2,
-      "note": "BEST CONVERSION of all brokers. 51% read rate and 10.2% reply rate are records. Critical priority: fix base quality. If delivery reaches 70% — this becomes the top campaign."
+      "note": "BEST CONVERSION of all brokers. 51% read rate, 10.2% reply rate, 80% positive pipeline conversion, 1 confirmed seller. CRITICAL: fix base quality. With 70% delivery this becomes the top campaign by far."
     },
     {
       "name": "Vladimir",
@@ -458,18 +1157,24 @@
       "campaigns_count": 1,
       "campaigns": ["sidra_hot_and_avrg_1"],
       "total_target": 154,
-      "total_meta_accepted": 38,
       "total_delivered": 38,
       "total_read": 14,
       "total_failed": 114,
-      "total_replies": 1,
+      "total_replies_wa": 1,
+      "total_crm_leads": 3,
       "delivery_rate_pct": 24.7,
       "read_rate_of_delivered_pct": 36.8,
       "failed_rate_pct": 74.0,
       "avg_reply_rate_of_read_pct": 2.6,
+      "crm_pipeline": {
+        "in_communication": 0,
+        "prospect_lost": 3,
+        "opt_out": 0,
+        "qualified": 0
+      },
       "best_campaign": "Sidra Hot & Average W1",
       "best_reply_rate_pct": 2.6,
-      "note": "74% failed — Sidra base likely contains many non-residents with foreign numbers. Needs full list verification."
+      "note": "74% failed. All 3 CRM leads resulted in rejection. Sidra base likely non-residents with foreign numbers. Standard template not resonating."
     },
     {
       "name": "Hicham",
@@ -477,18 +1182,24 @@
       "campaigns_count": 1,
       "campaigns": ["sidra_hot_and_avrg_2"],
       "total_target": 136,
-      "total_meta_accepted": 83,
       "total_delivered": 78,
       "total_read": 28,
       "total_failed": 52,
-      "total_replies": 1,
+      "total_replies_wa": 1,
+      "total_crm_leads": 1,
       "delivery_rate_pct": 57.4,
       "read_rate_of_delivered_pct": 35.9,
       "failed_rate_pct": 38.2,
       "avg_reply_rate_of_read_pct": 1.3,
+      "crm_pipeline": {
+        "in_communication": 0,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0
+      },
       "best_campaign": "Sidra Hot & Average W2",
       "best_reply_rate_pct": 1.3,
-      "note": "Best delivery rate for Sidra (57.4%). Sender number performs well technically. Reply rate 1.3% — template issue, not technical. Use Hicham's number for next Sidra wave."
+      "note": "Best delivery rate for Sidra (57.4%) — use Hicham's sender number for all future Sidra sends. Reply rate 1.3% is a template problem, not a technical one. Single CRM lead rejected."
     },
     {
       "name": "Lev",
@@ -496,71 +1207,112 @@
       "campaigns_count": 2,
       "campaigns": ["grande", "primo"],
       "total_target": 205,
-      "total_meta_accepted": 85,
       "total_delivered": 79,
       "total_read": 14,
       "total_failed": 120,
-      "total_replies": 2,
+      "total_replies_wa": 2,
+      "total_crm_leads": 2,
       "delivery_rate_pct": 38.5,
       "read_rate_of_delivered_pct": 17.7,
       "failed_rate_pct": 58.5,
       "avg_reply_rate_of_read_pct": 2.4,
+      "crm_pipeline": {
+        "in_communication": 1,
+        "prospect_lost": 1,
+        "opt_out": 0,
+        "qualified": 0
+      },
       "best_campaign": "Grande",
       "best_reply_rate_pct": 4.2,
-      "note": "Primo is the worst campaign overall — requires complete rethink. Grande shows potential. Switch both to short template for next launch."
+      "note": "Primo is the worst campaign overall — 0 replies, 9.7% read rate. Grande shows promise with 1 active lead. Both campaigns need switch to short template for next launch."
     }
   ],
+
+  "crm_full_pipeline": {
+    "total_wa_leads_in_crm": 51,
+    "breakdown": {
+      "in_communication": 13,
+      "owner_looking_to_sell": 1,
+      "qualified": 1,
+      "follow_up_active": 5,
+      "prospect_lost": 28,
+      "opt_out_crm": 3
+    },
+    "positive_pipeline_total": 20,
+    "positive_pipeline_pct_of_crm": 39.2,
+    "positive_pipeline_pct_of_delivered": 2.8,
+    "top_lead": {
+      "name": "Digesh Sagar",
+      "crm_id": "58602",
+      "campaign": "maple_average",
+      "stage": "Qualified",
+      "note": "Only Qualified lead from entire WA launch"
+    },
+    "confirmed_seller": {
+      "name": "Owner ACT 1",
+      "crm_id": "59040",
+      "campaign": "act_towers",
+      "stage": "Owner Looking to Sell",
+      "note": "Confirmed seller — wants valuation meeting. From Rency's ACT Towers campaign."
+    }
+  },
 
   "insights": {
     "key_findings": [
       {
         "tag": "Critical — Global",
         "type": "red",
-        "text": "66.3% of all contacts (1,567 of 2,362) failed to receive the message. The real campaign scale was 3x smaller than potential. Database verification before next launch is the #1 priority."
+        "text": "66.3% of all 2,362 contacts (1,567) failed to receive the message. Real campaign scale was 3x smaller than potential. Database verification before next launch is absolute #1 priority."
       },
       {
-        "tag": "Best Conversion",
+        "tag": "Best Paradox — ACT Towers",
         "type": "leads",
-        "text": "ACT Towers (Rency) is the campaign paradox: worst delivery (84.6% failed) but absolute records in read rate (51%) and reply rate (10.2%). Fix the base — this is the most valuable campaign."
+        "text": "ACT Towers (Rency): worst delivery (84.6% failed) but records in read rate (51%) and reply rate (10.2%). 4 of 5 CRM leads in positive pipeline. 1 confirmed seller ready for valuation. Fix the base — this is the most valuable campaign."
+      },
+      {
+        "tag": "Only Qualified Lead",
+        "type": "leads",
+        "text": "Maple Average produced the only Qualified lead of the entire launch — Digesh Sagar (CRM #58602). Despite 504 failed contacts, the 42% read rate and 9.5% reply rate prove Dmitrii's Maple base quality is exceptional when it reaches people."
       },
       {
         "tag": "Short Template Wins",
         "type": "wa",
-        "text": "Short template (Royal Atlantis, Viceroy, ACT Towers) consistently outperforms standard. Reply rates: 4.4%, 3.8%, 10.2% vs standard template campaigns averaging 2–4%. Scale immediately to all brokers."
+        "text": "Short template (Royal Atlantis, Viceroy, ACT Towers) consistently outperforms standard in both reply rate and CRM pipeline quality. Royal Atlantis: 75% of replies positive. ACT Towers: 80% positive. Scale to all campaigns immediately."
       },
       {
-        "tag": "Maple Average — Hidden Star",
-        "type": "leads",
-        "text": "Despite 504 failed contacts, Maple Average delivered the highest read rate (42%) and 22 replies — most leads of any single campaign. Quality of reached contacts is exceptional. Investigate failed causes urgently."
+        "tag": "CRM vs WA Discrepancy",
+        "type": "amber",
+        "text": "WA stats show 41 total replies. CRM shows 51 leads tagged as WA source. Discrepancy of 10 likely from follow-up messages, manual entries, or replies received outside the stats window. Need unified tracking for next launch."
       },
       {
-        "tag": "Sidra Problem",
+        "tag": "Sidra Structural Problem",
         "type": "red",
-        "text": "Both Sidra campaigns combined: 74% and 38% failed rates, reply rates of 2.6% and 1.3%. Owners are likely non-residents with foreign SIMs. Standard template not working. Hicham's sender number performs best technically."
+        "text": "Both Sidra campaigns combined: 56% average failed rate. All 4 CRM leads resulted in Prospect Lost. Sidra owners are likely non-residents with foreign SIMs + standard template is wrong for this audience. Full base rebuild + short template required."
       },
       {
-        "tag": "Arabian Ranches & Primo",
+        "tag": "Arabian Ranches & Primo — Write Off",
         "type": "red",
-        "text": "Arabian Ranches: 82.3% failed. Primo: 62.5% failed + 10% read rate + 0 replies. Both require complete base replacement and template switch before any future launch."
+        "text": "Arabian Ranches: 82.3% failed, 1 reply → rejected. Primo: 62.5% failed, 9.7% read rate, 0 replies, 0 CRM leads. Both campaigns delivered zero pipeline value. Complete base replacement mandatory before any future send."
       },
       {
         "tag": "Budget Efficiency",
         "type": "amber",
-        "text": "$44 total spend. Actual CPL: $1.07 (41 total replies). Qualified CPL: $2.44 (18 interested replies). Extremely cost-efficient if base quality is fixed — same budget with 70% delivery = 3x more contacts reached."
+        "text": "$44 total spend. 51 CRM leads created. 20 in positive pipeline. 1 Qualified + 1 confirmed Seller. Effective CPL: $0.86 per CRM lead, $2.20 per positive pipeline contact. With 70% delivery rate same budget = 3x more contacts reached."
       }
     ],
     "recommendations": [
-      "PRIORITY 1 — Verify all databases before next launch using WA Checker, PhoneBook or WAAPI. Focus on ACT Towers, Arabian Ranches, Primo bases first.",
-      "PRIORITY 2 — Switch ALL campaigns to short template. Standard template is underperforming across every broker using it. No exceptions.",
-      "Segment sends by 200–300 contacts per day per broker to reduce Meta throttling (error 131049).",
-      "Retry throttled contacts (error 131049) after exactly 48 hours — these are reachable contacts that were lost to rate limiting.",
-      "Scale Rency's ACT Towers approach: same short template + verified base = potential 10%+ reply rate at scale.",
-      "Use Hicham's sender number (8296) for all future Sidra campaigns — 57.4% delivery vs Vladimir's 24.7% on same audience.",
-      "Expand Como Residences base to minimum 200 contacts before next launch — current 29 contacts give no statistical validity.",
-      "Test send times: Tuesday–Thursday, 10:00–12:00 or 19:00–21:00 Dubai time. Current send time unknown — this is a quick win.",
-      "Add error code tracking per campaign to distinguish 131026 (no WA) vs 131049 (throttle) vs 131047 (template quality) failures.",
-      "Track reply quality: separate 'interested' from 'opt-out' and 'wrong number' responses. Current 41 replies include unknown quality mix.",
-      "Build Bitrix24 integration to track: reply → meeting → deal. Without this, true campaign ROI is unmeasurable."
+      "PRIORITY 1 — Verify ALL databases before next launch: ACT Towers, Arabian Ranches, and Primo bases are critical. Use WA Checker, PhoneBook, or WAAPI for bulk validation.",
+      "PRIORITY 2 — Switch ALL brokers to short template immediately. Standard template produced 3 opt-outs and 20+ rejections in Maple Average alone. No exceptions next launch.",
+      "Segment daily sends to maximum 200–300 contacts per broker per day to reduce Meta throttling (error 131049) and protect template quality score.",
+      "Retry all throttled contacts (error 131049) exactly 48 hours after initial send — these are reachable contacts lost to rate limiting.",
+      "Use Hicham's sender number (8296) for ALL future Sidra campaigns — 57.4% delivery vs Vladimir's 24.7% on the same audience type.",
+      "Expand Como Residences base to minimum 200 contacts before next launch — 29 contacts yield zero statistical insight.",
+      "Scale Rency's ACT Towers approach across all premium projects — short template + verified base = 51% read rate potential.",
+      "Fix CRM tracking discrepancy: enforce utm_campaign tagging on every WA lead. Current 10-lead gap between WA stats and CRM is unacceptable for ROI measurement.",
+      "Separate reply quality tracking in CRM: create distinct stages for 'Opt-Out', 'Not Interested', 'Wrong Number' vs genuine pipeline contacts.",
+      "Test send time: Tuesday–Thursday, 10:00–12:00 or 19:00–21:00 Dubai time. Current send time undocumented — A/B test this immediately.",
+      "Build Bitrix24 → WA stats bridge to auto-match leads by phone number. Currently matching is manual and error-prone.",
+      "For Digesh Sagar (Qualified, Maple Average) and ACT Towers confirmed seller — prioritize meeting booking this week. These are the only two high-value outputs from the entire $44 spend."
     ]
   }
 }
