@@ -137,6 +137,7 @@
       white-space: nowrap; min-width: 38px;
     }
 
+    /* CRM pipeline strip под таблицей */
     .crm-strip {
       display: flex;
       flex-wrap: wrap;
@@ -231,6 +232,7 @@
     }
     .broker-pipeline span { color: var(--text-secondary); font-weight: 600; }
 
+    /* Pipeline summary card */
     .pipeline-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -284,113 +286,6 @@
       display: flex; align-items: center; gap: 8px;
     }
 
-    /* ── TEMPLATES SECTION ── */
-    .templates-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap-md);
-      margin-bottom: var(--gap-md);
-    }
-    .template-block {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap-md);
-      align-items: start;
-    }
-
-    /* WhatsApp bubble */
-    .wa-bubble-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .wa-bubble-label {
-      font-family: var(--font-secondary);
-      font-size: 9px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 1px;
-      color: var(--text-muted);
-      padding-left: 4px;
-    }
-    .wa-bubble {
-      background: #e7fce3;
-      border-radius: 18px 18px 4px 18px;
-      padding: 14px 16px;
-      position: relative;
-      max-width: 100%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .wa-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: -8px;
-      border: 8px solid transparent;
-      border-left-color: #e7fce3;
-      border-bottom-color: #e7fce3;
-      border-right: none;
-      border-top: none;
-    }
-    .wa-bubble-text {
-      font-family: var(--font-secondary);
-      font-size: 12.5px;
-      color: #111;
-      line-height: 1.65;
-      white-space: pre-line;
-    }
-    .wa-bubble-time {
-      font-size: 10px;
-      color: #8d8c89;
-      text-align: right;
-      margin-top: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 4px;
-    }
-    .wa-bubble-time svg {
-      width: 14px; height: 14px;
-      fill: #53bdeb;
-    }
-
-    /* AI note */
-    .ai-note {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--color-khaki);
-      border-radius: var(--radius-md);
-      padding: 16px 18px;
-      align-self: start;
-    }
-    .ai-note-title {
-      font-family: var(--font-secondary);
-      font-size: 9px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 1px;
-      color: var(--color-khaki);
-      margin-bottom: 10px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .ai-note-item {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      align-items: flex-start;
-    }
-    .ai-note-item:last-child { margin-bottom: 0; }
-    .ai-note-bullet {
-      font-size: 12px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .ai-note-text {
-      font-family: var(--font-secondary);
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    .ai-note-text strong {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
     .loader {
       display: flex; align-items: center;
       justify-content: center; padding: 60px 24px;
@@ -408,10 +303,6 @@
       to   { transform: translateY(-8px); opacity: 1; }
     }
 
-    @media (max-width: 900px) {
-      .templates-layout { grid-template-columns: 1fr; }
-      .template-block   { grid-template-columns: 1fr; }
-    }
     @media (max-width: 768px) {
       .launch-header { flex-direction: column; align-items: flex-start; }
       .launch-note   { max-width: 100%; }
@@ -560,106 +451,11 @@
           <tbody id="campaigns-tbody"></tbody>
         </table>
       </div>
+      <!-- CRM pipeline summary strip -->
       <div class="crm-strip" id="crm-strip"></div>
     </div>
 
-    <!-- ④ TEMPLATES -->
-    <div class="sec-head">
-      <div class="sec-icon">✉️</div>
-      <div class="sec-title">Templates</div>
-    </div>
-
-    <div class="templates-layout">
-
-      <!-- SHORT TEMPLATE -->
-      <div class="template-block">
-        <div class="wa-bubble-wrap">
-          <div class="wa-bubble-label">Short template</div>
-          <div class="wa-bubble">
-            <div class="wa-bubble-text">Hi! I know you probably aren't looking to sell right now. But a property like yours in Como Residences came up in a meeting today.
-
-I have a family specifically looking in your cluster who wants to buy quietly.
-
-If the price was right, would you be open to just hearing an offer?
-
-With best regards, Alikhan</div>
-            <div class="wa-bubble-time">
-              11:42
-              <svg viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.071.653a.75.75 0 0 0-1.06 1.06L11.071.653zm-1.06 1.06 3.182 3.182 1.06-1.06-3.182-3.182-1.06 1.06zm3.182 3.182L7.01 11.07l1.06 1.06 6.184-6.174-1.06-1.061zM6.011 9.01 2.829 5.828l-1.06 1.06 3.182 3.182 1.06-1.06z"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="ai-note">
-          <div class="ai-note-title">
-            <span>✦</span> Why it works
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">🎯</span>
-            <div class="ai-note-text"><strong>Disarms immediately</strong> — "I know you aren't looking to sell" removes defensiveness before it builds</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">🏠</span>
-            <div class="ai-note-text"><strong>Social proof</strong> — "came up in a meeting" signals real demand, not cold prospecting</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">💬</span>
-            <div class="ai-note-text"><strong>Low-commitment ask</strong> — "just hearing an offer" costs nothing, lowers the barrier to reply</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">⚡</span>
-            <div class="ai-note-text"><strong>Short = scannable</strong> — reads in under 10 seconds, ideal for cold outreach on mobile</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STANDARD TEMPLATE -->
-      <div class="template-block">
-        <div class="wa-bubble-wrap">
-          <div class="wa-bubble-label">Standard template</div>
-          <div class="wa-bubble">
-            <div class="wa-bubble-text">Hi, I hope you're doing well. My name is Dmitrii and I'm a broker, specializing in Arabian Ranches. I regularly work with buyers who are looking specifically in your community - and right now demand is genuinely strong, with limited villas available.
-
-That's why I'm reaching out: I'd love to know whether selling is something you'd consider if the right offer came along. There's no pressure at all - even if you're not thinking about it today, I'm happy to share a free, no-obligation valuation so you simply know what your villa is worth in the current market.
-
-Would that be helpful? I'm always glad to be a resource for owners in the area.
-
-Best regards, Dmitrii</div>
-            <div class="wa-bubble-time">
-              11:43
-              <svg viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.071.653a.75.75 0 0 0-1.06 1.06L11.071.653zm-1.06 1.06 3.182 3.182 1.06-1.06-3.182-3.182-1.06 1.06zm3.182 3.182L7.01 11.07l1.06 1.06 6.184-6.174-1.06-1.061zM6.011 9.01 2.829 5.828l-1.06 1.06 3.182 3.182 1.06-1.06z"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="ai-note">
-          <div class="ai-note-title">
-            <span>✦</span> Why it works
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">🏆</span>
-            <div class="ai-note-text"><strong>Establishes authority</strong> — "specializing in Arabian Ranches" signals hyper-local expertise owners respect</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">📊</span>
-            <div class="ai-note-text"><strong>Market context</strong> — "demand is genuinely strong, limited villas" creates urgency without being pushy</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">🎁</span>
-            <div class="ai-note-text"><strong>Value-first offer</strong> — free valuation gives owners a reason to engage even if they're not selling</div>
-          </div>
-          <div class="ai-note-item">
-            <span class="ai-note-bullet">🤝</span>
-            <div class="ai-note-text"><strong>"No pressure" x3</strong> — repeated soft framing builds trust with owners who fear aggressive sales tactics</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ⑤ CRM PIPELINE -->
+    <!-- ④ CRM PIPELINE -->
     <div class="sec-head">
       <div class="sec-icon">🎯</div>
       <div class="sec-title">CRM Pipeline</div>
@@ -671,12 +467,733 @@ Best regards, Dmitrii</div>
       <div class="pipeline-grid" id="pipeline-grid"></div>
     </div>
 
-    <!-- ⑥ BROKERS -->
+    <!-- ⑤ BROKERS -->
     <div class="sec-head">
       <div class="sec-icon">👤</div>
       <div class="sec-title">Brokers Summary</div>
     </div>
     <div class="broker-grid" id="broker-grid"></div>
+
+    <!-- ⑥ RECOMMENDATIONS -->
+    <div class="sec-head">
+      <div class="sec-icon">✅</div>
+      <div class="sec-title">Recommendations</div>
+    </div>
+    <div class="recs-card" id="recs-card">
+      <div class="recs-card-title">🎯 Action items for next launch</div>
+      <ul class="rec-list" id="rec-list"></ul>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  GAIA LIVING · MARKETING DASHBOARD · INTERNAL USE ONLY
+</footer>
+
+<script>
+/* ════════════════════════════════════════
+   CONFIG — добавляй новые недели сюда
+════════════════════════════════════════ */
+const WEEKS_META = [
+  { num: 1, label: 'W1', period: '30 Apr – 06 May 2026', hasWA: false },
+  { num: 2, label: 'W2', period: '07 – 13 May 2026',     hasWA: false },
+  { num: 3, label: 'W3', period: '14 – 20 May 2026',     hasWA: false },
+  { num: 4, label: 'W4', period: '21 – 27 May 2026',     hasWA: false },
+  { num: 5, label: 'W5', period: '21 May – 04 Jun 2026', hasWA: true  },
+];
+
+const WA_FILES = {
+  5: 'data/whatsapp/wa_week_05.json',
+  // 6: 'data/whatsapp/wa_week_06.json',  ← добавляй следующие недели здесь
+};
+
+/* ════════════════════════════════════════
+   ВЫЧИСЛЕНИЯ ИЗ СЫРЫХ ДАННЫХ
+════════════════════════════════════════ */
+
+function pct(num, den, dec = 1) {
+  if (!den || den === 0) return null;
+  return parseFloat(((num / den) * 100).toFixed(dec));
+}
+
+function fmt(val, suffix = '%') {
+  if (val === null || val === undefined) return '—';
+  return val + suffix;
+}
+
+/**
+ * Принимает сырой JSON (новая структура)
+ * Возвращает обогащённый объект со всеми вычисленными метриками
+ */
+function computeData(raw) {
+  const { meta, campaigns, crm_leads, brokers, pipeline_stages } = raw;
+
+  const positiveStages = new Set(pipeline_stages.positive);
+  const negativeStages = new Set(pipeline_stages.negative);
+  // opt_out определяем по полю lead.opt_out === true
+
+  // ── 1. Метрики по каждой кампании ─────────────────────────
+  const enrichedCampaigns = campaigns.map(c => {
+    const deliveryRate = pct(c.delivered, c.target);
+    const readRate     = pct(c.read, c.delivered);
+    const failedRate   = pct(c.failed, c.target);
+    // reply rate считаем от прочитанных (более честная метрика)
+    const replyRateOfRead = pct(c.replies_wa, c.read);
+    // reply rate от доставленных (для чартов)
+    const replyRateOfDelivered = pct(c.replies_wa, c.delivered);
+
+    // CRM лиды этой кампании
+    const leads = crm_leads.filter(l => l.campaign_id === c.id);
+    const crmTotal    = leads.length;
+    const crmPositive = leads.filter(l => positiveStages.has(l.stage) && !l.opt_out).length;
+    const crmNegative = leads.filter(l => negativeStages.has(l.stage) && !l.opt_out).length;
+    const crmOptOut   = leads.filter(l => l.opt_out).length;
+
+    // pipeline breakdown
+    const stageCount = {};
+    leads.forEach(l => {
+      const s = l.opt_out ? 'Opt-Out' : l.stage;
+      stageCount[s] = (stageCount[s] || 0) + 1;
+    });
+
+    return {
+      ...c,
+      broker_name: brokers[c.broker_id] || c.broker_id,
+      delivery_rate_pct:          deliveryRate,
+      read_rate_pct:               readRate,
+      failed_rate_pct:             failedRate,
+      reply_rate_of_read_pct:      replyRateOfRead,
+      reply_rate_of_delivered_pct: replyRateOfDelivered,
+      crm_total:    crmTotal,
+      crm_positive: crmPositive,
+      crm_negative: crmNegative,
+      crm_opt_out:  crmOptOut,
+      stage_count:  stageCount,
+    };
+  });
+
+  // ── 2. Totals ──────────────────────────────────────────────
+  const T = {
+    target:        campaigns.reduce((s, c) => s + c.target, 0),
+    meta_accepted: campaigns.reduce((s, c) => s + c.meta_accepted, 0),
+    delivered:     campaigns.reduce((s, c) => s + c.delivered, 0),
+    read:          campaigns.reduce((s, c) => s + c.read, 0),
+    failed:        campaigns.reduce((s, c) => s + c.failed, 0),
+    replies_wa:    campaigns.reduce((s, c) => s + c.replies_wa, 0),
+    opt_out_wa:    campaigns.reduce((s, c) => s + c.opt_out_wa, 0),
+  };
+  T.delivery_rate_pct  = pct(T.delivered, T.target);
+  T.read_rate_pct      = pct(T.read, T.delivered);
+  T.failed_rate_pct    = pct(T.failed, T.target);
+  T.reply_rate_of_read_pct      = pct(T.replies_wa, T.read);
+  T.reply_rate_of_delivered_pct = pct(T.replies_wa, T.delivered);
+
+  // ── 3. CRM totals ──────────────────────────────────────────
+  const CRM = {
+    total:    crm_leads.length,
+    positive: crm_leads.filter(l => positiveStages.has(l.stage) && !l.opt_out).length,
+    negative: crm_leads.filter(l => negativeStages.has(l.stage) && !l.opt_out).length,
+    opt_out:  crm_leads.filter(l => l.opt_out).length,
+  };
+
+  // breakdown по стадиям
+  const stageBreakdown = {};
+  crm_leads.forEach(l => {
+    const s = l.opt_out ? 'Opt-Out' : l.stage;
+    stageBreakdown[s] = (stageBreakdown[s] || 0) + 1;
+  });
+  CRM.stage_breakdown = stageBreakdown;
+  CRM.in_communication = stageBreakdown['In Communication'] || 0;
+
+  // ── 4. Brokers summary ─────────────────────────────────────
+  const brokerMap = {};
+  enrichedCampaigns.forEach(c => {
+    const bid = c.broker_id;
+    if (!brokerMap[bid]) {
+      brokerMap[bid] = {
+        broker_id: bid,
+        name: c.broker_name,
+        campaigns: [],
+        target: 0, delivered: 0, read: 0,
+        failed: 0, replies_wa: 0,
+        crm_total: 0, crm_positive: 0,
+      };
+    }
+    const b = brokerMap[bid];
+    b.campaigns.push(c.project);
+    b.target     += c.target;
+    b.delivered  += c.delivered;
+    b.read       += c.read;
+    b.failed     += c.failed;
+    b.replies_wa += c.replies_wa;
+    b.crm_total  += c.crm_total;
+    b.crm_positive += c.crm_positive;
+  });
+
+  const brokersArr = Object.values(brokerMap).map(b => ({
+    ...b,
+    campaigns_count:   b.campaigns.length,
+    delivery_rate_pct: pct(b.delivered, b.target),
+    read_rate_pct:     pct(b.read, b.delivered),
+    failed_rate_pct:   pct(b.failed, b.target),
+    reply_rate_pct:    pct(b.replies_wa, b.read),
+    crm_pipeline_pct:  pct(b.crm_positive, b.crm_total),
+  }));
+
+  // ── 5. Рекомендации — генерируются автоматически ──────────
+  const recs = generateRecs(enrichedCampaigns, T, CRM, meta);
+
+  return {
+    meta,
+    totals: T,
+    crm: CRM,
+    campaigns: enrichedCampaigns,
+    brokers: brokersArr,
+    recs,
+    pipeline_stages,
+  };
+}
+
+/**
+ * Автоматическая генерация рекомендаций на основе данных
+ */
+function generateRecs(campaigns, T, CRM, meta) {
+  const recs = [];
+
+  // Failed rate
+  if (T.failed_rate_pct > 60) {
+       recs.push(`🔴 Overall failed rate is ${T.failed_rate_pct}% — base quality is the #1 priority. Verify all numbers before next launch.`);
+  }
+
+  // Кампании с критическим failed rate
+  campaigns.forEach(c => {
+    if (c.failed_rate_pct >= 80) {
+      recs.push(`🔴 ${c.project} (${c.segment}): failed rate ${c.failed_rate_pct}% — replace base completely before reuse.`);
+    }
+  });
+
+  // Лучший delivery — использовать sender
+  const bestDelivery = [...campaigns].sort((a,b) => (b.delivery_rate_pct||0) - (a.delivery_rate_pct||0))[0];
+  if (bestDelivery && bestDelivery.delivery_rate_pct >= 50) {
+    recs.push(`✅ ${bestDelivery.project} (${bestDelivery.broker_name}): best delivery ${bestDelivery.delivery_rate_pct}% — use this sender number as reference for similar segments.`);
+  }
+
+  // Short vs standard template
+  const shortCampaigns   = campaigns.filter(c => c.template === 'short');
+  const standardCampaigns = campaigns.filter(c => c.template === 'standard');
+  const avgReplyShort    = shortCampaigns.length
+    ? shortCampaigns.reduce((s,c) => s + (c.reply_rate_of_read_pct||0), 0) / shortCampaigns.length
+    : 0;
+  const avgReplyStandard = standardCampaigns.length
+    ? standardCampaigns.reduce((s,c) => s + (c.reply_rate_of_read_pct||0), 0) / standardCampaigns.length
+    : 0;
+  if (avgReplyShort > avgReplyStandard) {
+    recs.push(`💬 Short template avg reply rate ${avgReplyShort.toFixed(1)}% vs standard ${avgReplyStandard.toFixed(1)}% — switch remaining standard campaigns to short template.`);
+  }
+
+  // Нулевые результаты
+  campaigns.forEach(c => {
+    if (c.replies_wa === 0 && c.crm_total === 0 && c.delivered >= 20) {
+      recs.push(`⚠️ ${c.project}: 0 replies, 0 CRM leads — rethink template + send time. Do not repeat without changes.`);
+    }
+  });
+
+  // Маленькие выборки
+  campaigns.forEach(c => {
+    if (c.target < 100) {
+      recs.push(`📏 ${c.project}: sample size ${c.target} contacts is too small for statistical conclusions. Expand to 200+ next launch.`);
+    }
+  });
+
+  // Urgent uncontacted leads
+  const urgentLeads = [];
+  // эти лиды отмечаются в JSON через stage = "New Leads"
+  // (можно расширить логику)
+
+  // Budget note
+  if (meta.budget_usd) {
+    const costPerLead = CRM.total > 0
+      ? (meta.budget_usd / CRM.total).toFixed(2)
+      : '—';
+    const costPerPositive = CRM.positive > 0
+      ? (meta.budget_usd / CRM.positive).toFixed(2)
+      : '—';
+    recs.push(`💰 Budget: $${meta.budget_usd} · Cost per CRM lead: $${costPerLead} · Cost per positive lead: $${costPerPositive}`);
+  }
+
+  // Opt-out rate
+  if (CRM.opt_out > 0) {
+    const optRate = pct(CRM.opt_out, CRM.total);
+    if (optRate >= 5) {
+      recs.push(`🚫 Opt-out rate ${optRate}% — review message tone and frequency. Consider warming up cold contacts first.`);
+    }
+  }
+
+  return recs;
+}
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let currentWeek  = 5;
+let chartReply   = null;
+let chartDelivery = null;
+let chartFailed  = null;
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderWeekTabs();
+  loadWeek(currentWeek);
+});
+
+/* ════════════════════════════════════════
+   WEEK TABS
+════════════════════════════════════════ */
+function renderWeekTabs() {
+  const wrap = document.getElementById('week-tabs');
+  wrap.innerHTML = WEEKS_META.map(w => `
+    <button
+      class="week-tab ${w.hasWA ? '' : 'no-data'} ${w.num === currentWeek ? 'active' : ''}"
+      data-week="${w.num}"
+      ${w.hasWA ? `onclick="selectWeek(${w.num})"` : ''}
+      title="${w.hasWA ? w.period : 'No launch this week'}"
+    >${w.label}${w.hasWA ? '' : ' —'}</button>
+  `).join('');
+}
+
+function selectWeek(num) {
+  if (num === currentWeek) return;
+  currentWeek = num;
+  renderWeekTabs();
+  loadWeek(num);
+}
+
+/* ════════════════════════════════════════
+   LOAD WEEK
+════════════════════════════════════════ */
+async function loadWeek(num) {
+  const loader  = document.getElementById('loader');
+  const content = document.getElementById('wa-content');
+  const noData  = document.getElementById('no-data-state');
+
+  loader.style.display = 'flex';
+  content.classList.remove('visible');
+  noData.classList.remove('visible');
+
+  const week = WEEKS_META.find(w => w.num === num);
+  document.getElementById('header-period').textContent     = week.period;
+  document.getElementById('page-title-period').textContent = week.period;
+
+  if (!week.hasWA) {
+    loader.style.display = 'none';
+    noData.classList.add('visible');
+    return;
+  }
+
+  try {
+    const resp = await fetch(WA_FILES[num] + '?v=' + Date.now());
+    if (!resp.ok) throw new Error('Not found');
+    const raw  = await resp.json();
+    const data = computeData(raw);      // ← все вычисления здесь
+    loader.style.display = 'none';
+    renderAll(data);
+    content.classList.add('visible');
+  } catch(e) {
+    loader.style.display = 'none';
+    noData.classList.add('visible');
+    console.warn('WA data load error:', e);
+  }
+}
+
+/* ════════════════════════════════════════
+   RENDER ALL
+════════════════════════════════════════ */
+function renderAll(d) {
+  renderLaunchHeader(d);
+  renderKPIs(d.totals, d.crm, d.campaigns.length);  // ← добавлен третий аргумент
+  renderFunnel(d.totals, d.crm);
+  renderCharts(d.campaigns);
+  renderCampaignsTable(d.campaigns);
+  renderPipeline(d.crm);
+  renderBrokers(d.brokers);
+  renderRecs(d.recs);
+}
+
+/* ════════════════════════════════════════
+   LAUNCH HEADER
+════════════════════════════════════════ */
+function renderLaunchHeader(d) {
+  const m = d.meta;
+  const periodStr = `${m.period_start} – ${m.period_end}`;
+  const budgetStr = m.budget_usd ? ` · Budget: $${m.budget_usd}` : '';
+
+  document.getElementById('launch-header').innerHTML = `
+    <div class="launch-header-left">
+      <div class="launch-icon">💬</div>
+      <div>
+        <div class="launch-title">${m.label}</div>
+        <div class="launch-sub">W${m.week_num} · ${periodStr}${budgetStr}</div>
+      </div>
+    </div>
+    <div class="launch-note">
+      ${d.campaigns.length} campaigns · 
+      ${d.totals.target.toLocaleString()} contacts targeted · 
+      ${d.crm.total} CRM leads created · 
+      ${d.crm.positive} in positive pipeline
+    </div>
+  `;
+}
+
+/* ════════════════════════════════════════
+   KPI GRID
+════════════════════════════════════════ */
+function renderKPIs(T, CRM, campaignsCount) {
+  const items = [
+    {
+      label: 'Target',
+      value: T.target.toLocaleString(),
+      color: 'k-black',
+      sub: `${campaignsCount} campaigns`   // ← исправлено
+    },
+    {
+      label: 'Meta Accepted',
+      value: T.meta_accepted.toLocaleString(),
+      color: 'k-blue',
+      sub: `${fmt(pct(T.meta_accepted, T.target))} of target`
+    },
+    {
+      label: 'Delivered',
+      value: T.delivered.toLocaleString(),
+      color: 'k-wa',
+      sub: `${fmt(T.delivery_rate_pct)} delivery rate`
+    },
+    {
+      label: 'Read',
+      value: T.read.toLocaleString(),
+      color: 'k-green',
+      sub: `${fmt(T.read_rate_pct)} of delivered`
+    },
+    {
+      label: 'Failed',
+      value: T.failed.toLocaleString(),
+      color: 'k-red',
+      sub: `${fmt(T.failed_rate_pct)} failed rate`
+    },
+    {
+      label: 'WA Replies',
+      value: T.replies_wa.toLocaleString(),
+      color: 'k-purple',
+      sub: `${fmt(T.reply_rate_of_read_pct)} of read`
+    },
+    {
+      label: 'CRM Leads',
+      value: CRM.total.toLocaleString(),
+      color: 'k-teal',
+      sub: `${CRM.positive} positive pipeline`
+    },
+    {
+      label: 'Opt-Out',
+      value: CRM.opt_out.toLocaleString(),
+      color: 'k-amber',
+      sub: `${fmt(pct(CRM.opt_out, CRM.total))} of leads`
+    },
+  ];
+
+  document.getElementById('kpi-grid').innerHTML = items.map(k => `
+    <div class="kpi ${k.color}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════
+   FUNNEL
+════════════════════════════════════════ */
+function renderFunnel(T, CRM) {
+  const steps = [
+    { label: 'Target',        val: T.target,        color: '#0a0a0a' },
+    { label: 'Meta Accepted', val: T.meta_accepted,  color: '#1877F2' },
+    { label: 'Delivered',     val: T.delivered,      color: '#25D366' },
+    { label: 'Read',          val: T.read,           color: '#16a34a' },
+    { label: 'WA Replies',    val: T.replies_wa,     color: '#8b5cf6' },
+    { label: 'CRM Leads',     val: CRM.total,        color: '#14b8a6' },
+    { label: 'Positive Pipeline', val: CRM.positive, color: '#0d9488' },
+  ];
+
+  document.getElementById('funnel-wrap').innerHTML = steps.map(s => {
+    const p = Math.round((s.val / T.target) * 100);
+    return `
+      <div class="funnel-row">
+        <div class="funnel-label">${s.label}</div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar" style="width:${Math.max(p,1)}%;background:${s.color};">
+            <span class="funnel-bar-val">${s.val.toLocaleString()}</span>
+          </div>
+        </div>
+        <div class="funnel-pct">${p}%</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   CHARTS
+════════════════════════════════════════ */
+function renderCharts(campaigns) {
+  const labels       = campaigns.map(c =>
+    c.project + (c.segment !== 'All' ? ` (${c.segment})` : '')
+  );
+  const shortLabels  = campaigns.map(c => c.project);
+  const replyRates   = campaigns.map(c => c.reply_rate_of_read_pct ?? 0);
+  const delivRates   = campaigns.map(c => c.delivery_rate_pct ?? 0);
+  const failedRates  = campaigns.map(c => c.failed_rate_pct ?? 0);
+
+  const baseFont = { family: "'Notosans', Arial, sans-serif", size: 11 };
+
+  const baseOpts = () => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0a0a0a',
+        titleFont: { ...baseFont, weight: '600' },
+        bodyFont: baseFont,
+        padding: 10,
+        callbacks: { label: ctx => ` ${ctx.parsed.y}%` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: baseFont, color: '#8d8c89', maxRotation: 35 }
+      },
+      y: {
+        grid: { color: '#ededed' },
+        ticks: { font: baseFont, color: '#8d8c89', callback: v => v + '%' },
+        beginAtZero: true,
+      }
+    }
+  });
+
+  if (chartReply)    chartReply.destroy();
+  if (chartDelivery) chartDelivery.destroy();
+  if (chartFailed)   chartFailed.destroy();
+
+  chartReply = new Chart(document.getElementById('chart-reply'), {
+    type: 'bar',
+    data: {
+      labels: shortLabels,
+      datasets: [{
+        data: replyRates,
+        backgroundColor: replyRates.map(v =>
+          v >= 10 ? '#22c55e' : v >= 5 ? '#cab58e' : '#ef4444'
+        ),
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: {
+      ...baseOpts(),
+      scales: {
+        ...baseOpts().scales,
+        y: {
+          ...baseOpts().scales.y,
+          max: Math.max(...replyRates, 5) + 5,
+          ticks: { ...baseOpts().scales.y.ticks, callback: v => v + '%' }
+        }
+      }
+    }
+  });
+
+  chartDelivery = new Chart(document.getElementById('chart-delivery'), {
+    type: 'bar',
+    data: {
+      labels: shortLabels,
+      datasets: [{
+        data: delivRates,
+        backgroundColor: delivRates.map(v =>
+          v >= 70 ? '#22c55e' : v >= 40 ? '#cab58e' : '#ef4444'
+        ),
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: baseOpts()
+  });
+
+  chartFailed = new Chart(document.getElementById('chart-failed'), {
+    type: 'bar',
+    data: {
+      labels: shortLabels,
+      datasets: [{
+        data: failedRates,
+        backgroundColor: failedRates.map(v =>
+          v <= 30 ? '#22c55e' : v <= 60 ? '#cab58e' : '#ef4444'
+        ),
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: {
+      ...baseOpts(),
+      scales: {
+        ...baseOpts().scales,
+        y: {
+          ...baseOpts().scales.y,
+          max: Math.min(Math.max(...failedRates) + 5, 100),
+          ticks: { ...baseOpts().scales.y.ticks, callback: v => v + '%' }
+        }
+      }
+    }
+  });
+}
+
+/* ════════════════════════════════════════
+   CAMPAIGNS TABLE
+════════════════════════════════════════ */
+function renderCampaignsTable(campaigns) {
+  window._currentCampaignsCount = campaigns.length;
+  document.getElementById('campaigns-count').textContent =
+    `${campaigns.length} campaigns`;
+
+  function rateClass(val, good, warn) {
+    if (val === null) return '';
+    return val >= good ? 'good' : val >= warn ? 'warn' : 'bad';
+  }
+  function failClass(val) {
+    return val <= 30 ? 'good' : val <= 60 ? 'warn' : 'bad';
+  }
+  function miniBar(pct, color) {
+    const safeP = Math.min(pct ?? 0, 100);
+    return `
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-bg">
+          <div class="mini-bar" style="width:${safeP}%;background:${color};"></div>
+        </div>
+        <div class="mini-bar-val">${safeP}%</div>
+      </div>`;
+  }
+
+  const delivColor = v => v >= 70 ? '#22c55e' : v >= 40 ? '#cab58e' : '#ef4444';
+  const readColor  = v => v >= 50 ? '#22c55e' : v >= 30 ? '#cab58e' : '#ef4444';
+
+  // Суммарная CRM strip
+  const totalCRM    = campaigns.reduce((s,c) => s + c.crm_total, 0);
+  const totalPos    = campaigns.reduce((s,c) => s + c.crm_positive, 0);
+  const totalNeg    = campaigns.reduce((s,c) => s + c.crm_negative, 0);
+  const totalOO     = campaigns.reduce((s,c) => s + c.crm_opt_out, 0);
+  document.getElementById('crm-strip').innerHTML = `
+    <span class="crm-badge p-total neutral">Total CRM Leads: ${totalCRM}</span>
+    <span class="crm-badge positive">✅ Positive Pipeline: ${totalPos} (${fmt(pct(totalPos,totalCRM))})</span>
+    <span class="crm-badge negative">❌ Not Interested: ${totalNeg} (${fmt(pct(totalNeg,totalCRM))})</span>
+    <span class="crm-badge optout">🚫 Opt-Out: ${totalOO} (${fmt(pct(totalOO,totalCRM))})</span>
+  `;
+
+  document.getElementById('campaigns-tbody').innerHTML = campaigns.map(c => {
+    const replyVal = c.reply_rate_of_read_pct;
+    const replyStr = replyVal !== null ? `${replyVal}%` : '—';
+    const replyC   = replyVal !== null ? rateClass(replyVal, 10, 5) : '';
+
+    // Stage pills для этой кампании
+    const stagePills = Object.entries(c.stage_count)
+      .map(([s, n]) => {
+        const cls = s === 'Opt-Out' ? 'optout'
+                  : ['In Communication','Qualified','Owner Looking to Sell','Follow-Up','New Leads'].includes(s) ? 'positive'
+                  : 'negative';
+        return `<span class="crm-badge ${cls}" style="font-size:9px;">${s}: ${n}</span>`;
+      }).join('');
+
+    return `
+      <tr>
+        <td>
+          <div class="project-name">${c.project}</div>
+          ${c.segment !== 'All' ? `<div class="row-sub">${c.segment}</div>` : ''}
+          ${stagePills ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">${stagePills}</div>` : ''}
+        </td>
+        <td>
+          <div style="font-family:var(--font-secondary);font-size:12px;
+                      color:var(--text-secondary);font-weight:600;">
+            ${c.broker_name.split(' ')[0]}
+          </div>
+          <div class="row-sub">#${c.broker_id}</div>
+        </td>
+        <td>
+          <span style="font-family:var(--font-secondary);font-size:11px;
+                       background:var(--color-gray);padding:2px 8px;
+                       border-radius:var(--radius-full);color:var(--text-secondary);">
+            ${c.template}
+          </span>
+        </td>
+        <td style="font-family:var(--font-primary);font-weight:500;">
+          ${c.target.toLocaleString()}
+        </td>
+        <td>${miniBar(c.delivery_rate_pct, delivColor(c.delivery_rate_pct))}</td>
+        <td>${miniBar(c.read_rate_pct, readColor(c.read_rate_pct))}</td>
+        <td>
+          <span class="rate-cell ${failClass(c.failed_rate_pct)}">${c.failed_rate_pct}%</span>
+        </td>
+        <td style="font-family:var(--font-primary);font-weight:500;text-align:center;">
+          ${c.replies_wa}
+        </td>
+        <td style="font-family:var(--font-primary);font-weight:500;text-align:center;">
+          ${c.crm_total}
+          ${c.crm_total !== c.replies_wa
+            ? `<span style="font-size:9px;color:var(--accent-amber);display:block;">
+                ≠ WA replies</span>`
+            : ''}
+        </td>
+        <td>
+          <span class="rate-cell ${replyC}">${replyStr}</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   CRM PIPELINE
+════════════════════════════════════════ */
+function renderPipeline(CRM) {
+  const sb = CRM.stage_breakdown;
+
+  // Порядок отображения стадий
+  const orderedStages = [
+    { key: 'Qualified',              cls: 'p-positive', icon: '⭐' },
+    { key: 'Owner Looking to Sell',  cls: 'p-positive', icon: '🏠' },
+    { key: 'In Communication',       cls: 'p-positive', icon: '💬' },
+    { key: 'Follow-Up',              cls: 'p-positive', icon: '📞' },
+    { key: 'New Leads',              cls: 'p-positive', icon: '🆕' },
+    { key: 'Prospect Lost',          cls: 'p-negative', icon: '❌' },
+    { key: 'Junk Lead',              cls: 'p-negative', icon: '🗑️' },
+    { key: 'Opt-Out',                cls: 'p-optout',   icon: '🚫' },
+  ];
+
+  const rows = orderedStages
+    .filter(s => sb[s.key] > 0)
+    .map(s => `
+      <div class="pipeline-item ${s.cls}">
+        <div class="pipeline-item-val">${sb[s.key]}</div>
+        <div class="pipeline-item-label">${s.icon} ${s.key}</div>
+      </div>
+    `).join('');
+
+  // Итог
+  const summary = `
+    <div class="pipeline-item p-total">
+      <div class="pipeline-item-val">${CRM.total}</div>
+      <div class="pipeline-item-label">📊 Total Leads</div>
+    </div>
+    <div class="pipeline-item p-positive">
+      <div class="pipeline-item-val">${CRM.positive}</div>
+      <div class="pipeline-item-label">✅ Positive (${fmt(pct(CRM.positive, CRM.total))})</div>
+    </div>
+  `;
+
+  document.getElementById('pipeline-grid').innerHTML = summary + rows;
+}
 
 /* ════════════════════════════════════════
    BROKERS
