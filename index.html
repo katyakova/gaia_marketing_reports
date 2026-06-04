@@ -5,418 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gaia · Marketing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-
-/* ── RESET & BASE ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-  background: #ECEAE7;
-  color: #1A1A1A;
-  min-height: 100vh;
-  font-size: 13px;
-}
-
-/* ── HEADER ── */
-.header {
-  background: #111111;
-  padding: 0 36px;
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 56px;
-}
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 0;
-  flex-shrink: 0;
-}
-.logo-mark {
-  width: 32px; height: 32px;
-  background: #FFFFFF;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 900; font-size: 14px; color: #111;
-  letter-spacing: -1px;
-}
-.logo-name { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
-.logo-sub  { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
-
-/* ── NAV ── */
-.nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  padding: 0 28px;
-  overflow-x: auto;
-}
-.nav-sep {
-  width: 1px; height: 20px;
-  background: #2A2A2A;
-  flex-shrink: 0;
-  margin: 0 4px;
-}
-.nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
-  border-radius: 7px;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  transition: all .2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-  position: relative;
-}
-.nav-btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-}
-.nav-btn.active {
-  box-shadow: 0 0 0 2px #FFF;
-}
-.nav-btn .nav-btn-icon  { font-size: 14px; line-height: 1; }
-.nav-btn .nav-btn-label {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: #FFF;
-}
-.nav-btn .nav-btn-badge {
-  background: rgba(0,0,0,0.25);
-  color: #FFF;
-  font-size: 9px; font-weight: 700;
-  padding: 1px 5px; border-radius: 8px;
-  min-width: 18px; text-align: center;
-}
-
-/* ── КНОПКИ ЦВЕТА ── */
-.btn-dashboard { background: #333333; }
-.btn-meta      { background: #1877F2; }
-.btn-smm       { background: linear-gradient(135deg,#833AB4,#E1306C,#F77737); }
-.btn-leads     { background: #22c55e; }
-.btn-wa        { background: #25D366; }
-.btn-red       { background: #E53935; }
-
-/* ── HEADER RIGHT ── */
-.header-right {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 12px 0;
-  flex-shrink: 0;
-}
-.header-title  { font-size: 11px; font-weight: 600; color: #FFF; letter-spacing: 2px; text-transform: uppercase; }
-.header-period { font-size: 10px; color: #555; margin-top: 3px; }
-
-/* ── MOBILE ── */
-@media (max-width: 1100px) {
-  .header { padding: 0 16px; }
-  .nav-menu { padding: 0 10px; gap: 4px; }
-  .nav-btn  { padding: 5px 10px; }
-  .nav-btn .nav-btn-label { display: none; }
-  .nav-btn .nav-btn-icon  { font-size: 16px; }
-  .nav-btn .nav-btn-badge { display: none; }
-  .nav-sep  { margin: 0 2px; }
-  .header-right { display: none; }
-}
-@media (max-width: 600px) {
-  .logo-name { font-size: 15px; }
-}
-
-/* ── WEEK TABS ── */
-.tabs-wrap {
-  background: #FFF;
-  border-bottom: 1px solid #E0DDD9;
-  padding: 0 36px;
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-}
-.tab {
-  padding: 14px 24px 12px;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all .2s;
-  white-space: nowrap;
-  user-select: none;
-}
-.tab-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #AAAAAA; }
-.tab-dates { font-size: 10px; color: #BBBBBB; margin-top: 2px; }
-.tab:hover .tab-label { color: #333; }
-.tab.active { border-bottom-color: #111; }
-.tab.active .tab-label { color: #111; }
-.tab.active .tab-dates  { color: #666; }
-
-/* ── COMPARISON STRIP ── */
-.comp-strip {
-  background: #1A1A1A;
-  padding: 10px 36px;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  overflow-x: auto;
-}
-.comp-metric {
-  display: flex;
-  flex-direction: column;
-  padding: 6px 20px 6px 0;
-  margin-right: 20px;
-  border-right: 1px solid #2E2E2E;
-  min-width: 120px;
-}
-.comp-metric:last-child { border-right: none; }
-.comp-metric-label {
-  font-size: 9px; color: #555;
-  text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 6px;
-}
-.comp-bars { display: flex; gap: 8px; align-items: flex-end; }
-.comp-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.comp-bar-val {
-  font-size: 13px; font-weight: 700; color: #888;
-  line-height: 1;
-}
-.comp-bar-val.current { color: #FFFFFF; font-size: 15px; }
-.comp-bar-bg {
-  width: 28px; border-radius: 3px 3px 0 0;
-  background: #2E2E2E; min-height: 4px;
-  transition: all .3s;
-}
-.comp-bar-bg.current { background: #FFFFFF; }
-.comp-bar-wk { font-size: 9px; color: #444; margin-top: 2px; }
-.comp-bar-wk.current { color: #888; }
-.comp-delta {
-  font-size: 10px; font-weight: 700;
-  padding: 2px 6px; border-radius: 3px;
-  margin-top: 4px; align-self: flex-start;
-}
-.delta-pos      { background: rgba(74,222,128,.15); color: #4ade80; }
-.delta-neg      { background: rgba(248,113,113,.15); color: #f87171; }
-.delta-good-neg { background: rgba(74,222,128,.15); color: #4ade80; }
-
-/* ── MAIN LAYOUT ── */
-.main { padding: 28px 36px; }
-
-/* ── SECTION HEADER ── */
-.sec-head {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 14px; margin-top: 28px;
-}
-.sec-head:first-child { margin-top: 0; }
-.sec-icon {
-  width: 24px; height: 24px; border-radius: 5px;
-  background: #1A1A1A;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-}
-.sec-title {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase; color: #888;
-}
-
-/* ── KPI CARDS ── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.kpi {
-  background: #FFF;
-  border-radius: 10px;
-  padding: 16px 18px 14px;
-  border: 1px solid #E4E2DF;
-  position: relative;
-  overflow: hidden;
-}
-.kpi::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  border-radius: 10px 10px 0 0;
-}
-.kpi.k-black::after  { background: #1A1A1A; }
-.kpi.k-green::after  { background: #22c55e; }
-.kpi.k-amber::after  { background: #f59e0b; }
-.kpi.k-red::after    { background: #ef4444; }
-.kpi.k-blue::after   { background: #3b82f6; }
-.kpi.k-purple::after { background: #8b5cf6; }
-.kpi.k-pink::after   { background: #ec4899; }
-
-.kpi-label {
-  font-size: 9px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 1px; color: #999;
-}
-.kpi-value {
-  font-size: 32px; font-weight: 800;
-  line-height: 1; margin: 8px 0 4px;
-  color: #1A1A1A;
-}
-.kpi-sub   { font-size: 10px; color: #AAA; }
-.kpi-trend { font-size: 11px; font-weight: 600; margin-top: 5px; }
-.trend-up        { color: #22c55e; }
-.trend-down      { color: #ef4444; }
-.trend-good-down { color: #22c55e; }
-.trend-neutral   { color: #999; }
-
-/* ── CHART CARDS ── */
-.chart-grid-2 {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 14px; margin-bottom: 20px;
-}
-.chart-grid-3 {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px; margin-bottom: 20px;
-}
-.chart-card {
-  background: #FFF;
-  border-radius: 10px;
-  padding: 20px;
-  border: 1px solid #E4E2DF;
-}
-.chart-card.span-2 { grid-column: span 2; }
-.chart-card.span-3 { grid-column: span 3; }
-.chart-card h3 {
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
-  margin-bottom: 16px;
-}
-.chart-wrap { position: relative; }
-
-/* ── INSIGHTS ── */
-.insights-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px; margin-bottom: 20px;
-}
-.insight {
-  background: #FFF;
-  border-radius: 10px;
-  padding: 16px 18px;
-  border: 1px solid #E4E2DF;
-  border-left: 4px solid #1A1A1A;
-}
-.insight.i-meta   { border-left-color: #3b82f6; }
-.insight.i-smm    { border-left-color: #8b5cf6; }
-.insight.i-leads  { border-left-color: #22c55e; }
-.insight.i-wa     { border-left-color: #f59e0b; }
-.insight-tag {
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; color: #AAA;
-  margin-bottom: 6px;
-}
-.insight-text { font-size: 12px; line-height: 1.65; color: #333; }
-
-/* ── TABLE CARD ── */
-.table-card {
-  background: #FFF;
-  border-radius: 10px;
-  border: 1px solid #E4E2DF;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.table-card h3 {
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.5px; color: #999;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #F0EDEA;
-}
-table { width: 100%; border-collapse: collapse; }
-th {
-  padding: 9px 16px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  color: #AAA; text-align: left;
-  background: #FAFAF9;
-  border-bottom: 1px solid #F0EDEA;
-}
-td {
-  padding: 9px 16px;
-  border-bottom: 1px solid #F7F6F4;
-  font-size: 12px; color: #333;
-  vertical-align: middle;
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #FAFAF9; }
-
-/* ── BADGES ── */
-.badge {
-  display: inline-block;
-  padding: 2px 8px; border-radius: 4px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-.b-qualified { background: #dcfce7; color: #15803d; }
-.b-comm      { background: #fef9c3; color: #a16207; }
-.b-fu        { background: #ede9fe; color: #6d28d9; }
-.b-lost      { background: #fee2e2; color: #b91c1c; }
-.b-junk      { background: #f1f5f9; color: #475569; }
-.b-new       { background: #dbeafe; color: #1d4ed8; }
-.b-owner     { background: #fce7f3; color: #9d174d; }
-.b-future    { background: #e0f2fe; color: #0369a1; }
-
-.flag { font-size: 14px; margin-right: 4px; }
-
-/* ── WA CAMPAIGNS ── */
-.wa-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px; margin-bottom: 20px;
-}
-.wa-card {
-  background: #FFF;
-  border-radius: 10px;
-  padding: 14px 16px;
-  border: 1px solid #E4E2DF;
-  border-top: 3px solid #f59e0b;
-}
-.wa-name { font-size: 11px; font-weight: 700; color: #1A1A1A; margin-bottom: 8px; }
-.wa-stat { display: flex; justify-content: space-between; margin-bottom: 3px; }
-.wa-stat-label { font-size: 10px; color: #999; }
-.wa-stat-val   { font-size: 10px; font-weight: 600; color: #333; }
-
-/* ── FOOTER ── */
-.footer {
-  background: #111;
-  color: #444;
-  text-align: center;
-  padding: 18px;
-  font-size: 10px;
-  letter-spacing: 1px;
-  margin-top: 40px;
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
-  .chart-card.span-2, .chart-card.span-3 { grid-column: span 1; }
-  .main { padding: 16px; }
-  .tabs-wrap { padding: 0 16px; }
-  .comp-strip { padding: 10px 16px; }
-}
-
-/* ── EMPTY STATE ── */
-.empty { color: #AAA; font-style: italic; font-size: 12px; }
-.partial-note {
-  display: inline-block;
-  background: #FFF8E1;
-  color: #B45309;
-  font-size: 9px; font-weight: 600;
-  padding: 2px 8px; border-radius: 4px;
-  margin-left: 8px; vertical-align: middle;
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-
-</style>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -425,66 +14,55 @@ tr:hover td { background: #FAFAF9; }
 <!-- ═══════════════════════════════════════ -->
 <header class="header">
 
-  <!-- LOGO -->
-  <div class="logo-wrap">
+  <a href="index.html" class="logo-wrap">
     <div class="logo-mark">G</div>
     <div>
       <div class="logo-name">GAIA</div>
       <div class="logo-sub">Real Estate</div>
     </div>
-  </div>
+  </a>
 
-  <!-- NAV MENU -->
   <nav class="nav-menu">
-
-    <button class="nav-btn btn-dashboard active" id="nav-dashboard"
-            onclick="switchView('dashboard')">
+    <a href="index.html" class="nav-btn btn-dashboard active">
       <span class="nav-btn-icon">📊</span>
       <span class="nav-btn-label">Dashboard</span>
-    </button>
+    </a>
 
     <div class="nav-sep"></div>
 
-    <button class="nav-btn btn-meta" id="nav-meta"
-            onclick="switchView('meta')">
+    <a href="meta.html" class="nav-btn btn-meta">
       <span class="nav-btn-icon">💰</span>
       <span class="nav-btn-label">Meta</span>
       <span class="nav-btn-badge" id="badge-meta">—</span>
-    </button>
+    </a>
 
-    <button class="nav-btn btn-smm" id="nav-smm"
-            onclick="switchView('smm')">
+    <a href="smm.html" class="nav-btn btn-smm">
       <span class="nav-btn-icon">📸</span>
       <span class="nav-btn-label">Instagram</span>
       <span class="nav-btn-badge" id="badge-smm">—</span>
-    </button>
+    </a>
 
     <div class="nav-sep"></div>
 
-    <button class="nav-btn btn-leads" id="nav-leads"
-            onclick="switchView('leads')">
+    <a href="leads.html" class="nav-btn btn-leads">
       <span class="nav-btn-icon">🎯</span>
       <span class="nav-btn-label">Leads</span>
       <span class="nav-btn-badge" id="badge-leads">—</span>
-    </button>
+    </a>
 
-    <button class="nav-btn btn-wa" id=""
-            onclick="switchView('whatsapp')">
+    <a href="whatsapp.html" class="nav-btn btn-wa">
       <span class="nav-btn-icon">💬</span>
       <span class="nav-btn-label">WhatsApp</span>
       <span class="nav-btn-badge" id="badge-wa">—</span>
-    </button>
+    </a>
 
-    <button class="nav-btn btn-red" id="nav-red"
-            onclick="switchView('red')">
+    <a href="red.html" class="nav-btn btn-red">
       <span class="nav-btn-icon">🔴</span>
       <span class="nav-btn-label">RED Quiz</span>
       <span class="nav-btn-badge" id="badge-red">—</span>
-    </button>
-
+    </a>
   </nav>
 
-  <!-- HEADER RIGHT -->
   <div class="header-right">
     <div class="header-title">Marketing Dashboard</div>
     <div class="header-period" id="hPeriod">Loading…</div>
@@ -517,11 +95,7 @@ tr:hover td { background: #FAFAF9; }
   Week runs Fri → Wed &nbsp;·&nbsp; Report day: Thursday
 </footer>
 
-<!-- ═══════════════════════════════════════ -->
-<!--  JAVASCRIPT                            -->
-<!-- ═══════════════════════════════════════ -->
 <script>
-
 // ════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════
@@ -547,19 +121,9 @@ const COMP_METRICS = [
 // ════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════
-let weeks       = [];
-let active      = 0;
-let charts      = {};
-let currentView = 'dashboard';
-
-const VIEW_BTN_MAP = {
-  'dashboard': 'nav-dashboard',
-  'meta':      'nav-meta',
-  'smm':       'nav-smm',
-  'leads':     'nav-leads',
-  'whatsapp':  '',
-  'red':       'nav-red',
-};
+let weeks  = [];
+let active = 0;
+let charts = {};
 
 // ════════════════════════════════════════════
 //  BOOT
@@ -585,8 +149,7 @@ const VIEW_BTN_MAP = {
       `<p style="color:#ef4444;padding:40px;text-align:center">
         ⚠️ Could not load data files.<br>
         <small style="color:#999">
-          Make sure data/week_0X.json files exist in your repo.<br>
-          ${e.message}
+          Make sure data/week_0X.json files exist.<br>${e.message}
         </small>
       </p>`;
   }
@@ -618,75 +181,16 @@ function updateBadges() {
 }
 
 // ════════════════════════════════════════════
-//  VIEW SWITCHING
-// ════════════════════════════════════════════
-function switchView(view) {
-  currentView = view;
-
-  // Активная кнопка
-  Object.values(VIEW_BTN_MAP).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-  });
-  const btn = document.getElementById(VIEW_BTN_MAP[view]);
-  if (btn) btn.classList.add('active');
-
-  destroyCharts();
-
-  const w    = weeks[active];
-  const prev = active > 0 ? weeks[active - 1] : null;
-
-  switch(view) {
-    case 'dashboard':
-      renderMain();
-      break;
-    case 'meta':
-      document.getElementById('mainContent').innerHTML =
-        renderMetaSection(w, prev) + renderInsights(w);
-      requestAnimationFrame(() => { drawMetaTrend(); drawCPL(); });
-      break;
-    case 'smm':
-      document.getElementById('mainContent').innerHTML =
-        renderSmmSection(w, prev) + renderInsights(w);
-      requestAnimationFrame(() => { drawSmmReach(); drawSmmEngage(w); });
-      break;
-    case 'leads':
-      document.getElementById('mainContent').innerHTML =
-        renderOverviewKPIs(w, prev) +
-        renderLeadsSection(w, prev) +
-        renderInsights(w);
-      requestAnimationFrame(() => {
-        drawLeadSource(w);
-        drawLeadStatus(w);
-        drawLeadTrend();
-      });
-      break;
-    case 'whatsapp':
-      document.getElementById('mainContent').innerHTML =
-        renderWaSection(w, prev) + renderInsights(w);
-      break;
-    case 'red':
-      document.getElementById('mainContent').innerHTML =
-        (w.red_quiz_leads?.length ? renderRedQuiz(w) : `
-          <div style="background:#FFF;border-radius:10px;padding:30px;
-                      border:1px solid #E4E2DF;color:#AAA;font-size:13px">
-            No RED Quiz leads this week.
-          </div>`) + renderInsights(w);
-      break;
-  }
-}
-
-// ════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════
 function get(obj, path) {
   return path.split('.').reduce((o, k) => (o != null ? o[k] : 0), obj) ?? 0;
 }
 
-function fmt(val, type) {
+function fmtVal(val, type) {
   if (val == null || val === 0) return '—';
   if (type === 'aed') return val.toLocaleString() + ' ₟';
-  if (type === 'k')   return val >= 1000 ? (val/1000).toFixed(1) + 'k' : val;
+  if (type === 'k')   return val >= 1000 ? (val/1000).toFixed(1)+'k' : val;
   return val.toLocaleString();
 }
 
@@ -708,38 +212,7 @@ function trendHtml(curr, prev, goodDir) {
   if (pct < 0 && goodDir !== 'down') cls = 'trend-down';
   if (pct < 0 && goodDir === 'down') cls = 'trend-good-down';
   if (pct > 0 && goodDir === 'down') cls = 'trend-down';
-  const label = Math.abs(pct) + '% vs prev week';
-  return `<div class="kpi-trend ${cls}">${sign} ${label}</div>`;
-}
-
-function statusBadge(s) {
-  const map = {
-    'Qualified':      'b-qualified',
-    'In Communication':'b-comm',
-    'Follow-Up 1':    'b-fu',
-    'Follow-Up 2':    'b-fu',
-    'Follow-Up 3':    'b-fu',
-    'Follow-Up 4':    'b-fu',
-    'Follow-Up 5':    'b-fu',
-    'Prospect Lost':  'b-lost',
-    'Junk Lead':      'b-junk',
-    'New Leads':      'b-new',
-    'Owner to sell':  'b-owner',
-    'Future Follow-Up':'b-future',
-  };
-  const cls = map[s] || 'b-new';
-  return `<span class="badge ${cls}">${s}</span>`;
-}
-
-function countryFlag(country) {
-  const flags = {
-    'United Kingdom': '🇬🇧', 'Serbia': '🇷🇸', 'Turkey': '🇹🇷',
-    'Italy': '🇮🇹', 'India': '🇮🇳', 'Portugal': '🇵🇹',
-    'Libya': '🇱🇾', 'Canada': '🇨🇦', 'Romania': '🇷🇴',
-    'UAE': '🇦🇪', 'Germany': '🇩🇪', 'France': '🇫🇷',
-    'Saudi Arabia': '🇸🇦', 'Kuwait': '🇰🇼', 'Qatar': '🇶🇦',
-  };
-  return flags[country] || '🌍';
+  return `<div class="kpi-trend ${cls}">${sign} ${Math.abs(pct)}% vs prev week</div>`;
 }
 
 function destroyCharts() {
@@ -747,22 +220,29 @@ function destroyCharts() {
   charts = {};
 }
 
+function mkChart(id, config) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, config);
+}
+
+const WEEK_LABELS = () => weeks.map(w => w.week_label);
+
 // ════════════════════════════════════════════
 //  RENDER MASTER
 // ════════════════════════════════════════════
 function render() {
   renderTabs();
   renderCompStrip();
-  renderMain();
+  renderDashboard();
 }
 
 function switchWeek(idx) {
   active = idx;
   destroyCharts();
-  renderTabs();
-  renderCompStrip();
-  renderMain();
-  document.getElementById('hPeriod').textContent = weeks[active].period;
+  updateBadges();
+  render();
 }
 
 // ════════════════════════════════════════════
@@ -785,7 +265,6 @@ function renderTabs() {
 //  COMPARISON STRIP
 // ════════════════════════════════════════════
 function renderCompStrip() {
-  const w = weeks[active];
   const BAR_MAX_H = 32;
 
   const html = COMP_METRICS.map(m => {
@@ -800,7 +279,7 @@ function renderCompStrip() {
       return `
         <div class="comp-bar-wrap">
           <div class="comp-bar-val ${isCurr ? 'current' : ''}">
-            ${fmt(v, m.fmt)}
+            ${fmtVal(v, m.fmt)}
           </div>
           <div class="comp-bar-bg ${isCurr ? 'current' : ''}"
                style="height:${h}px"></div>
@@ -822,24 +301,22 @@ function renderCompStrip() {
 }
 
 // ════════════════════════════════════════════
-//  MAIN CONTENT
+//  DASHBOARD — SUMMARY ONLY
 // ════════════════════════════════════════════
-function renderMain() {
-  const w = weeks[active];
+function renderDashboard() {
+  const w    = weeks[active];
   const prev = active > 0 ? weeks[active - 1] : null;
 
-  const html = `
+  document.getElementById('mainContent').innerHTML = `
     ${renderOverviewKPIs(w, prev)}
-    ${renderMetaSection(w, prev)}
-    ${renderSmmSection(w, prev)}
-    ${renderLeadsSection(w, prev)}
-    ${renderWaSection(w, prev)}
-    ${w.red_quiz_leads?.length ? renderRedQuiz(w) : ''}
+    ${renderChannelSummary(w, prev)}
+    ${renderTrendChart()}
     ${renderInsights(w)}
   `;
 
-  document.getElementById('mainContent').innerHTML = html;
-  drawCharts(w, prev);
+  requestAnimationFrame(() => {
+    drawWeeklyTrend();
+  });
 }
 
 // ════════════════════════════════════════════
@@ -849,37 +326,39 @@ function renderOverviewKPIs(w, prev) {
   const p = prev;
   const kpis = [
     {
-      label: 'Total Leads', color: 'k-black',
+      label: 'Total Leads',       color: 'k-black',
       value: w.leads.total,
       sub: `W${w.week_num} · ${w.period}`,
       trend: trendHtml(w.leads.total, p?.leads?.total, 'up')
     },
     {
-      label: 'In Communication', color: 'k-green',
+      label: 'In Communication',  color: 'k-green',
       value: w.leads.in_communication,
-      sub: `${w.leads.total ? Math.round(w.leads.in_communication/w.leads.total*100) : 0}% of total`,
+      sub: `${w.leads.total
+        ? Math.round(w.leads.in_communication / w.leads.total * 100) : 0}% of total`,
       trend: trendHtml(w.leads.in_communication, p?.leads?.in_communication, 'up')
     },
     {
-      label: 'Qualified', color: 'k-blue',
+      label: 'Qualified',         color: 'k-blue',
       value: w.leads.qualified,
       sub: 'Hot leads this week',
       trend: trendHtml(w.leads.qualified, p?.leads?.qualified, 'up')
     },
     {
-      label: 'Follow-Up', color: 'k-purple',
+      label: 'Follow-Up',         color: 'k-purple',
       value: w.leads.follow_up,
       sub: 'Active pipeline',
       trend: trendHtml(w.leads.follow_up, p?.leads?.follow_up, 'up')
     },
     {
-      label: 'Prospect Lost', color: 'k-red',
+      label: 'Prospect Lost',     color: 'k-red',
       value: w.leads.prospect_lost,
-      sub: `${w.leads.total ? Math.round(w.leads.prospect_lost/w.leads.total*100) : 0}% loss rate`,
+      sub: `${w.leads.total
+        ? Math.round(w.leads.prospect_lost / w.leads.total * 100) : 0}% loss rate`,
       trend: trendHtml(w.leads.prospect_lost, p?.leads?.prospect_lost, 'down')
     },
     {
-      label: 'Junk / Invalid', color: 'k-amber',
+      label: 'Junk / Invalid',    color: 'k-amber',
       value: w.leads.junk,
       sub: 'Filtered out',
       trend: trendHtml(w.leads.junk, p?.leads?.junk, 'down')
@@ -889,7 +368,7 @@ function renderOverviewKPIs(w, prev) {
   return `
     <div class="sec-head">
       <div class="sec-icon">📊</div>
-      <div class="sec-title">Weekly Overview</div>
+      <div class="sec-title">Weekly Overview — All Channels Combined</div>
     </div>
     <div class="kpi-grid">
       ${kpis.map(k => `
@@ -903,386 +382,341 @@ function renderOverviewKPIs(w, prev) {
 }
 
 // ════════════════════════════════════════════
-//  META ADS SECTION
+//  CHANNEL SUMMARY CARDS
 // ════════════════════════════════════════════
-function renderMetaSection(w, prev) {
-  const m = w.meta;
-  const pm = prev?.meta;
+function renderChannelSummary(w, prev) {
+  const p = prev;
 
-  const kpis = [
-    {
-      label: 'Meta Spend', color: 'k-blue',
-      value: m.spend_aed ? m.spend_aed.toLocaleString() + ' ₟' : '—',
-      sub: m.top_campaign || '—',
-      trend: trendHtml(m.spend_aed, pm?.spend_aed, 'none')
-    },
-    {
-      label: 'Impressions', color: 'k-blue',
-      value: m.impressions ? (m.impressions/1000).toFixed(0) + 'k' : '—',
-      sub: 'Total ad views',
-      trend: trendHtml(m.impressions, pm?.impressions, 'up')
-    },
-    {
-      label: 'Link Clicks', color: 'k-blue',
-      value: m.link_clicks ? m.link_clicks.toLocaleString() : '—',
-      sub: m.impressions && m.link_clicks
-        ? 'CTR ' + (m.link_clicks/m.impressions*100).toFixed(2) + '%'
-        : '—',
-      trend: trendHtml(m.link_clicks, pm?.link_clicks, 'up')
-    },
-    {
-      label: 'Leads (Forms)', color: 'k-green',
-      value: m.leads_form || '—',
-      sub: 'From lead forms',
-      trend: trendHtml(m.leads_form, pm?.leads_form, 'up')
-    },
-    {
-      label: 'CPL', color: m.cpl_aed > 100 ? 'k-amber' : 'k-green',
-      value: m.cpl_aed ? m.cpl_aed + ' ₟' : '—',
-      sub: 'Cost per lead',
-      trend: trendHtml(m.cpl_aed, pm?.cpl_aed, 'down')
-    },
-  ];
+  // META
+  const metaCpl   = w.meta?.cpl_aed;
+  const metaDelta = p?.meta?.cpl_aed
+    ? Math.round((metaCpl - p.meta.cpl_aed) / p.meta.cpl_aed * 100) : null;
+  const metaDeltaHtml = metaDelta !== null
+    ? `<span style="font-size:10px;color:${metaDelta < 0 ? '#22c55e' : '#ef4444'}">
+        ${metaDelta > 0 ? '↑' : '↓'} CPL ${Math.abs(metaDelta)}%
+       </span>` : '';
+
+  // SMM
+  const smmReach   = w.smm?.reach;
+  const smmDelta = p?.smm?.reach
+    ? Math.round((smmReach - p.smm.reach) / p.smm.reach * 100) : null;
+  const smmDeltaHtml = smmDelta !== null
+    ? `<span style="font-size:10px;color:${smmDelta > 0 ? '#22c55e' : '#ef4444'}">
+        ${smmDelta > 0 ? '↑' : '↓'} ${Math.abs(smmDelta)}% reach
+       </span>` : '';
+
+  // LEADS source breakdown short
+  const src = w.leads?.by_source || {};
+  const topSrc = Object.entries(src)
+    .filter(([,v]) => v > 0)
+    .sort((a,b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([k, v]) => `${k.replace(/_/g,' ')}: ${v}`)
+    .join(' · ');
+
+  // WA
+  const waReply = w.whatsapp_outreach?.contacts_sent
+    ? Math.round(w.whatsapp_outreach.replied
+        / w.whatsapp_outreach.contacts_sent * 100) : 0;
+
+  // RED
+  const redCount = w.red_quiz_leads?.length || 0;
+  const redQual  = w.red_quiz_leads?.filter(l =>
+    l.status === 'Qualified').length || 0;
 
   return `
-    <div class="sec-head">
-      <div class="sec-icon">💰</div>
-      <div class="sec-title">Meta Ads</div>
+    <div class="sec-head" style="margin-top:28px">
+      <div class="sec-icon">📡</div>
+      <div class="sec-title">Channels at a Glance — click to explore</div>
     </div>
-    <div class="kpi-grid">
-      ${kpis.map(k => `
-        <div class="kpi ${k.color}">
-          <div class="kpi-label">${k.label}</div>
-          <div class="kpi-value" style="font-size:${String(k.value).length > 6 ? '20px' : '28px'}">${k.value}</div>
-          <div class="kpi-sub">${k.sub}</div>
-          ${k.trend}
-        </div>`).join('')}
+    <div class="channel-grid">
+
+      <!-- META ADS -->
+      <a href="meta.html" class="channel-card c-meta">
+        <div class="channel-header">
+          <div class="channel-icon-wrap">
+            <span class="channel-icon">💰</span>
+            <span class="channel-name">Meta Ads</span>
+          </div>
+          <span class="channel-arrow">→</span>
+        </div>
+        <div class="channel-stats">
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.meta?.spend_aed
+                ? w.meta.spend_aed.toLocaleString() + '₟' : '—'}
+            </div>
+            <div class="channel-stat-label">Spend</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.meta?.leads_form || '—'}</div>
+            <div class="channel-stat-label">Leads</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.meta?.cpl_aed ? w.meta.cpl_aed + '₟' : '—'}
+            </div>
+            <div class="channel-stat-label">CPL</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.meta?.impressions
+                ? Math.round(w.meta.impressions/1000)+'k' : '—'}
+            </div>
+            <div class="channel-stat-label">Impressions</div>
+          </div>
+        </div>
+        <div style="margin-top:10px">${metaDeltaHtml}</div>
+      </a>
+
+      <!-- SMM -->
+      <a href="smm.html" class="channel-card c-smm">
+        <div class="channel-header">
+          <div class="channel-icon-wrap">
+            <span class="channel-icon">📸</span>
+            <span class="channel-name">Instagram</span>
+          </div>
+          <span class="channel-arrow">→</span>
+        </div>
+        <div class="channel-stats">
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.smm?.reach >= 1000
+                ? Math.round(w.smm.reach/1000)+'k' : w.smm?.reach || '—'}
+            </div>
+            <div class="channel-stat-label">Reach</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.smm?.views >= 1000
+                ? Math.round(w.smm.views/1000)+'k' : w.smm?.views || '—'}
+            </div>
+            <div class="channel-stat-label">Views</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.smm?.link_clicks || '—'}</div>
+            <div class="channel-stat-label">Link Clicks</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.smm?.follows || '—'}</div>
+            <div class="channel-stat-label">New Followers</div>
+          </div>
+        </div>
+        <div style="margin-top:10px">${smmDeltaHtml}</div>
+      </a>
+
+      <!-- LEADS -->
+      <a href="leads.html" class="channel-card c-leads">
+        <div class="channel-header">
+          <div class="channel-icon-wrap">
+            <span class="channel-icon">🎯</span>
+            <span class="channel-name">Leads</span>
+          </div>
+          <span class="channel-arrow">→</span>
+        </div>
+        <div class="channel-stats">
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.leads?.total || '—'}</div>
+            <div class="channel-stat-label">Total</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.leads?.qualified || '—'}</div>
+            <div class="channel-stat-label">Qualified</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.leads?.in_communication || '—'}</div>
+            <div class="channel-stat-label">In Comm</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${w.leads?.follow_up || '—'}</div>
+            <div class="channel-stat-label">Follow-Up</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#AAA">${topSrc}</div>
+      </a>
+
+      <!-- WHATSAPP -->
+      <a href="whatsapp.html" class="channel-card c-wa">
+        <div class="channel-header">
+          <div class="channel-icon-wrap">
+            <span class="channel-icon">💬</span>
+            <span class="channel-name">WhatsApp</span>
+          </div>
+          <span class="channel-arrow">→</span>
+        </div>
+        <div class="channel-stats">
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.whatsapp_outreach?.contacts_sent || '—'}
+            </div>
+            <div class="channel-stat-label">Sent</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.whatsapp_outreach?.replied || '—'}
+            </div>
+            <div class="channel-stat-label">Replied</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.whatsapp_outreach?.in_communication || '—'}
+            </div>
+            <div class="channel-stat-label">In Comm</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${waReply}%</div>
+            <div class="channel-stat-label">Reply Rate</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#AAA">
+          ${w.whatsapp_outreach?.campaigns?.length || 0} campaigns active
+        </div>
+      </a>
+
+      <!-- RED QUIZ -->
+      <a href="red.html" class="channel-card c-red">
+        <div class="channel-header">
+          <div class="channel-icon-wrap">
+            <span class="channel-icon">🔴</span>
+            <span class="channel-name">RED Quiz</span>
+          </div>
+          <span class="channel-arrow">→</span>
+        </div>
+        <div class="channel-stats">
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${redCount}</div>
+            <div class="channel-stat-label">Total Leads</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">${redQual}</div>
+            <div class="channel-stat-label">Qualified</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.red_quiz_leads
+                ? [...new Set(w.red_quiz_leads.map(l => l.country))].length
+                : '—'}
+            </div>
+            <div class="channel-stat-label">Countries</div>
+          </div>
+          <div class="channel-stat-item">
+            <div class="channel-stat-val">
+              ${w.red_quiz_leads
+                ? w.red_quiz_leads.filter(l =>
+                    l.purpose === 'invest').length : '—'}
+            </div>
+            <div class="channel-stat-label">Investors</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#AAA">
+          John Richmond Residences · 240k+ AED
+        </div>
+      </a>
+
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  TREND CHART (summary)
+// ════════════════════════════════════════════
+function renderTrendChart() {
+  return `
+    <div class="sec-head" style="margin-top:28px">
+      <div class="sec-icon">📈</div>
+      <div class="sec-title">Weekly Trend — All Weeks</div>
     </div>
     <div class="chart-grid-2">
       <div class="chart-card">
-        <h3>Spend vs Leads — all weeks</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartMetaTrend"></canvas>
+        <h3>Total Leads & Qualified — weekly</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWeeklyLeads"></canvas>
         </div>
       </div>
       <div class="chart-card">
-        <h3>CPL trend — all weeks</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartCPL"></canvas>
+        <h3>Meta Spend vs CPL — weekly</h3>
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="chartWeeklyMeta"></canvas>
         </div>
       </div>
     </div>`;
 }
 
-// ════════════════════════════════════════════
-//  SMM SECTION
-// ════════════════════════════════════════════
-function renderSmmSection(w, prev) {
-  const s = w.smm;
-  const ps = prev?.smm;
+function drawWeeklyTrend() {
+  const labels = WEEK_LABELS();
+  const DEFAULTS = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: true, labels: { font: { size: 10 }, boxWidth: 10 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
+    }
+  };
 
-  const kpis = [
-    {
-      label: 'IG Reach', color: 'k-purple',
-      value: s.reach >= 1000 ? (s.reach/1000).toFixed(0)+'k' : s.reach || '—',
-      sub: 'Unique accounts',
-      trend: trendHtml(s.reach, ps?.reach, 'up')
-    },
-    {
-      label: 'IG Views', color: 'k-purple',
-      value: s.views >= 1000 ? (s.views/1000).toFixed(0)+'k' : s.views || '—',
-      sub: 'Content views',
-      trend: trendHtml(s.views, ps?.views, 'up')
-    },
-    {
-      label: 'Link Clicks', color: 'k-purple',
-      value: s.link_clicks || '—',
-      sub: 'Profile link taps',
-      trend: trendHtml(s.link_clicks, ps?.link_clicks, 'up')
-    },
-    {
-      label: 'Interactions', color: 'k-purple',
-      value: s.interactions || '—',
-      sub: 'Likes, comments, saves',
-      trend: trendHtml(s.interactions, ps?.interactions, 'up')
-    },
-    {
-      label: 'New Followers', color: 'k-pink',
-      value: s.follows || '—',
-      sub: 'This week',
-      trend: trendHtml(s.follows, ps?.follows, 'up')
-    },
-    {
-      label: 'Profile Visits', color: 'k-purple',
-      value: s.profile_visits || '—',
-      sub: 'Page views',
-      trend: trendHtml(s.profile_visits, ps?.profile_visits, 'up')
-    },
-  ];
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">📸</div>
-      <div class="sec-title">Instagram / SMM</div>
-    </div>
-    <div class="kpi-grid">
-      ${kpis.map(k => `
-        <div class="kpi ${k.color}">
-          <div class="kpi-label">${k.label}</div>
-          <div class="kpi-value">${k.value}</div>
-          <div class="kpi-sub">${k.sub}</div>
-          ${k.trend}
-        </div>`).join('')}
-    </div>
-    <div class="chart-grid-2">
-      <div class="chart-card">
-        <h3>Reach & Views — all weeks</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartSmmReach"></canvas>
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3>Engagement breakdown — this week</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartSmmEngage"></canvas>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-//  LEADS BREAKDOWN SECTION
-// ════════════════════════════════════════════
-function renderLeadsSection(w, prev) {
-  const src = w.leads.by_source || {};
-  const srcEntries = Object.entries(src).filter(([,v]) => v > 0);
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">🎯</div>
-      <div class="sec-title">Leads Breakdown</div>
-    </div>
-    <div class="chart-grid-3">
-      <div class="chart-card">
-        <h3>By Source</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartLeadSource"></canvas>
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3>By Status</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartLeadStatus"></canvas>
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3>Weekly Lead Volume</h3>
-        <div class="chart-wrap" style="height:180px">
-          <canvas id="chartLeadTrend"></canvas>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-//  WHATSAPP OUTREACH SECTION
-// ════════════════════════════════════════════
-function renderWaSection(w, prev) {
-  const wa = w.whatsapp_outreach;
-  if (!wa || wa.contacts_sent === 0) return `
-    <div class="sec-head">
-      <div class="sec-icon">💬</div>
-      <div class="sec-title">WhatsApp Outreach</div>
-    </div>
-    <div style="background:#FFF;border-radius:10px;padding:20px;
-                border:1px solid #E4E2DF;margin-bottom:20px;color:#AAA;font-size:12px">
-      No WhatsApp outreach campaigns this week.
-    </div>`;
-
-  const replyRate = wa.contacts_sent
-    ? Math.round(wa.replied / wa.contacts_sent * 100) : 0;
-  const commRate = wa.replied
-    ? Math.round(wa.in_communication / wa.replied * 100) : 0;
-  const optRate = wa.contacts_sent
-    ? Math.round(wa.opt_out / wa.contacts_sent * 100) : 0;
-
-  const campaignsHtml = (wa.campaigns || []).map(c => `
-    <div class="wa-card">
-      <div class="wa-name">📋 ${c}</div>
-      <div class="wa-stat">
-        <span class="wa-stat-label">Campaign</span>
-        <span class="wa-stat-val">Active</span>
-      </div>
-    </div>`).join('');
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">💬</div>
-      <div class="sec-title">WhatsApp Outreach</div>
-    </div>
-    <div class="kpi-grid" style="margin-bottom:14px">
-      <div class="kpi k-amber">
-        <div class="kpi-label">Contacts Sent</div>
-        <div class="kpi-value">${wa.contacts_sent}</div>
-        <div class="kpi-sub">Messages delivered</div>
-        ${trendHtml(wa.contacts_sent, prev?.whatsapp_outreach?.contacts_sent, 'none')}
-      </div>
-      <div class="kpi k-green">
-        <div class="kpi-label">Replied</div>
-        <div class="kpi-value">${wa.replied}</div>
-        <div class="kpi-sub">Reply rate: ${replyRate}%</div>
-        ${trendHtml(wa.replied, prev?.whatsapp_outreach?.replied, 'up')}
-      </div>
-      <div class="kpi k-blue">
-        <div class="kpi-label">In Communication</div>
-        <div class="kpi-value">${wa.in_communication}</div>
-        <div class="kpi-sub">${commRate}% of replies</div>
-        ${trendHtml(wa.in_communication, prev?.whatsapp_outreach?.in_communication, 'up')}
-      </div>
-      <div class="kpi k-red">
-        <div class="kpi-label">Prospect Lost</div>
-        <div class="kpi-value">${wa.prospect_lost}</div>
-        <div class="kpi-sub">Not interested</div>
-        ${trendHtml(wa.prospect_lost, prev?.whatsapp_outreach?.prospect_lost, 'down')}
-      </div>
-      <div class="kpi k-amber">
-        <div class="kpi-label">Opt-Out</div>
-        <div class="kpi-value">${wa.opt_out}</div>
-        <div class="kpi-sub">Opt-out rate: ${optRate}%</div>
-        ${trendHtml(wa.opt_out, prev?.whatsapp_outreach?.opt_out, 'down')}
-      </div>
-    </div>
-    ${wa.campaigns?.length ? `
-      <div class="wa-grid">${campaignsHtml}</div>` : ''}`;
-}
-
-// ════════════════════════════════════════════
-//  RED QUIZ LEADS
-// ════════════════════════════════════════════
-function renderRedQuiz(w) {
-  const leads = w.red_quiz_leads || [];
-  if (!leads.length) return '';
-
-  const rows = leads.map(l => `
-    <tr>
-      <td><span class="flag">${countryFlag(l.country)}</span>${l.name}</td>
-      <td>${l.country}</td>
-      <td><span class="badge ${l.purpose === 'invest' ? 'b-blue' : 'b-comm'}"
-               style="${l.purpose === 'invest' ? 'background:#dbeafe;color:#1d4ed8' : ''}">
-        ${l.purpose === 'invest' ? '📈 Investment' : '🏠 Living'}
-      </span></td>
-      <td>${statusBadge(l.status)}</td>
-    </tr>`).join('');
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">🔴</div>
-      <div class="sec-title">RED Quiz Leads — John Richmond Residences</div>
-    </div>
-    <div class="table-card">
-      <h3>International leads · Budget 240k+ AED · ${leads.length} this week</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Purpose</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-//  INSIGHTS
-// ════════════════════════════════════════════
-function renderInsights(w) {
-  const ins = w.insights || {};
-  const items = [
-    { key: 'general', label: 'General',   cls: '',        icon: '💡' },
-    { key: 'meta',    label: 'Meta Ads',  cls: 'i-meta',  icon: '💰' },
-    { key: 'smm',     label: 'Instagram', cls: 'i-smm',   icon: '📸' },
-    { key: 'leads',   label: 'Leads',     cls: 'i-leads', icon: '🎯' },
-  ].filter(i => ins[i.key]);
-
-  return `
-    <div class="sec-head">
-      <div class="sec-icon">💡</div>
-      <div class="sec-title">Weekly Insights</div>
-    </div>
-    <div class="insights-grid">
-      ${items.map(i => `
-        <div class="insight ${i.cls}">
-          <div class="insight-tag">${i.icon} ${i.label}</div>
-          <div class="insight-text">${ins[i.key]}</div>
-        </div>`).join('')}
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-//  CHARTS
-// ════════════════════════════════════════════
-function drawCharts(w, prev) {
-  requestAnimationFrame(() => {
-    drawMetaTrend();
-    drawCPL();
-    drawSmmReach();
-    drawSmmEngage(w);
-    drawLeadSource(w);
-    drawLeadStatus(w);
-    drawLeadTrend();
-  });
-}
-
-const WEEK_LABELS = () => weeks.map(w => w.week_label);
-
-const CHART_DEFAULTS = {
-  plugins: { legend: { display: false } },
-  scales: {
-    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-    y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
-  },
-  responsive: true,
-  maintainAspectRatio: false,
-};
-
-function mkChart(id, config) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(el, config);
-}
-
-function drawMetaTrend() {
-  mkChart('chartMetaTrend', {
+  // Chart 1 — Leads trend
+  mkChart('chartWeeklyLeads', {
     type: 'bar',
     data: {
-      labels: WEEK_LABELS(),
+      labels,
+      datasets: [
+        {
+          label: 'Total Leads',
+          data: weeks.map(w => w.leads?.total || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#1A1A1A' : '#E4E2DF'),
+          borderRadius: 4,
+        },
+        {
+          label: 'In Communication',
+          data: weeks.map(w => w.leads?.in_communication || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#f59e0b' : 'rgba(245,158,11,0.3)'),
+          borderRadius: 4,
+        },
+        {
+          label: 'Qualified',
+          data: weeks.map(w => w.leads?.qualified || 0),
+          backgroundColor: weeks.map((w, i) =>
+            i === active ? '#22c55e' : 'rgba(34,197,94,0.3)'),
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: DEFAULTS
+  });
+
+  // Chart 2 — Meta spend vs CPL
+  mkChart('chartWeeklyMeta', {
+    type: 'bar',
+    data: {
+      labels,
       datasets: [
         {
           label: 'Spend AED',
-          data: weeks.map(w => w.meta.spend_aed || 0),
+                   data: weeks.map(w => w.meta?.spend_aed || 0),
           backgroundColor: weeks.map((w, i) =>
             i === active ? '#3b82f6' : '#DBEAFE'),
-          borderRadius: 4, yAxisID: 'y',
+          borderRadius: 4,
+          yAxisID: 'y',
         },
         {
-          label: 'Leads',
-          data: weeks.map(w => w.meta.leads_form || 0),
+          label: 'CPL AED',
+          data: weeks.map(w => w.meta?.cpl_aed || null),
           type: 'line',
-          borderColor: '#22c55e',
+          borderColor: '#f59e0b',
           backgroundColor: 'transparent',
-          pointBackgroundColor: '#22c55e',
-          pointRadius: 4,
+          pointBackgroundColor: weeks.map((w, i) =>
+            i === active ? '#f59e0b' : '#FCD34D'),
+          pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
           tension: 0.3,
+          spanGaps: true,
           yAxisID: 'y2',
         }
       ]
     },
     options: {
-      ...CHART_DEFAULTS,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: true,
@@ -1298,249 +732,50 @@ function drawMetaTrend() {
         },
         y2: {
           grid: { display: false },
-          ticks: { font: { size: 10 } },
-          position: 'right',
-        }
-      }
-    }
-  });
-}
-
-function drawCPL() {
-  mkChart('chartCPL', {
-    type: 'line',
-    data: {
-      labels: WEEK_LABELS(),
-      datasets: [{
-        data: weeks.map(w => w.meta.cpl_aed || null),
-        borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245,158,11,0.08)',
-        pointBackgroundColor: weeks.map((w, i) =>
-          i === active ? '#f59e0b' : '#FCD34D'),
-        pointRadius: weeks.map((w, i) => i === active ? 6 : 4),
-        fill: true,
-        tension: 0.3,
-        spanGaps: true,
-      }]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: {
-          grid: { color: '#F0EFED' },
-          ticks: { font: { size: 10 },
-            callback: v => v + ' ₟' }
-        }
-      }
-    }
-  });
-}
-
-function drawSmmReach() {
-  mkChart('chartSmmReach', {
-    type: 'line',
-    data: {
-      labels: WEEK_LABELS(),
-      datasets: [
-        {
-          label: 'Reach',
-          data: weeks.map(w => w.smm.reach || 0),
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139,92,246,0.08)',
-          fill: true, tension: 0.3,
-          pointRadius: weeks.map((w, i) => i === active ? 6 : 3),
-          pointBackgroundColor: '#8b5cf6',
-        },
-        {
-          label: 'Views',
-          data: weeks.map(w => w.smm.views || 0),
-          borderColor: '#ec4899',
-          backgroundColor: 'transparent',
-          tension: 0.3,
-          pointRadius: weeks.map((w, i) => i === active ? 6 : 3),
-          pointBackgroundColor: '#ec4899',
-          borderDash: [4, 3],
-        }
-      ]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        legend: {
-          display: true,
-          labels: { font: { size: 10 }, boxWidth: 10 }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: {
-          grid: { color: '#F0EFED' },
           ticks: {
             font: { size: 10 },
-            callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v
-          }
-        }
-      }
-    }
-  });
-}
-
-function drawSmmEngage(w) {
-  const s = w.smm;
-  mkChart('chartSmmEngage', {
-    type: 'doughnut',
-    data: {
-      labels: ['Link Clicks', 'Interactions', 'Follows', 'Profile Visits'],
-      datasets: [{
-        data: [
-          s.link_clicks || 0,
-          s.interactions || 0,
-          s.follows || 0,
-          s.profile_visits || 0
-        ],
-        backgroundColor: ['#8b5cf6','#ec4899','#22c55e','#f59e0b'],
-        borderWidth: 2,
-        borderColor: '#FFF',
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
+            callback: v => v + ' ₟'
+          },
           position: 'right',
-          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
         }
-      },
-      cutout: '65%',
-    }
-  });
-}
-
-function drawLeadSource(w) {
-  const src = w.leads.by_source || {};
-  const entries = Object.entries(src).filter(([,v]) => v > 0);
-  const COLORS = ['#1A1A1A','#3b82f6','#22c55e','#f59e0b',
-                  '#ef4444','#8b5cf6','#ec4899','#14b8a6'];
-
-  mkChart('chartLeadSource', {
-    type: 'doughnut',
-    data: {
-      labels: entries.map(([k]) => k.replace(/_/g,' ')),
-      datasets: [{
-        data: entries.map(([,v]) => v),
-        backgroundColor: COLORS.slice(0, entries.length),
-        borderWidth: 2,
-        borderColor: '#FFF',
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'right',
-          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
-        }
-      },
-      cutout: '60%',
-    }
-  });
-}
-
-function drawLeadStatus(w) {
-  const statuses = [
-    { key: 'qualified',         label: 'Qualified',    color: '#22c55e' },
-    { key: 'in_communication',  label: 'In Comm',      color: '#f59e0b' },
-    { key: 'follow_up',         label: 'Follow-Up',    color: '#8b5cf6' },
-    { key: 'prospect_lost',     label: 'Lost',         color: '#ef4444' },
-    { key: 'junk',              label: 'Junk',         color: '#94a3b8' },
-    { key: 'owner_sell',        label: 'Owner→Sell',   color: '#ec4899' },
-    { key: 'future_fu',         label: 'Future FU',    color: '#3b82f6' },
-  ];
-
-  const data   = statuses.map(s => w.leads[s.key] || 0);
-  const labels = statuses.map(s => s.label);
-  const colors = statuses.map(s => s.color);
-
-  mkChart('chartLeadStatus', {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: colors,
-        borderWidth: 2,
-        borderColor: '#FFF',
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'right',
-          labels: { font: { size: 10 }, boxWidth: 10, padding: 8 }
-        }
-      },
-      cutout: '60%',
-    }
-  });
-}
-
-function drawLeadTrend() {
-  mkChart('chartLeadTrend', {
-    type: 'bar',
-    data: {
-      labels: WEEK_LABELS(),
-      datasets: [
-        {
-          label: 'Total',
-          data: weeks.map(w => w.leads.total || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#1A1A1A' : '#E4E2DF'),
-          borderRadius: 4,
-        },
-        {
-          label: 'In Comm',
-          data: weeks.map(w => w.leads.in_communication || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#f59e0b' : 'rgba(245,158,11,0.3)'),
-          borderRadius: 4,
-        },
-        {
-          label: 'Qualified',
-          data: weeks.map(w => w.leads.qualified || 0),
-          backgroundColor: weeks.map((w, i) =>
-            i === active ? '#22c55e' : 'rgba(34,197,94,0.3)'),
-          borderRadius: 4,
-        }
-      ]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      plugins: {
-        legend: {
-          display: true,
-          labels: { font: { size: 10 }, boxWidth: 10 }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } }, stacked: false },
-        y: { grid: { color: '#F0EFED' }, ticks: { font: { size: 10 } } }
       }
     }
   });
 }
 
 // ════════════════════════════════════════════
-//  EXPOSE switchWeek globally
+//  INSIGHTS
+// ════════════════════════════════════════════
+function renderInsights(w) {
+  const ins = w.insights || {};
+  const items = [
+    { key: 'general', label: 'General',   cls: '',        icon: '💡' },
+    { key: 'meta',    label: 'Meta Ads',  cls: 'i-meta',  icon: '💰' },
+    { key: 'smm',     label: 'Instagram', cls: 'i-smm',   icon: '📸' },
+    { key: 'leads',   label: 'Leads',     cls: 'i-leads', icon: '🎯' },
+  ].filter(i => ins[i.key]);
+
+  if (!items.length) return '';
+
+  return `
+    <div class="sec-head" style="margin-top:28px">
+      <div class="sec-icon">💡</div>
+      <div class="sec-title">Weekly Insights</div>
+    </div>
+    <div class="insights-grid">
+      ${items.map(i => `
+        <div class="insight ${i.cls}">
+          <div class="insight-tag">${i.icon} ${i.label}</div>
+          <div class="insight-text">${ins[i.key]}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+//  EXPOSE GLOBALLY
 // ════════════════════════════════════════════
 window.switchWeek = switchWeek;
+
 </script>
 </body>
 </html>
