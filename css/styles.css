@@ -1068,3 +1068,226 @@ tr:hover td { background: var(--color-light-gray); }
   .funnel-label   { display: none; }
   .comp-strip     { padding: 10px 1rem; }
 }
+
+/* ═══════════════════════════════════════════
+   CRM SUMMARY STRIP
+═══════════════════════════════════════════ */
+.sec-sub {
+  font-family: var(--font-secondary);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.crm-sources {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+
+.crm-sources-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.crm-src-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.crm-src-item {
+  display: grid;
+  grid-template-columns: 130px 32px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+}
+
+.crm-src-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.crm-src-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.crm-src-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.crm-src-bar-fill {
+  height: 100%;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+
+.crm-src-pct {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* ═══════════════════════════════════════════
+   CHANNEL CARD — новые элементы
+═══════════════════════════════════════════ */
+.chan-top-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 10px;
+}
+
+.chan-top-item {
+  flex: 1;
+  padding: 6px 8px;
+  border-right: 1px solid var(--border);
+}
+.chan-top-item:last-child { border-right: none; }
+
+.chan-top-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.chan-top-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Воронка */
+.chan-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.chan-funnel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.chan-funnel-lbl {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.chan-funnel-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chan-funnel-arrow {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* Конверсия бейдж */
+.chan-conv {
+  font-size: 9px;
+  font-weight: 600;
+  background: rgba(34,197,94,.12);
+  color: #16a34a;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Строка стат */
+.chan-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.chan-stat {
+  padding: 6px 4px;
+  text-align: center;
+  background: var(--bg);
+  border-radius: 6px;
+}
+
+.chan-stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chan-stat-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Теги доставки */
+.chan-delivery-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chan-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(34,197,94,.1);
+  color: #15803d;
+  font-weight: 500;
+}
+
+.chan-tag.neutral {
+  background: var(--border);
+  color: var(--text-muted);
+}
+
+/* Delta в карточке */
+.chan-delta {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.chan-delta.good {
+  background: rgba(34,197,94,.1);
+  color: #15803d;
+}
+
+.chan-delta.bad {
+  background: rgba(239,68,68,.1);
+  color: #dc2626;
+}
