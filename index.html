@@ -6,6 +6,7 @@
 <title>Gaia · Marketing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+
 /* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -46,81 +47,6 @@ body {
 .logo-name { font-size: 18px; font-weight: 700; color: #FFF; letter-spacing: 3px; }
 .logo-sub  { font-size: 9px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
 
-  <header class="header">
-
-  <!-- LOGO -->
-  <div class="logo-wrap">
-    <div class="logo-mark">G</div>
-    <div>
-      <div class="logo-name">GAIA</div>
-      <div class="logo-sub">Real Estate</div>
-    </div>
-  </div>
-
-  <!-- NAV MENU -->
-  <nav class="nav-menu">
-
-    <!-- Dashboard -->
-    <button class="nav-btn btn-dashboard active" id="nav-dashboard"
-            onclick="switchView('dashboard')">
-      <span class="nav-btn-icon">📊</span>
-      <span class="nav-btn-label">Dashboard</span>
-    </button>
-
-    <div class="nav-sep"></div>
-
-    <!-- Meta Ads -->
-    <button class="nav-btn btn-meta" id="nav-meta"
-            onclick="switchView('meta')">
-      <span class="nav-btn-icon">💰</span>
-      <span class="nav-btn-label">Meta</span>
-      <span class="nav-btn-badge" id="badge-meta">—</span>
-    </button>
-
-    <!-- Instagram / SMM -->
-    <button class="nav-btn btn-smm" id="nav-smm"
-            onclick="switchView('smm')">
-      <span class="nav-btn-icon">📸</span>
-      <span class="nav-btn-label">Instagram</span>
-      <span class="nav-btn-badge" id="badge-smm">—</span>
-    </button>
-
-    <div class="nav-sep"></div>
-
-    <!-- Leads -->
-    <button class="nav-btn btn-leads" id="nav-leads"
-            onclick="switchView('leads')">
-      <span class="nav-btn-icon">🎯</span>
-      <span class="nav-btn-label">Leads</span>
-      <span class="nav-btn-badge" id="badge-leads">—</span>
-    </button>
-
-    <!-- WhatsApp -->
-    <button class="nav-btn btn-wa" id="nav-whatsapp"
-            onclick="switchView('whatsapp')">
-      <span class="nav-btn-icon">💬</span>
-      <span class="nav-btn-label">WhatsApp</span>
-      <span class="nav-btn-badge" id="badge-wa">—</span>
-    </button>
-
-    <!-- RED Quiz -->
-    <button class="nav-btn btn-red" id="nav-red"
-            onclick="switchView('red')">
-      <span class="nav-btn-icon">🔴</span>
-      <span class="nav-btn-label">RED Quiz</span>
-      <span class="nav-btn-badge" id="badge-red">—</span>
-    </button>
-
-  </nav>
-
-  <!-- HEADER RIGHT -->
-  <div class="header-right">
-    <div class="header-title">Marketing Dashboard</div>
-    <div class="header-period" id="hPeriod">Loading…</div>
-  </div>
-
-</header>
-
 /* ── NAV ── */
 .nav-menu {
   display: flex;
@@ -130,48 +56,12 @@ body {
   padding: 0 28px;
   overflow-x: auto;
 }
-
-/* Текстовые пункты (Dashboard, Leads) */
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  cursor: pointer;
-  border-radius: 7px;
-  border: 1px solid transparent;
-  transition: all .2s;
-  white-space: nowrap;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-.nav-item:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.08);
-}
-.nav-item.active {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.15);
-}
-.nav-item .nav-icon  { font-size: 13px; line-height: 1; }
-.nav-item .nav-label {
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: #666;
-  transition: color .2s;
-}
-.nav-item:hover .nav-label { color: #BBB; }
-.nav-item.active .nav-label { color: #FFF; }
-
-/* Разделитель */
 .nav-sep {
   width: 1px; height: 20px;
   background: #2A2A2A;
   flex-shrink: 0;
   margin: 0 4px;
 }
-
-/* Цветные кнопки */
 .nav-btn {
   display: flex;
   align-items: center;
@@ -200,14 +90,14 @@ body {
   color: #FFF;
 }
 .nav-btn .nav-btn-badge {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.25);
   color: #FFF;
   font-size: 9px; font-weight: 700;
   padding: 1px 5px; border-radius: 8px;
   min-width: 18px; text-align: center;
 }
 
-/* Цвета кнопок */
+/* ── КНОПКИ ЦВЕТА ── */
 .btn-dashboard { background: #333333; }
 .btn-meta      { background: #1877F2; }
 .btn-smm       { background: linear-gradient(135deg,#833AB4,#E1306C,#F77737); }
@@ -215,7 +105,7 @@ body {
 .btn-wa        { background: #25D366; }
 .btn-red       { background: #E53935; }
 
-/* HEADER RIGHT */
+/* ── HEADER RIGHT ── */
 .header-right {
   text-align: right;
   display: flex;
@@ -227,7 +117,7 @@ body {
 .header-title  { font-size: 11px; font-weight: 600; color: #FFF; letter-spacing: 2px; text-transform: uppercase; }
 .header-period { font-size: 10px; color: #555; margin-top: 3px; }
 
-/* Мобильный */
+/* ── MOBILE ── */
 @media (max-width: 1100px) {
   .header { padding: 0 16px; }
   .nav-menu { padding: 0 10px; gap: 4px; }
@@ -239,7 +129,6 @@ body {
   .header-right { display: none; }
 }
 @media (max-width: 600px) {
-  .nav-item .nav-label { display: none; }
   .logo-name { font-size: 15px; }
 }
 
@@ -310,8 +199,8 @@ body {
   padding: 2px 6px; border-radius: 3px;
   margin-top: 4px; align-self: flex-start;
 }
-.delta-pos  { background: rgba(74,222,128,.15); color: #4ade80; }
-.delta-neg  { background: rgba(248,113,113,.15); color: #f87171; }
+.delta-pos      { background: rgba(74,222,128,.15); color: #4ade80; }
+.delta-neg      { background: rgba(248,113,113,.15); color: #f87171; }
 .delta-good-neg { background: rgba(74,222,128,.15); color: #4ade80; }
 
 /* ── MAIN LAYOUT ── */
@@ -374,8 +263,8 @@ body {
 }
 .kpi-sub   { font-size: 10px; color: #AAA; }
 .kpi-trend { font-size: 11px; font-weight: 600; margin-top: 5px; }
-.trend-up   { color: #22c55e; }
-.trend-down { color: #ef4444; }
+.trend-up        { color: #22c55e; }
+.trend-down      { color: #ef4444; }
 .trend-good-down { color: #22c55e; }
 .trend-neutral   { color: #999; }
 
@@ -427,7 +316,7 @@ body {
 }
 .insight-text { font-size: 12px; line-height: 1.65; color: #333; }
 
-/* ── RED QUIZ TABLE ── */
+/* ── TABLE CARD ── */
 .table-card {
   background: #FFF;
   border-radius: 10px;
@@ -513,7 +402,6 @@ tr:hover td { background: #FAFAF9; }
   .main { padding: 16px; }
   .tabs-wrap { padding: 0 16px; }
   .comp-strip { padding: 10px 16px; }
-  .header { padding: 14px 16px; }
 }
 
 /* ── EMPTY STATE ── */
@@ -527,12 +415,17 @@ tr:hover td { background: #FAFAF9; }
   margin-left: 8px; vertical-align: middle;
   text-transform: uppercase; letter-spacing: 0.5px;
 }
+
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ═══════════════════════════════════════ -->
+<!--  HEADER                                -->
+<!-- ═══════════════════════════════════════ -->
 <header class="header">
+
+  <!-- LOGO -->
   <div class="logo-wrap">
     <div class="logo-mark">G</div>
     <div>
@@ -540,30 +433,95 @@ tr:hover td { background: #FAFAF9; }
       <div class="logo-sub">Real Estate</div>
     </div>
   </div>
+
+  <!-- NAV MENU -->
+  <nav class="nav-menu">
+
+    <button class="nav-btn btn-dashboard active" id="nav-dashboard"
+            onclick="switchView('dashboard')">
+      <span class="nav-btn-icon">📊</span>
+      <span class="nav-btn-label">Dashboard</span>
+    </button>
+
+    <div class="nav-sep"></div>
+
+    <button class="nav-btn btn-meta" id="nav-meta"
+            onclick="switchView('meta')">
+      <span class="nav-btn-icon">💰</span>
+      <span class="nav-btn-label">Meta</span>
+      <span class="nav-btn-badge" id="badge-meta">—</span>
+    </button>
+
+    <button class="nav-btn btn-smm" id="nav-smm"
+            onclick="switchView('smm')">
+      <span class="nav-btn-icon">📸</span>
+      <span class="nav-btn-label">Instagram</span>
+      <span class="nav-btn-badge" id="badge-smm">—</span>
+    </button>
+
+    <div class="nav-sep"></div>
+
+    <button class="nav-btn btn-leads" id="nav-leads"
+            onclick="switchView('leads')">
+      <span class="nav-btn-icon">🎯</span>
+      <span class="nav-btn-label">Leads</span>
+      <span class="nav-btn-badge" id="badge-leads">—</span>
+    </button>
+
+    <button class="nav-btn btn-wa" id="nav-whatsapp"
+            onclick="switchView('whatsapp')">
+      <span class="nav-btn-icon">💬</span>
+      <span class="nav-btn-label">WhatsApp</span>
+      <span class="nav-btn-badge" id="badge-wa">—</span>
+    </button>
+
+    <button class="nav-btn btn-red" id="nav-red"
+            onclick="switchView('red')">
+      <span class="nav-btn-icon">🔴</span>
+      <span class="nav-btn-label">RED Quiz</span>
+      <span class="nav-btn-badge" id="badge-red">—</span>
+    </button>
+
+  </nav>
+
+  <!-- HEADER RIGHT -->
   <div class="header-right">
     <div class="header-title">Marketing Dashboard</div>
     <div class="header-period" id="hPeriod">Loading…</div>
   </div>
+
 </header>
 
-<!-- TABS -->
+<!-- ═══════════════════════════════════════ -->
+<!--  WEEK TABS                             -->
+<!-- ═══════════════════════════════════════ -->
 <div class="tabs-wrap" id="tabsWrap"></div>
 
-<!-- COMPARISON STRIP -->
+<!-- ═══════════════════════════════════════ -->
+<!--  COMPARISON STRIP                      -->
+<!-- ═══════════════════════════════════════ -->
 <div class="comp-strip" id="compStrip"></div>
 
-<!-- MAIN -->
+<!-- ═══════════════════════════════════════ -->
+<!--  MAIN CONTENT                          -->
+<!-- ═══════════════════════════════════════ -->
 <main class="main" id="mainContent">
   <p style="color:#AAA;padding:40px 0;text-align:center">Loading data…</p>
 </main>
 
-<!-- FOOTER -->
+<!-- ═══════════════════════════════════════ -->
+<!--  FOOTER                                -->
+<!-- ═══════════════════════════════════════ -->
 <footer class="footer">
   GAIA Real Estate &nbsp;·&nbsp; Marketing Dashboard &nbsp;·&nbsp;
   Week runs Fri → Wed &nbsp;·&nbsp; Report day: Thursday
 </footer>
 
+<!-- ═══════════════════════════════════════ -->
+<!--  JAVASCRIPT                            -->
+<!-- ═══════════════════════════════════════ -->
 <script>
+
 // ════════════════════════════════════════════
 //  CONFIG
 // ════════════════════════════════════════════
@@ -576,22 +534,32 @@ const WEEK_FILES = [
 ];
 
 const COMP_METRICS = [
-  { path: 'leads.total',       label: 'Total Leads',  goodDir: 'up',   fmt: 'num' },
-  { path: 'leads.in_communication', label: 'In Comm', goodDir: 'up',   fmt: 'num' },
-  { path: 'leads.qualified',   label: 'Qualified',    goodDir: 'up',   fmt: 'num' },
-  { path: 'meta.spend_aed',    label: 'Meta Spend',   goodDir: 'none', fmt: 'aed' },
-  { path: 'meta.leads_form',   label: 'Meta Leads',   goodDir: 'up',   fmt: 'num' },
-  { path: 'meta.cpl_aed',      label: 'CPL AED',      goodDir: 'down', fmt: 'aed' },
-  { path: 'smm.reach',         label: 'IG Reach',     goodDir: 'up',   fmt: 'k'   },
-  { path: 'smm.link_clicks',   label: 'IG Clicks',    goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.total',            label: 'Total Leads', goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.in_communication', label: 'In Comm',     goodDir: 'up',   fmt: 'num' },
+  { path: 'leads.qualified',        label: 'Qualified',   goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.spend_aed',         label: 'Meta Spend',  goodDir: 'none', fmt: 'aed' },
+  { path: 'meta.leads_form',        label: 'Meta Leads',  goodDir: 'up',   fmt: 'num' },
+  { path: 'meta.cpl_aed',           label: 'CPL AED',     goodDir: 'down', fmt: 'aed' },
+  { path: 'smm.reach',              label: 'IG Reach',    goodDir: 'up',   fmt: 'k'   },
+  { path: 'smm.link_clicks',        label: 'IG Clicks',   goodDir: 'up',   fmt: 'num' },
 ];
 
 // ════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════
-let weeks = [];
-let active = 0;
-let charts = {};
+let weeks       = [];
+let active      = 0;
+let charts      = {};
+let currentView = 'dashboard';
+
+const VIEW_BTN_MAP = {
+  'dashboard': 'nav-dashboard',
+  'meta':      'nav-meta',
+  'smm':       'nav-smm',
+  'leads':     'nav-leads',
+  'whatsapp':  'nav-whatsapp',
+  'red':       'nav-red',
+};
 
 // ════════════════════════════════════════════
 //  BOOT
@@ -605,20 +573,108 @@ let charts = {};
       }))
     );
     weeks = results
-      .map((r, i) => r.status === 'fulfilled' ? r.value : null)
+      .map(r => r.status === 'fulfilled' ? r.value : null)
       .filter(Boolean);
 
     if (!weeks.length) throw new Error('No data files found');
     active = weeks.length - 1;
+    updateBadges();
     render();
   } catch(e) {
     document.getElementById('mainContent').innerHTML =
       `<p style="color:#ef4444;padding:40px;text-align:center">
         ⚠️ Could not load data files.<br>
-        <small style="color:#999">Make sure data/week_0X.json files exist in your repo.<br>${e.message}</small>
+        <small style="color:#999">
+          Make sure data/week_0X.json files exist in your repo.<br>
+          ${e.message}
+        </small>
       </p>`;
   }
 })();
+
+// ════════════════════════════════════════════
+//  BADGES
+// ════════════════════════════════════════════
+function updateBadges() {
+  const w = weeks[active];
+  if (!w) return;
+
+  const spend = w.meta?.spend_aed;
+  document.getElementById('badge-meta').textContent =
+    spend ? spend.toLocaleString() : '—';
+
+  const reach = w.smm?.reach;
+  document.getElementById('badge-smm').textContent =
+    reach ? (reach >= 1000 ? Math.round(reach/1000)+'k' : reach) : '—';
+
+  document.getElementById('badge-leads').textContent =
+    w.leads?.total || '—';
+
+  document.getElementById('badge-wa').textContent =
+    w.whatsapp_outreach?.in_communication || '—';
+
+  document.getElementById('badge-red').textContent =
+    w.red_quiz_leads?.length || '—';
+}
+
+// ════════════════════════════════════════════
+//  VIEW SWITCHING
+// ════════════════════════════════════════════
+function switchView(view) {
+  currentView = view;
+
+  // Активная кнопка
+  Object.values(VIEW_BTN_MAP).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  const btn = document.getElementById(VIEW_BTN_MAP[view]);
+  if (btn) btn.classList.add('active');
+
+  destroyCharts();
+
+  const w    = weeks[active];
+  const prev = active > 0 ? weeks[active - 1] : null;
+
+  switch(view) {
+    case 'dashboard':
+      renderMain();
+      break;
+    case 'meta':
+      document.getElementById('mainContent').innerHTML =
+        renderMetaSection(w, prev) + renderInsights(w);
+      requestAnimationFrame(() => { drawMetaTrend(); drawCPL(); });
+      break;
+    case 'smm':
+      document.getElementById('mainContent').innerHTML =
+        renderSmmSection(w, prev) + renderInsights(w);
+      requestAnimationFrame(() => { drawSmmReach(); drawSmmEngage(w); });
+      break;
+    case 'leads':
+      document.getElementById('mainContent').innerHTML =
+        renderOverviewKPIs(w, prev) +
+        renderLeadsSection(w, prev) +
+        renderInsights(w);
+      requestAnimationFrame(() => {
+        drawLeadSource(w);
+        drawLeadStatus(w);
+        drawLeadTrend();
+      });
+      break;
+    case 'whatsapp':
+      document.getElementById('mainContent').innerHTML =
+        renderWaSection(w, prev) + renderInsights(w);
+      break;
+    case 'red':
+      document.getElementById('mainContent').innerHTML =
+        (w.red_quiz_leads?.length ? renderRedQuiz(w) : `
+          <div style="background:#FFF;border-radius:10px;padding:30px;
+                      border:1px solid #E4E2DF;color:#AAA;font-size:13px">
+            No RED Quiz leads this week.
+          </div>`) + renderInsights(w);
+      break;
+  }
+}
 
 // ════════════════════════════════════════════
 //  HELPERS
