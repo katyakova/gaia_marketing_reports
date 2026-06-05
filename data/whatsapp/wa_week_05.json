@@ -13,7 +13,7 @@
       "project": "Maple",
       "segment": "Average",
       "broker_id": "6060",
-      "template": "standard",
+      "template": "text_2",
       "target": 777,
       "meta_accepted": 246,
       "delivered": 231,
@@ -27,7 +27,7 @@
       "project": "Maple",
       "segment": "Hot",
       "broker_id": "6060",
-      "template": "standard",
+      "template": "text_1",
       "target": 90,
       "meta_accepted": 35,
       "delivered": 33,
@@ -41,7 +41,7 @@
       "project": "Sidra",
       "segment": "Hot & Average W1",
       "broker_id": "8172",
-      "template": "standard",
+      "template": "text_4",
       "target": 154,
       "meta_accepted": 38,
       "delivered": 38,
@@ -55,7 +55,7 @@
       "project": "Sidra",
       "segment": "Hot & Average W2",
       "broker_id": "8296",
-      "template": "standard",
+      "template": "text_4",
       "target": 136,
       "meta_accepted": 83,
       "delivered": 78,
@@ -69,7 +69,7 @@
       "project": "Royal Atlantis",
       "segment": "All",
       "broker_id": "8206",
-      "template": "short",
+      "template": "text_5",
       "target": 282,
       "meta_accepted": 100,
       "delivered": 90,
@@ -83,7 +83,7 @@
       "project": "Como Residences",
       "segment": "All",
       "broker_id": "8206",
-      "template": "short",
+      "template": "text_5",
       "target": 29,
       "meta_accepted": 10,
       "delivered": 10,
@@ -97,7 +97,7 @@
       "project": "Viceroy Five Palm",
       "segment": "All",
       "broker_id": "8206",
-      "template": "short",
+      "template": "text_5",
       "target": 221,
       "meta_accepted": 89,
       "delivered": 79,
@@ -111,7 +111,7 @@
       "project": "Arabian Ranches",
       "segment": "All",
       "broker_id": "6060",
-      "template": "standard",
+      "template": "text_3",
       "target": 130,
       "meta_accepted": 23,
       "delivered": 22,
@@ -125,7 +125,7 @@
       "project": "Grande",
       "segment": "All",
       "broker_id": "8176",
-      "template": "standard",
+      "template": "text_4",
       "target": 117,
       "meta_accepted": 52,
       "delivered": 48,
@@ -139,7 +139,7 @@
       "project": "Primo",
       "segment": "All",
       "broker_id": "8176",
-      "template": "standard",
+      "template": "text_4",
       "target": 88,
       "meta_accepted": 33,
       "delivered": 31,
@@ -153,7 +153,7 @@
       "project": "ACT Towers",
       "segment": "All",
       "broker_id": "8202",
-      "template": "short",
+      "template": "text_4",
       "target": 338,
       "meta_accepted": 52,
       "delivered": 49,
@@ -163,6 +163,44 @@
       "opt_out_wa": 0
     }
   ],
+
+  "templates": {
+    "text_1": {
+      "label": "Text #1 — Family Buyer",
+      "angle": "Silent family buyer looking in your cluster",
+      "length": "short",
+      "campaigns": ["maple_hot"],
+      "body": "Hi! I know you probably aren't looking to sell right now. But a property like yours in [Project] came up in a meeting today.\nI have a family specifically looking in your cluster who wants to buy quietly.\nIf the price was right, would you be open to just hearing an offer?\n\nWith best regards, [Broker]"
+    },
+    "text_2": {
+      "label": "Text #2 — Cash Investor",
+      "angle": "Off-market cash investor, no pressure",
+      "length": "short",
+      "campaigns": ["maple_average"],
+      "body": "Hi 👋 I'm not reaching out to push you to list your property. I actually have a serious cash investor who is fully decided on [Project] and looking for off-market options.\n\nI realize selling might not be on your mind at all, but is there any chance you'd consider a direct offer?\n\nWith best regards, [Broker]"
+    },
+    "text_3": {
+      "label": "Text #3 — Neighbor Sold",
+      "angle": "Neighbor listed, prices at peak, free valuation",
+      "length": "short",
+      "campaigns": ["arabian_ranches_010626"],
+      "body": "Your neighbor in [Project] just asked me to help them sell. Property prices in your area are at peak levels and I have buyers specifically interested in your community.\n\nWould you consider selling your villa if you receive a strong offer? Happy to provide a free valuation if interested!\n\nWith best regards, [Broker]"
+    },
+    "text_4": {
+      "label": "Text #4 — Free Valuation",
+      "angle": "Soft intro + free no-obligation valuation",
+      "length": "long",
+      "campaigns": ["sidra_hot_and_avrg_1", "sidra_hot_and_avrg_2", "act_towers", "primo", "grande"],
+      "body": "Hi, I hope you're doing well. My name is [Broker] and I'm a broker, specializing in [Project]. I regularly work with buyers who are looking specifically in your community - and right now demand is genuinely strong, with limited villas available.\n\nThat's why I'm reaching out: I'd love to know whether selling is something you'd consider if the right offer came along. There's no pressure at all - even if you're not thinking about it today, I'm happy to share a free, no-obligation valuation so you simply know what your villa is worth in the current market.\n\nWould that be helpful? I'm always glad to be a resource for owners in the area.\n\nBest regards, [Broker]"
+    },
+    "text_5": {
+      "label": "Text #5 — Family Buyer (Luxury)",
+      "angle": "Silent family buyer, luxury projects",
+      "length": "short",
+      "campaigns": ["como_residences", "royal_atlantis", "viceroy_five_palm"],
+      "body": "Hi! I know you probably aren't looking to sell right now. But a property like yours in [Project] came up in a meeting today.\nI have a family specifically looking in your cluster who wants to buy quietly.\nIf the price was right, would you be open to just hearing an offer?\n\nWith best regards, [Broker]"
+    }
+  },
 
   "crm_leads": [
     {
@@ -787,7 +825,7 @@
       "name": "Guest",
       "phone": "",
       "stage": "Prospect Lost",
-      "broker_id": "8202",
+            "broker_id": "8202",
       "created": "2026-06-03",
       "opt_out": true,
       "note": "Opt-out"
