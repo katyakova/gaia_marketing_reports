@@ -612,6 +612,16 @@
       <div class="crm-strip" id="crm-strip"></div>
     </div>
 
+    <!-- TEMPLATES -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-title">📝 Message Templates</div>
+    <div class="section-sub">Texts used across campaigns this week</div>
+  </div>
+  <div id="templates-grid" class="templates-grid"></div>
+</section>
+
+    
     <!-- ⑤ BROKERS -->
     <div class="sec-head">
       <div class="sec-icon">👤</div>
@@ -949,6 +959,7 @@ function renderAll(d) {
   renderFunnel(d.totals, d.crm);
   renderCharts(d.campaigns);
   renderCampaignsTable(d.campaigns);
+  renderTemplates(d.templates);   // ← новое
   renderBrokers(d.brokers);
   renderRecs(d.recs);
 }
@@ -1345,6 +1356,27 @@ function renderPipeline(CRM) {
   `;
 
   document.getElementById('pipeline-grid').innerHTML = summary + rows;
+}
+
+  /* ════════════════════════════════════════
+   TEMPLATES
+════════════════════════════════════════ */
+function renderTemplates(templates) {
+  if (!templates || !Object.keys(templates).length) {
+    document.getElementById('templates-grid').innerHTML =
+      '<p style="color:var(--text-muted)">No template data.</p>';
+    return;
+  }
+
+  document.getElementById('templates-grid').innerHTML = Object.entries(templates).map(([key, t]) => `
+    <div class="template-card">
+      <div class="template-card-head">
+        <span class="template-badge ${key}">${key}</span>
+        <span class="template-card-label">${t.label}</span>
+      </div>
+      <div class="template-card-body">${t.body.replace(/\n/g, '<br>')}</div>
+    </div>
+  `).join('');
 }
 
 /* ════════════════════════════════════════
