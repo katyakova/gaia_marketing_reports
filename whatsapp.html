@@ -1372,6 +1372,7 @@ function renderTemplates(templates) {
     <div class="tpl-row">
       <div class="tpl-key">
         <span class="template-badge tpl-badge-${key}">${key}</span>
+        <div class="tpl-key-angle">${t.angle || t.label || ''}</div>
       </div>
       <div class="tpl-body">${t.body.replace(/\n/g, '<br>')}</div>
     </div>
