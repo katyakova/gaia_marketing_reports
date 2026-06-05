@@ -1362,49 +1362,114 @@ function renderPipeline(CRM) {
 ════════════════════════════════════════ */
 function renderTemplates(templates) {
   const wrap = document.getElementById('templates-wrap');
+  if (!wrap) return;
 
   if (!templates || !Object.keys(templates).length) {
-    wrap.innerHTML =
-      '<p style="color:var(--text-muted);padding:12px 0;">No template data.</p>';
+    wrap.innerHTML = '<p style="color:#9ca3af;padding:12px 0;">No template data.</p>';
     return;
   }
 
+  const accentColors = {
+    text_1: { bg: '#ede9fe', color: '#5b21b6', bar: '#8b5cf6' },
+    text_2: { bg: '#dbeafe', color: '#1e40af', bar: '#3b82f6' },
+    text_3: { bg: '#d1fae5', color: '#065f46', bar: '#10b981' },
+    text_4: { bg: '#fef3c7', color: '#92400e', bar: '#f59e0b' },
+    text_5: { bg: '#fce7f3', color: '#9d174d', bar: '#ec4899' },
+  };
+
+  // Обёртка — grid
+  wrap.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  `;
+
   wrap.innerHTML = Object.entries(templates).map(([key, t]) => {
-
-    // Теги кампаний в футере
-    const campaignTags = (t.campaigns || [])
-      .map(cid => `<span class="tpl-campaign-tag">${cid}</span>`)
-      .join('');
-
-    // Длина — short/long бейдж
-    const lengthBadge = t.length
-      ? `<span class="template-badge ${t.length === 'short' ? 'tpl-badge-text_1' : 'tpl-badge-text_4'}"
-               style="font-size:9px;padding:2px 7px;">
-           ${t.length}
-         </span>`
-      : '';
+    const acc = accentColors[key] || { bg: '#f3f4f6', color: '#374151', bar: '#9ca3af' };
+    const campaigns = (t.campaigns || []).map(c =>
+      `<span style="
+        font-size:10px;font-weight:600;
+        padding:3px 8px;border-radius:999px;
+        background:#f3f4f6;color:#6b7280;
+        font-family:inherit;
+      ">${c}</span>`
+    ).join('');
 
     return `
-      <div class="tpl-card tpl-${key}">
+      <div style="
+        background:#ffffff;
+        border:1px solid #e5e7eb;
+        border-radius:14px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.07);
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        transition:box-shadow .2s;
+      "
+      onmouseenter="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)'"
+      onmouseleave="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.07)'"
+      >
 
-        <div class="tpl-card-head">
-          <span class="template-badge tpl-badge-${key}">${key}</span>
-          ${lengthBadge}
-          <div class="tpl-card-label">${t.label || ''}</div>
+        <!-- HEAD -->
+        <div style="
+          display:flex;align-items:center;gap:10px;
+          padding:14px 18px;
+          border-bottom:1px solid #f3f4f6;
+          background:#fafafa;
+        ">
+          <span style="
+            font-size:11px;font-weight:700;
+            padding:4px 10px;border-radius:999px;
+            background:${acc.bg};color:${acc.color};
+            font-family:inherit;letter-spacing:0.3px;
+          ">${key}</span>
+
+          <span style="
+            font-size:10px;font-weight:600;
+            padding:3px 8px;border-radius:999px;
+            background:#f3f4f6;color:#6b7280;
+            font-family:inherit;
+          ">${t.length || ''}</span>
+
+          <span style="
+            font-size:12px;font-weight:500;
+            color:#111827;flex:1;
+            font-family:inherit;
+          ">${t.label || ''}</span>
         </div>
 
-        <div class="tpl-card-angle">💡 ${t.angle || ''}</div>
+        <!-- ANGLE -->
+        <div style="
+          padding:10px 18px 0;
+          font-size:11px;color:#6b7280;
+          font-family:inherit;
+        ">💡 ${t.angle || ''}</div>
 
-        <div class="tpl-card-body">${t.body.replace(/\n/g, '<br>')}</div>
+        <!-- BODY -->
+        <div style="
+          margin:10px 18px;
+          padding:14px 16px;
+          background:#f8fafc;
+          border-radius:10px;
+          border-left:3px solid ${acc.bar};
+          font-size:13px;
+          line-height:1.75;
+          color:#374151;
+          font-family:inherit;
+        ">${t.body.replace(/\n/g, '<br>')}</div>
 
-        ${campaignTags
-          ? `<div class="tpl-card-footer">
-               <span style="font-family:var(--font-secondary);
-                            font-size:10px;color:var(--text-muted);
-                            align-self:center;">Used in:</span>
-               ${campaignTags}
-             </div>`
-          : ''}
+        <!-- FOOTER -->
+        ${campaigns ? `
+        <div style="
+          display:flex;flex-wrap:wrap;gap:6px;
+          padding:10px 18px 14px;
+          border-top:1px solid #f3f4f6;
+          align-items:center;
+        ">
+          <span style="font-size:10px;color:#9ca3af;font-family:inherit;">Used in:</span>
+          ${campaigns}
+        </div>` : '<div style="height:14px;"></div>'}
 
       </div>
     `;
