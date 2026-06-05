@@ -1364,21 +1364,52 @@ function renderTemplates(templates) {
   const wrap = document.getElementById('templates-wrap');
 
   if (!templates || !Object.keys(templates).length) {
-    wrap.innerHTML = '<p style="color:var(--text-muted);padding:12px 0;">No template data.</p>';
+    wrap.innerHTML =
+      '<p style="color:var(--text-muted);padding:12px 0;">No template data.</p>';
     return;
   }
 
-  wrap.innerHTML = Object.entries(templates).map(([key, t]) => `
-    <div class="tpl-row">
-      <div class="tpl-key">
-        <span class="template-badge tpl-badge-${key}">${key}</span>
-        <div class="tpl-key-angle">${t.angle || t.label || ''}</div>
-      </div>
-      <div class="tpl-body">${t.body.replace(/\n/g, '<br>')}</div>
-    </div>
-  `).join('');
-}
+  wrap.innerHTML = Object.entries(templates).map(([key, t]) => {
 
+    // Теги кампаний в футере
+    const campaignTags = (t.campaigns || [])
+      .map(cid => `<span class="tpl-campaign-tag">${cid}</span>`)
+      .join('');
+
+    // Длина — short/long бейдж
+    const lengthBadge = t.length
+      ? `<span class="template-badge ${t.length === 'short' ? 'tpl-badge-text_1' : 'tpl-badge-text_4'}"
+               style="font-size:9px;padding:2px 7px;">
+           ${t.length}
+         </span>`
+      : '';
+
+    return `
+      <div class="tpl-card tpl-${key}">
+
+        <div class="tpl-card-head">
+          <span class="template-badge tpl-badge-${key}">${key}</span>
+          ${lengthBadge}
+          <div class="tpl-card-label">${t.label || ''}</div>
+        </div>
+
+        <div class="tpl-card-angle">💡 ${t.angle || ''}</div>
+
+        <div class="tpl-card-body">${t.body.replace(/\n/g, '<br>')}</div>
+
+        ${campaignTags
+          ? `<div class="tpl-card-footer">
+               <span style="font-family:var(--font-secondary);
+                            font-size:10px;color:var(--text-muted);
+                            align-self:center;">Used in:</span>
+               ${campaignTags}
+             </div>`
+          : ''}
+
+      </div>
+    `;
+  }).join('');
+}
 /* ════════════════════════════════════════
    BROKERS
 ════════════════════════════════════════ */
