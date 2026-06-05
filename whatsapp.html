@@ -612,14 +612,12 @@
       <div class="crm-strip" id="crm-strip"></div>
     </div>
 
-    <!-- TEMPLATES -->
-<section class="section">
-  <div class="section-header">
-    <div class="section-title">📝 Message Templates</div>
-    <div class="section-sub">Texts used across campaigns this week</div>
-  </div>
-  <div id="templates-grid" class="templates-grid"></div>
-</section>
+    <!-- ④ TEMPLATES -->
+    <div class="sec-head">
+      <div class="sec-icon">📝</div>
+      <div class="sec-title">Message Templates</div>
+    </div>
+    <div id="templates-wrap" class="templates-wrap"></div>
 
     
     <!-- ⑤ BROKERS -->
@@ -797,6 +795,7 @@ function computeData(raw) {
     crm:             CRM,
     campaigns:       enrichedCampaigns,
     brokers:         brokersArr,
+    templates:       raw.templates || {},   // ← добавь эту строку
     recs,
     pipeline_stages,
   };
@@ -1358,23 +1357,23 @@ function renderPipeline(CRM) {
   document.getElementById('pipeline-grid').innerHTML = summary + rows;
 }
 
-  /* ════════════════════════════════════════
+/* ════════════════════════════════════════
    TEMPLATES
 ════════════════════════════════════════ */
 function renderTemplates(templates) {
+  const wrap = document.getElementById('templates-wrap');
+
   if (!templates || !Object.keys(templates).length) {
-    document.getElementById('templates-grid').innerHTML =
-      '<p style="color:var(--text-muted)">No template data.</p>';
+    wrap.innerHTML = '<p style="color:var(--text-muted);padding:12px 0;">No template data.</p>';
     return;
   }
 
-  document.getElementById('templates-grid').innerHTML = Object.entries(templates).map(([key, t]) => `
-    <div class="template-card">
-      <div class="template-card-head">
-        <span class="template-badge ${key}">${key}</span>
-        <span class="template-card-label">${t.label}</span>
+  wrap.innerHTML = Object.entries(templates).map(([key, t]) => `
+    <div class="tpl-row">
+      <div class="tpl-key">
+        <span class="template-badge tpl-badge-${key}">${key}</span>
       </div>
-      <div class="template-card-body">${t.body.replace(/\n/g, '<br>')}</div>
+      <div class="tpl-body">${t.body.replace(/\n/g, '<br>')}</div>
     </div>
   `).join('');
 }
