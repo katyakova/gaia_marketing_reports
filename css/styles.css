@@ -771,3 +771,47 @@ p  {
   border-radius: var(--radius-full);
   display: inline-block;
   margin-top: 6px;
+
+   /* ── Templates ── */
+.templates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.template-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.template-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-card-label {
+  font-family: var(--font-secondary);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.template-card-body {
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  background: var(--bg);
+  border-radius: 7px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--border);
+}
