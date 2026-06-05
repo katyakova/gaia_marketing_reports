@@ -161,23 +161,95 @@
     .wa-content { display: none; }
     .wa-content.visible { display: block; }
 
-    /* ── TABLE CELLS ────────────────────────── */
-    .project-name {
-      font-family: var(--font-primary);
-      font-size: 13px; font-weight: 500;
-      color: var(--text-primary);
-    }
-    .row-sub {
-      font-family: var(--font-secondary);
-      font-size: 11px; color: var(--text-muted);
-    }
-    .rate-cell {
-      font-family: var(--font-secondary);
-      font-size: 12px; font-weight: 600;
-    }
-    .rate-cell.good { color: var(--accent-leads); }
-    .rate-cell.warn { color: var(--accent-amber); }
-    .rate-cell.bad  { color: var(--accent-red);   }
+   /* ── TABLE CELLS ────────────────────────── */
+.project-name {
+  font-family: var(--font-primary);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-primary);
+}
+.row-sub {
+  font-family: var(--font-secondary);
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 2px;
+}
+.rate-cell {
+  font-family: var(--font-secondary);
+  font-size: 12px; font-weight: 600;
+}
+.rate-cell.good { color: #16a34a; }
+.rate-cell.warn { color: #d97706; }
+.rate-cell.bad  { color: #dc2626; }
+
+/* Числовые ячейки */
+.num-cell {
+  font-family: var(--font-primary);
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* CRM leads ячейка */
+.crm-cell {
+  text-align: center;
+}
+.crm-cell-val {
+  font-family: var(--font-primary);
+  font-size: 14px; font-weight: 500;
+  color: var(--text-primary);
+}
+.crm-cell-pos {
+  font-family: var(--font-secondary);
+  font-size: 10px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Шаблон badge */
+.template-badge {
+  font-family: var(--font-secondary);
+  font-size: 10px; font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.template-badge.short    { background: #ede9fe; color: #5b21b6; }
+.template-badge.standard { background: #f3f4f6; color: #374151; }
+
+/* Broker ячейка */
+.broker-cell-name {
+  font-family: var(--font-secondary);
+  font-size: 12px; font-weight: 600;
+  color: var(--text-primary);
+}
+.broker-cell-id {
+  font-family: var(--font-secondary);
+  font-size: 10px; color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Таблица — общие стили */
+#campaigns-table th {
+  font-family: var(--font-secondary);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+#campaigns-table td {
+  padding: 12px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light, #f3f4f6);
+}
+#campaigns-table tbody tr:hover {
+  background: #fafafa;
+}
+#campaigns-table tbody tr:last-child td {
+  border-bottom: none;
+}
 
     /* ── MINI BAR ───────────────────────────── */
     .mini-bar-wrap { display: flex; align-items: center; gap: 8px; }
@@ -1114,12 +1186,13 @@ function renderCharts(campaigns) {
 }
 
 /* ════════════════════════════════════════
-   CAMPAIGNS TABLE
+   CAMPAIGNS TABLE — переработана
 ════════════════════════════════════════ */
 function renderCampaignsTable(campaigns) {
   document.getElementById('campaigns-count').textContent =
     `${campaigns.length} campaigns`;
 
+  /* helpers */
   function rateClass(val, good, warn) {
     if (val === null) return '';
     return val >= good ? 'good' : val >= warn ? 'warn' : 'bad';
@@ -1139,95 +1212,94 @@ function renderCampaignsTable(campaigns) {
         <div class="mini-bar-val">${safeP}%</div>
       </div>`;
   }
-  const delivColor = v => v >= 70 ? '#22c55e' : v >= 40 ? '#cab58e' : '#ef4444';
-  const readColor  = v => v >= 50 ? '#22c55e' : v >= 30 ? '#cab58e' : '#ef4444';
+  const delivColor = v => (v ?? 0) >= 70 ? '#22c55e' : (v ?? 0) >= 40 ? '#d97706' : '#ef4444';
+  const readColor  = v => (v ?? 0) >= 50 ? '#22c55e' : (v ?? 0) >= 30 ? '#d97706' : '#ef4444';
 
-  // CRM strip totals
-  const totalCRM = campaigns.reduce((s, c) => s + c.crm_total, 0);
+  /* CRM strip */
+  const totalCRM = campaigns.reduce((s, c) => s + c.crm_total,    0);
   const totalPos = campaigns.reduce((s, c) => s + c.crm_positive, 0);
   const totalNeg = campaigns.reduce((s, c) => s + c.crm_negative, 0);
-  const totalOO  = campaigns.reduce((s, c) => s + c.crm_opt_out, 0);
+  const totalOO  = campaigns.reduce((s, c) => s + c.crm_opt_out,  0);
 
   document.getElementById('crm-strip').innerHTML = `
-    <span class="crm-badge neutral">Total CRM Leads: ${totalCRM}</span>
-    <span class="crm-badge positive">
-      ✅ Positive Pipeline: ${totalPos} (${fmt(pct(totalPos, totalCRM))})
-    </span>
-    <span class="crm-badge negative">
-      ❌ Not Interested: ${totalNeg} (${fmt(pct(totalNeg, totalCRM))})
-    </span>
-    <span class="crm-badge optout">
-      🚫 Opt-Out: ${totalOO} (${fmt(pct(totalOO, totalCRM))})
-    </span>
+    <span class="crm-badge neutral">📊 Total CRM Leads: ${totalCRM}</span>
+    <span class="crm-badge positive">✅ Positive: ${totalPos} (${fmt(pct(totalPos, totalCRM))})</span>
+    <span class="crm-badge negative">❌ Not Interested: ${totalNeg} (${fmt(pct(totalNeg, totalCRM))})</span>
+    <span class="crm-badge optout">🚫 Opt-Out: ${totalOO} (${fmt(pct(totalOO, totalCRM))})</span>
   `;
 
+  /* rows */
   document.getElementById('campaigns-tbody').innerHTML = campaigns.map(c => {
+
     const replyVal = c.reply_rate_of_read_pct;
     const replyStr = replyVal !== null ? `${replyVal}%` : '—';
     const replyC   = replyVal !== null ? rateClass(replyVal, 10, 5) : '';
 
-    const stagePills = Object.entries(c.stage_count).map(([s, n]) => {
-      const cls = s === 'Opt-Out'
-        ? 'optout'
-        : ['In Communication','Qualified','Owner Looking to Sell',
-           'Follow-Up','New Leads'].includes(s)
-          ? 'positive'
-          : 'negative';
-      return `<span class="crm-badge ${cls}"
-                    style="font-size:9px;">${s}: ${n}</span>`;
-    }).join('');
+    /* CRM positive sub-line — показываем только если > 0 */
+    const crmPositiveLine = c.crm_positive > 0
+      ? `<div class="crm-cell-pos">✅ ${c.crm_positive} positive</div>`
+      : '';
+
+    /* Предупреждение ≠ только если разница большая (>2) */
+    const mismatch = Math.abs(c.crm_total - c.replies_wa) > 2
+      ? `<div style="font-size:9px;color:#d97706;margin-top:2px;">
+           ≠ ${c.replies_wa} WA replies
+         </div>`
+      : '';
 
     return `
       <tr>
+
+        <!-- Project -->
         <td>
           <div class="project-name">${c.project}</div>
           ${c.segment && c.segment !== 'All'
-            ? `<div class="row-sub">${c.segment}</div>` : ''}
-          ${stagePills
-            ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">
-                ${stagePills}
-               </div>` : ''}
+            ? `<div class="row-sub">${c.segment}</div>`
+            : ''}
         </td>
+
+        <!-- Broker -->
         <td>
-          <div style="font-family:var(--font-secondary);font-size:12px;
-                      color:var(--text-secondary);font-weight:600;">
-            ${c.broker_name.split(' ')[0]}
-          </div>
-          <div class="row-sub">#${c.broker_id}</div>
+          <div class="broker-cell-name">${c.broker_name.split(' ')[0]}</div>
+          <div class="broker-cell-id">#${c.broker_id}</div>
         </td>
+
+        <!-- Template -->
         <td>
-          <span style="font-family:var(--font-secondary);font-size:11px;
-                       background:var(--color-gray);padding:2px 8px;
-                       border-radius:var(--radius-full);
-                       color:var(--text-secondary);">
-            ${c.template}
-          </span>
+          <span class="template-badge ${c.template}">${c.template}</span>
         </td>
-        <td style="font-family:var(--font-primary);font-weight:500;">
-          ${c.target.toLocaleString()}
-        </td>
-        <td>${miniBar(c.delivery_rate_pct, delivColor(c.delivery_rate_pct ?? 0))}</td>
-        <td>${miniBar(c.read_rate_pct,     readColor(c.read_rate_pct  ?? 0))}</td>
-        <td>
+
+        <!-- Target -->
+        <td class="num-cell">${c.target.toLocaleString()}</td>
+
+        <!-- Delivered -->
+        <td>${miniBar(c.delivery_rate_pct, delivColor(c.delivery_rate_pct))}</td>
+
+        <!-- Read -->
+        <td>${miniBar(c.read_rate_pct, readColor(c.read_rate_pct))}</td>
+
+        <!-- Failed % -->
+        <td style="text-align:center;">
           <span class="rate-cell ${failClass(c.failed_rate_pct)}">
             ${c.failed_rate_pct !== null ? c.failed_rate_pct + '%' : '—'}
           </span>
         </td>
-        <td style="font-family:var(--font-primary);font-weight:500;
-                   text-align:center;">
-          ${c.replies_wa}
+
+        <!-- WA Replies -->
+        <td class="num-cell">${c.replies_wa}</td>
+
+        <!-- CRM Leads -->
+        <td class="crm-cell">
+          <div class="crm-cell-val">${c.crm_total}</div>
+          ${crmPositiveLine}
+          ${mismatch}
         </td>
-        <td style="font-family:var(--font-primary);font-weight:500;
-                   text-align:center;">
-          ${c.crm_total}
-          ${c.crm_total !== c.replies_wa
-            ? `<span style="font-size:9px;color:var(--accent-amber);display:block;">
-                ≠ WA replies</span>`
-            : ''}
-        </td>
-        <td>
+
+        <!-- Reply Rate -->
+        <td style="text-align:center;">
           <span class="rate-cell ${replyC}">${replyStr}</span>
         </td>
+
       </tr>
     `;
   }).join('');
